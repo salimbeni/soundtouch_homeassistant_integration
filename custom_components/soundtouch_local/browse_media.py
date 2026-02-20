@@ -373,7 +373,7 @@ PLAYABLE_MEDIA_TYPES = [
 """ Array of all media types that are playable. """
 
 
-class MediaSourceNotFoundError(BrowseError):
+class SoundTouchLocalSoundTouchLocalMediaSourceNotFoundError(BrowseError):
     """ Source could not be found for selected media type. """
 
 
@@ -626,7 +626,7 @@ def browse_media_node(hass:HomeAssistant,
                     items = media.Items
                     break
             if media is None:
-                raise MediaSourceNotFoundError("'%s': could not find SoundTouch Source for '%s' content" % (playerName, media_content_type))
+                raise SoundTouchLocalSoundTouchLocalMediaSourceNotFoundError("'%s': could not find SoundTouch Source for '%s' content" % (playerName, media_content_type))
 
         elif media_content_type == BrowsableMedia.LOCAL_FAVORITES:
             _logsi.LogVerbose("'%s': loading local favorites from favorites manager" % playerName)
@@ -650,7 +650,7 @@ def browse_media_node(hass:HomeAssistant,
                     items = media.Items
                     break
             if media is None:
-                raise MediaSourceNotFoundError("'%s': could not find SoundTouch Source for '%s' content" % (playerName, media_content_type))
+                raise SoundTouchLocalSoundTouchLocalMediaSourceNotFoundError("'%s': could not find SoundTouch Source for '%s' content" % (playerName, media_content_type))
             
         elif media_content_type == BrowsableMedia.SPOTIFY_USER_PLAYLISTS:
             _logsi.LogVerbose(STAppMessages.MSG_SPOTIFYPLUS_SERVICE_EXECUTE % (playerName, DOMAIN_SPOTIFYPLUS, media_content_type))
@@ -952,13 +952,13 @@ def _SpotifyPlusGetAlbum(hass:HomeAssistant,
     # convert results dictionary to managed code instances.
     media:Album = Album(root=result.get("result", None))
     if media is None:
-        raise MediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_RESULT_ITEMS_FORMAT_ERROR % (playerName, media_content_type))
+        raise SoundTouchLocalMediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_RESULT_ITEMS_FORMAT_ERROR % (playerName, media_content_type))
     mediaItems:list[Track] = media.Tracks.Items
     _logsi.LogArray(SILevel.Verbose, STAppMessages.MSG_SPOTIFYPLUS_RESULT_ITEMS % playerName, mediaItems)
 
     userProfile:UserProfile = UserProfile(root=result.get("user_profile", None))
     if userProfile is None:
-        raise MediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_USERPROFILE_FORMAT_ERROR % (playerName, media_content_type))
+        raise SoundTouchLocalMediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_USERPROFILE_FORMAT_ERROR % (playerName, media_content_type))
     _logsi.LogObject(SILevel.Verbose, STAppMessages.MSG_SPOTIFYPLUS_USERPROFILE % playerName, userProfile, excludeNonPublic=True)
 
     result = None
@@ -1028,13 +1028,13 @@ def _SpotifyPlusGetAlbumFavorites(hass:HomeAssistant,
     # convert results dictionary to managed code instances.
     media:AlbumPageSaved = AlbumPageSaved(root=result.get("result", None))
     if media is None:
-        raise MediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_RESULT_ITEMS_FORMAT_ERROR % (playerName, media_content_type))
+        raise SoundTouchLocalMediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_RESULT_ITEMS_FORMAT_ERROR % (playerName, media_content_type))
     mediaItems:list[Album] = media.GetAlbums()
     _logsi.LogArray(SILevel.Verbose, STAppMessages.MSG_SPOTIFYPLUS_RESULT_ITEMS % playerName, mediaItems)
 
     userProfile:UserProfile = UserProfile(root=result.get("user_profile", None))
     if userProfile is None:
-        raise MediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_USERPROFILE_FORMAT_ERROR % (playerName, media_content_type))
+        raise SoundTouchLocalMediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_USERPROFILE_FORMAT_ERROR % (playerName, media_content_type))
     _logsi.LogObject(SILevel.Verbose, STAppMessages.MSG_SPOTIFYPLUS_USERPROFILE % playerName, userProfile, excludeNonPublic=True)
 
     result = None
@@ -1105,13 +1105,13 @@ def _SpotifyPlusGetAlbumNewReleases(hass:HomeAssistant,
     # convert results dictionary to managed code instances.
     media:AlbumPageSimplified = AlbumPageSimplified(root=result.get("result", None))
     if media is None:
-        raise MediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_RESULT_ITEMS_FORMAT_ERROR % (playerName, media_content_type))
+        raise SoundTouchLocalMediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_RESULT_ITEMS_FORMAT_ERROR % (playerName, media_content_type))
     mediaItems:list[AlbumSimplified] = media.Items
     _logsi.LogArray(SILevel.Verbose, STAppMessages.MSG_SPOTIFYPLUS_RESULT_ITEMS % playerName, mediaItems)
 
     userProfile:UserProfile = UserProfile(root=result.get("user_profile", None))
     if userProfile is None:
-        raise MediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_USERPROFILE_FORMAT_ERROR % (playerName, media_content_type))
+        raise SoundTouchLocalMediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_USERPROFILE_FORMAT_ERROR % (playerName, media_content_type))
     _logsi.LogObject(SILevel.Verbose, STAppMessages.MSG_SPOTIFYPLUS_USERPROFILE % playerName, userProfile, excludeNonPublic=True)
 
     result = None
@@ -1189,12 +1189,12 @@ def _SpotifyPlusGetArtist(hass:HomeAssistant,
     # convert results dictionary to managed code instances.
     media:Artist = Artist(root=result.get("result", None))
     if media is None:
-        raise MediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_RESULT_ITEMS_FORMAT_ERROR % (playerName, media_content_type))
+        raise SoundTouchLocalMediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_RESULT_ITEMS_FORMAT_ERROR % (playerName, media_content_type))
     _logsi.LogObject(SILevel.Verbose, STAppMessages.MSG_SPOTIFYPLUS_RESULT_ITEMS % playerName, media)
 
     userProfile:UserProfile = UserProfile(root=result.get("user_profile", None))
     if userProfile is None:
-        raise MediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_USERPROFILE_FORMAT_ERROR % (playerName, media_content_type))
+        raise SoundTouchLocalMediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_USERPROFILE_FORMAT_ERROR % (playerName, media_content_type))
     _logsi.LogObject(SILevel.Verbose, STAppMessages.MSG_SPOTIFYPLUS_USERPROFILE % playerName, userProfile, excludeNonPublic=True)
 
     result = None
@@ -1261,13 +1261,13 @@ def _SpotifyPlusGetArtistAlbums(hass:HomeAssistant,
     # convert results dictionary to managed code instances.
     media:ArtistPage = ArtistPage(root=result.get("result", None))
     if media is None:
-        raise MediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_RESULT_ITEMS_FORMAT_ERROR % (playerName, media_content_type))
+        raise SoundTouchLocalMediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_RESULT_ITEMS_FORMAT_ERROR % (playerName, media_content_type))
     mediaItems:list[Artist] = media.Items
     _logsi.LogArray(SILevel.Verbose, STAppMessages.MSG_SPOTIFYPLUS_RESULT_ITEMS % playerName, mediaItems)
 
     userProfile:UserProfile = UserProfile(root=result.get("user_profile", None))
     if userProfile is None:
-        raise MediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_USERPROFILE_FORMAT_ERROR % (playerName, media_content_type))
+        raise SoundTouchLocalMediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_USERPROFILE_FORMAT_ERROR % (playerName, media_content_type))
     _logsi.LogObject(SILevel.Verbose, STAppMessages.MSG_SPOTIFYPLUS_USERPROFILE % playerName, userProfile, excludeNonPublic=True)
 
     result = None
@@ -1336,13 +1336,13 @@ def _SpotifyPlusGetArtistsFollowed(hass:HomeAssistant,
     # convert results dictionary to managed code instances.
     media:ArtistPage = ArtistPage(root=result.get("result", None))
     if media is None:
-        raise MediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_RESULT_ITEMS_FORMAT_ERROR % (playerName, media_content_type))
+        raise SoundTouchLocalMediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_RESULT_ITEMS_FORMAT_ERROR % (playerName, media_content_type))
     mediaItems:list[Artist] = media.Items
     _logsi.LogArray(SILevel.Verbose, STAppMessages.MSG_SPOTIFYPLUS_RESULT_ITEMS % playerName, mediaItems)
 
     userProfile:UserProfile = UserProfile(root=result.get("user_profile", None))
     if userProfile is None:
-        raise MediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_USERPROFILE_FORMAT_ERROR % (playerName, media_content_type))
+        raise SoundTouchLocalMediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_USERPROFILE_FORMAT_ERROR % (playerName, media_content_type))
     _logsi.LogObject(SILevel.Verbose, STAppMessages.MSG_SPOTIFYPLUS_USERPROFILE % playerName, userProfile, excludeNonPublic=True)
 
     result = None
@@ -1421,13 +1421,13 @@ def _SpotifyPlusGetBrowseCategorysList(hass:HomeAssistant,
     # convert results dictionary to managed code instances.
     media:CategoryPage = CategoryPage(root=result.get("result", None))
     if media is None:
-        raise MediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_RESULT_ITEMS_FORMAT_ERROR % (playerName, media_content_type))
+        raise SoundTouchLocalMediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_RESULT_ITEMS_FORMAT_ERROR % (playerName, media_content_type))
     mediaItems:list[Category] = media.Items
     _logsi.LogArray(SILevel.Verbose, STAppMessages.MSG_SPOTIFYPLUS_RESULT_ITEMS % playerName, mediaItems)
 
     userProfile:UserProfile = UserProfile(root=result.get("user_profile", None))
     if userProfile is None:
-        raise MediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_USERPROFILE_FORMAT_ERROR % (playerName, media_content_type))
+        raise SoundTouchLocalMediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_USERPROFILE_FORMAT_ERROR % (playerName, media_content_type))
     _logsi.LogObject(SILevel.Verbose, STAppMessages.MSG_SPOTIFYPLUS_USERPROFILE % playerName, userProfile, excludeNonPublic=True)
 
     result = None
@@ -1503,13 +1503,13 @@ def _SpotifyPlusGetCategoryPlaylists(hass:HomeAssistant,
     # convert results dictionary to managed code instances.
     media:PlaylistPageSimplified = PlaylistPageSimplified(root=result.get("result", None))
     if media is None:
-        raise MediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_RESULT_ITEMS_FORMAT_ERROR % (playerName, media_content_type))
+        raise SoundTouchLocalMediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_RESULT_ITEMS_FORMAT_ERROR % (playerName, media_content_type))
     mediaItems:list[PlaylistSimplified] = media.Items
     _logsi.LogArray(SILevel.Verbose, STAppMessages.MSG_SPOTIFYPLUS_RESULT_ITEMS % playerName, mediaItems)
 
     userProfile:UserProfile = UserProfile(root=result.get("user_profile", None))
     if userProfile is None:
-        raise MediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_USERPROFILE_FORMAT_ERROR % (playerName, media_content_type))
+        raise SoundTouchLocalMediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_USERPROFILE_FORMAT_ERROR % (playerName, media_content_type))
     _logsi.LogObject(SILevel.Verbose, STAppMessages.MSG_SPOTIFYPLUS_USERPROFILE % playerName, userProfile, excludeNonPublic=True)
 
     result = None
@@ -1590,13 +1590,13 @@ def _SpotifyPlusGetFeaturedPlaylists(hass:HomeAssistant,
     # convert results dictionary to managed code instances.
     media:PlaylistPageSimplified = PlaylistPageSimplified(root=result.get("result", None))
     if media is None:
-        raise MediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_RESULT_ITEMS_FORMAT_ERROR % (playerName, media_content_type))
+        raise SoundTouchLocalMediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_RESULT_ITEMS_FORMAT_ERROR % (playerName, media_content_type))
     mediaItems:list[PlaylistSimplified] = media.Items
     _logsi.LogArray(SILevel.Verbose, STAppMessages.MSG_SPOTIFYPLUS_RESULT_ITEMS % playerName, mediaItems)
 
     userProfile:UserProfile = UserProfile(root=result.get("user_profile", None))
     if userProfile is None:
-        raise MediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_USERPROFILE_FORMAT_ERROR % (playerName, media_content_type))
+        raise SoundTouchLocalMediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_USERPROFILE_FORMAT_ERROR % (playerName, media_content_type))
     _logsi.LogObject(SILevel.Verbose, STAppMessages.MSG_SPOTIFYPLUS_USERPROFILE % playerName, userProfile, excludeNonPublic=True)
 
     result = None
@@ -1677,13 +1677,13 @@ def _SpotifyPlusGetPlayerRecentTracks(hass:HomeAssistant,
     # convert results dictionary to managed code instances.
     media:PlayHistoryPage = PlayHistoryPage(root=result.get("result", None))
     if media is None:
-        raise MediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_RESULT_ITEMS_FORMAT_ERROR % (playerName, media_content_type))
+        raise SoundTouchLocalMediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_RESULT_ITEMS_FORMAT_ERROR % (playerName, media_content_type))
     mediaItems:list[Track] = media.GetTracks()
     _logsi.LogArray(SILevel.Verbose, STAppMessages.MSG_SPOTIFYPLUS_RESULT_ITEMS % playerName, mediaItems)
 
     userProfile:UserProfile = UserProfile(root=result.get("user_profile", None))
     if userProfile is None:
-        raise MediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_USERPROFILE_FORMAT_ERROR % (playerName, media_content_type))
+        raise SoundTouchLocalMediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_USERPROFILE_FORMAT_ERROR % (playerName, media_content_type))
     _logsi.LogObject(SILevel.Verbose, STAppMessages.MSG_SPOTIFYPLUS_USERPROFILE % playerName, userProfile, excludeNonPublic=True)
 
     result = None
@@ -1765,13 +1765,13 @@ def _SpotifyPlusGetPlaylist(hass:HomeAssistant,
     # convert results dictionary to managed code instances.
     media:Playlist = Playlist(root=result.get("result", None))
     if media is None:
-        raise MediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_RESULT_ITEMS_FORMAT_ERROR % (playerName, media_content_type))
+        raise SoundTouchLocalMediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_RESULT_ITEMS_FORMAT_ERROR % (playerName, media_content_type))
     mediaItems:list[Track] = media.GetTracks()
     _logsi.LogArray(SILevel.Verbose, STAppMessages.MSG_SPOTIFYPLUS_RESULT_ITEMS % playerName, mediaItems)
 
     userProfile:UserProfile = UserProfile(root=result.get("user_profile", None))
     if userProfile is None:
-        raise MediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_USERPROFILE_FORMAT_ERROR % (playerName, media_content_type))
+        raise SoundTouchLocalMediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_USERPROFILE_FORMAT_ERROR % (playerName, media_content_type))
     _logsi.LogObject(SILevel.Verbose, STAppMessages.MSG_SPOTIFYPLUS_USERPROFILE % playerName, userProfile, excludeNonPublic=True)
 
     result = None
@@ -1841,13 +1841,13 @@ def _SpotifyPlusGetPlaylistFavorites(hass:HomeAssistant,
     # convert results dictionary to managed code instances.
     media:PlaylistPageSimplified = PlaylistPageSimplified(root=result.get("result", None))
     if media is None:
-        raise MediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_RESULT_ITEMS_FORMAT_ERROR % (playerName, media_content_type))
+        raise SoundTouchLocalMediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_RESULT_ITEMS_FORMAT_ERROR % (playerName, media_content_type))
     mediaItems:list[PlaylistSimplified] = media.Items
     _logsi.LogArray(SILevel.Verbose, STAppMessages.MSG_SPOTIFYPLUS_RESULT_ITEMS % playerName, mediaItems)
 
     userProfile:UserProfile = UserProfile(root=result.get("user_profile", None))
     if userProfile is None:
-        raise MediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_USERPROFILE_FORMAT_ERROR % (playerName, media_content_type))
+        raise SoundTouchLocalMediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_USERPROFILE_FORMAT_ERROR % (playerName, media_content_type))
     _logsi.LogObject(SILevel.Verbose, STAppMessages.MSG_SPOTIFYPLUS_USERPROFILE % playerName, userProfile, excludeNonPublic=True)
 
     result = None
@@ -1927,13 +1927,13 @@ def _SpotifyPlusGetShow(hass:HomeAssistant,
     # convert results dictionary to managed code instances.
     media:Show = Show(root=result.get("result", None))
     if media is None:
-        raise MediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_RESULT_ITEMS_FORMAT_ERROR % (playerName, media_content_type))
+        raise SoundTouchLocalMediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_RESULT_ITEMS_FORMAT_ERROR % (playerName, media_content_type))
     mediaItems:list[EpisodeSimplified] = media.Episodes.Items
     _logsi.LogArray(SILevel.Verbose, STAppMessages.MSG_SPOTIFYPLUS_RESULT_ITEMS % playerName, mediaItems)
 
     userProfile:UserProfile = UserProfile(root=result.get("user_profile", None))
     if userProfile is None:
-        raise MediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_USERPROFILE_FORMAT_ERROR % (playerName, media_content_type))
+        raise SoundTouchLocalMediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_USERPROFILE_FORMAT_ERROR % (playerName, media_content_type))
     _logsi.LogObject(SILevel.Verbose, STAppMessages.MSG_SPOTIFYPLUS_USERPROFILE % playerName, userProfile, excludeNonPublic=True)
 
     result = None
@@ -2003,13 +2003,13 @@ def _SpotifyPlusGetShowFavorites(hass:HomeAssistant,
     # convert results dictionary to managed code instances.
     media:ShowPageSaved = ShowPageSaved(root=result.get("result", None))
     if media is None:
-        raise MediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_RESULT_ITEMS_FORMAT_ERROR % (playerName, media_content_type))
+        raise SoundTouchLocalMediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_RESULT_ITEMS_FORMAT_ERROR % (playerName, media_content_type))
     mediaItems:list[ShowSaved] = media.GetShows()
     _logsi.LogArray(SILevel.Verbose, STAppMessages.MSG_SPOTIFYPLUS_RESULT_ITEMS % playerName, mediaItems)
 
     userProfile:UserProfile = UserProfile(root=result.get("user_profile", None))
     if userProfile is None:
-        raise MediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_USERPROFILE_FORMAT_ERROR % (playerName, media_content_type))
+        raise SoundTouchLocalMediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_USERPROFILE_FORMAT_ERROR % (playerName, media_content_type))
     _logsi.LogObject(SILevel.Verbose, STAppMessages.MSG_SPOTIFYPLUS_USERPROFILE % playerName, userProfile, excludeNonPublic=True)
 
     result = None
@@ -2079,13 +2079,13 @@ def _SpotifyPlusGetTrackFavorites(hass:HomeAssistant,
     # convert results dictionary to managed code instances.
     media:TrackPageSaved = TrackPageSaved(root=result.get("result", None))
     if media is None:
-        raise MediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_RESULT_ITEMS_FORMAT_ERROR % (playerName, media_content_type))
+        raise SoundTouchLocalMediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_RESULT_ITEMS_FORMAT_ERROR % (playerName, media_content_type))
     mediaItems:list[Track] = media.GetTracks()
     _logsi.LogArray(SILevel.Verbose, STAppMessages.MSG_SPOTIFYPLUS_RESULT_ITEMS % playerName, mediaItems)
 
     userProfile:UserProfile = UserProfile(root=result.get("user_profile", None))
     if userProfile is None:
-        raise MediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_USERPROFILE_FORMAT_ERROR % (playerName, media_content_type))
+        raise SoundTouchLocalMediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_USERPROFILE_FORMAT_ERROR % (playerName, media_content_type))
     _logsi.LogObject(SILevel.Verbose, STAppMessages.MSG_SPOTIFYPLUS_USERPROFILE % playerName, userProfile, excludeNonPublic=True)
 
     result = None
@@ -2154,13 +2154,13 @@ def _SpotifyPlusGetUsersTopArtists(hass:HomeAssistant,
     # convert results dictionary to managed code instances.
     media:ArtistPage = ArtistPage(root=result.get("result", None))
     if media is None:
-        raise MediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_RESULT_ITEMS_FORMAT_ERROR % (playerName, media_content_type))
+        raise SoundTouchLocalMediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_RESULT_ITEMS_FORMAT_ERROR % (playerName, media_content_type))
     mediaItems:list[Artist] = media.Items
     _logsi.LogArray(SILevel.Verbose, STAppMessages.MSG_SPOTIFYPLUS_RESULT_ITEMS % playerName, mediaItems)
 
     userProfile:UserProfile = UserProfile(root=result.get("user_profile", None))
     if userProfile is None:
-        raise MediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_USERPROFILE_FORMAT_ERROR % (playerName, media_content_type))
+        raise SoundTouchLocalMediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_USERPROFILE_FORMAT_ERROR % (playerName, media_content_type))
     _logsi.LogObject(SILevel.Verbose, STAppMessages.MSG_SPOTIFYPLUS_USERPROFILE % playerName, userProfile, excludeNonPublic=True)
 
     result = None
@@ -2229,13 +2229,13 @@ def _SpotifyPlusGetUsersTopTracks(hass:HomeAssistant,
     # convert results dictionary to managed code instances.
     media:TrackPage = TrackPage(root=result.get("result", None))
     if media is None:
-        raise MediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_RESULT_ITEMS_FORMAT_ERROR % (playerName, media_content_type))
+        raise SoundTouchLocalMediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_RESULT_ITEMS_FORMAT_ERROR % (playerName, media_content_type))
     mediaItems:list[Track] = media.Items
     _logsi.LogArray(SILevel.Verbose, STAppMessages.MSG_SPOTIFYPLUS_RESULT_ITEMS % playerName, mediaItems)
 
     userProfile:UserProfile = UserProfile(root=result.get("user_profile", None))
     if userProfile is None:
-        raise MediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_USERPROFILE_FORMAT_ERROR % (playerName, media_content_type))
+        raise SoundTouchLocalMediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_USERPROFILE_FORMAT_ERROR % (playerName, media_content_type))
     _logsi.LogObject(SILevel.Verbose, STAppMessages.MSG_SPOTIFYPLUS_USERPROFILE % playerName, userProfile, excludeNonPublic=True)
 
     result = None
@@ -2316,13 +2316,13 @@ def _SpotifyPlusSearchPlaylists(hass:HomeAssistant,
     # convert results dictionary to managed code instances.
     media:PlaylistPageSimplified = PlaylistPageSimplified(root=result.get("result", None))
     if media is None:
-        raise MediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_RESULT_ITEMS_FORMAT_ERROR % (playerName, media_content_type))
+        raise SoundTouchLocalMediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_RESULT_ITEMS_FORMAT_ERROR % (playerName, media_content_type))
     mediaItems:list[PlaylistSimplified] = media.Items
     _logsi.LogArray(SILevel.Verbose, STAppMessages.MSG_SPOTIFYPLUS_RESULT_ITEMS % playerName, mediaItems)
 
     userProfile:UserProfile = UserProfile(root=result.get("user_profile", None))
     if userProfile is None:
-        raise MediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_USERPROFILE_FORMAT_ERROR % (playerName, media_content_type))
+        raise SoundTouchLocalMediaSourceNotFoundError(STAppMessages.MSG_SPOTIFYPLUS_USERPROFILE_FORMAT_ERROR % (playerName, media_content_type))
     _logsi.LogObject(SILevel.Verbose, STAppMessages.MSG_SPOTIFYPLUS_USERPROFILE % playerName, userProfile, excludeNonPublic=True)
 
     result = None
