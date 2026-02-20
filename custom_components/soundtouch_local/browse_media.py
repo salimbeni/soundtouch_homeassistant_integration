@@ -9,7 +9,6 @@ import enum
 from typing import Any, Tuple
 
 from homeassistant.components import media_source
-from homeassistant.components.media_source import MediaSourceNotFoundError
 from homeassistant.components.media_player import (
     BrowseError,
     BrowseMedia,
