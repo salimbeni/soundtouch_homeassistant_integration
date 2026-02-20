@@ -142,7 +142,7 @@ jobs:
         run: gh release delete "Draft Latest version"
 
       - name: Create Release Draft
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2.5.0
         with:
           name: 'Draft Latest version'
           tag_name: 'Draft Latest version'
