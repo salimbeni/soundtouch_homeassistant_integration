@@ -147,7 +147,7 @@ class SoundTouchLocalConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         Handle the initial step.
 
         This method is invoked when a user clicks the "Add Integration" button and 
-        chooses the "Bose SoundTouch Plus" custom integration.
+        chooses the "Bose SoundTouch Local" custom integration.
         """
         _logsi.LogDictionary(SILevel.Verbose, "ConfigFlow is executing async_step_user for: '%s' (%s)" % (self._name, self._host), user_input)
         errors = {}

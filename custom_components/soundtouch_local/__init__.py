@@ -57,7 +57,7 @@ try:
 
 except Exception as ex:
 
-    _LOGGER.warning("HAS SoundtouchPlus could not init SmartInspect debugging! %s", str(ex))
+    _LOGGER.warning("HAS SoundTouchLocal could not init SmartInspect debugging! %s", str(ex))
 
 PLATFORMS:list[str] = [Platform.MEDIA_PLAYER]
 """ 
