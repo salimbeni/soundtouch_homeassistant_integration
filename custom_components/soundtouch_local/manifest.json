@@ -1,5 +1,5 @@
 {
-  "domain": "soundtouchplus",
+  "domain": "soundtouch_local",
   "name": "Bose SoundTouch Plus",
   "codeowners": [
     "@thlucas"
@@ -8,10 +8,10 @@
   "dependencies": [
     "zeroconf"
   ],
-  "documentation": "https://github.com/thlucas1/homeassistantcomponent_soundtouchplus/wiki",
+  "documentation": "https://github.com/thlucas1/homeassistantcomponent_soundtouch_local/wiki",
   "integration_type": "device",
   "iot_class": "local_push",
-  "issue_tracker": "https://github.com/thlucas1/homeassistantcomponent_soundtouchplus/issues",
+  "issue_tracker": "https://github.com/thlucas1/homeassistantcomponent_soundtouch_local/issues",
   "loggers": [
     "bosesoundtouchapi"
   ],

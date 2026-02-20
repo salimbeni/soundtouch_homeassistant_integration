@@ -1,5 +1,5 @@
 """
-The soundtouchplus integration.
+The soundtouch_local integration.
 """
 import functools
 import logging
@@ -21,7 +21,7 @@ from homeassistant.exceptions import ConfigEntryNotReady, HomeAssistantError, In
 from homeassistant.helpers import config_validation as cv, entity_registry as er
 from homeassistant.helpers.typing import ConfigType
 
-from .instancedata_soundtouchplus import InstanceDataSoundTouchPlus
+from .instancedata_soundtouch_local import InstanceDataSoundTouchLocal
 from .stappmessages import STAppMessages
 from .const import (
     DOMAIN,
@@ -51,7 +51,7 @@ try:
         _logsi = SIAuto.Si.AddSession(__name__, True)
     _logsi.SystemLogger = _LOGGER
     _logsi.LogSeparator(SILevel.Error)
-    _logsi.LogVerbose("__init__.py HAS SoundTouchPlus: initialization")
+    _logsi.LogVerbose("__init__.py HAS SoundTouchLocal: initialization")
     _logsi.LogAppDomain(SILevel.Verbose)
     _logsi.LogSystem(SILevel.Verbose)
 
@@ -1060,7 +1060,7 @@ async def async_setup(hass:HomeAssistant, config:ConfigType) -> bool:
             # search all MediaPlayerEntity instances for the specified entity_id.
             # if found, then return the MediaPlayerEntity instance.
             player:MediaPlayerEntity = None
-            data:InstanceDataSoundTouchPlus = None
+            data:InstanceDataSoundTouchLocal = None
             for data in hass.data[DOMAIN].values():
                 if data.media_player.entity_id == entity_id:
                     player = data.media_player
@@ -1544,7 +1544,7 @@ async def async_setup_entry(hass:HomeAssistant, entry:ConfigEntry) -> bool:
 
         # create media player entity instance data.
         hass.data.setdefault(DOMAIN, {})
-        hass.data[DOMAIN][entry.entry_id] = InstanceDataSoundTouchPlus(
+        hass.data[DOMAIN][entry.entry_id] = InstanceDataSoundTouchLocal(
             client=client, 
             socket=socket,
             media_player=None,
@@ -1636,7 +1636,7 @@ async def async_unload_entry(hass:HomeAssistant, entry:ConfigEntry) -> bool:
 
             # remove instance data from domain.
             _logsi.LogVerbose("'%s': Component async_unload_entry is removing our device instance data from the domain" % entry.title)
-            data:InstanceDataSoundTouchPlus = hass.data[DOMAIN].pop(entry.entry_id)
+            data:InstanceDataSoundTouchLocal = hass.data[DOMAIN].pop(entry.entry_id)
             _logsi.LogObject(SILevel.Verbose, "'%s': Component async_unload_entry unloaded configuration entry instance data" % entry.title, data)
 
             # a quick check to make sure all update listeners were removed (see method doc notes above).
@@ -1734,7 +1734,7 @@ async def async_migrate_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     You can also update the `unique_id` value as well.
 
     This method is called when the configuration entry.version value does not match
-    the hardcoded `SoundTouchPlusConfigFlow.VERSION = n` value.
+    the hardcoded `SoundTouchLocalConfigFlow.VERSION = n` value.
     """
     try:
 

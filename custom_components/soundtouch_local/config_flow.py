@@ -1,5 +1,5 @@
 """
-User interface config flow for Bose SoundTouchPlus integration.
+User interface config flow for Bose SoundTouchLocal integration.
 
 Integrations can be set up via the user interface by adding support for a config 
 flow to create a config entry. Components that want to support config entries will 
@@ -103,9 +103,9 @@ async def validate_device_connection_http(hass:HomeAssistant, data:dict) -> dict
         raise CannotConnect from ex
 
 
-class SoundTouchPlusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
+class SoundTouchLocalConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """
-    Handle a config flow for Bose SoundTouchPlus.
+    Handle a config flow for Bose SoundTouchLocal.
 
     Config entries uses the data flow entry framework to define their config flows. 
     The config flow needs to be defined in the file config_flow.py in your integration 
@@ -118,7 +118,7 @@ class SoundTouchPlusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     def __init__(self):
         """
-        Initialize a new SoundTouchPlus configflow.
+        Initialize a new SoundTouchLocal configflow.
         """
         _logsi.LogVerbose("ConfigFlow is initializing")
         self._device_id: str | None = None
@@ -139,7 +139,7 @@ class SoundTouchPlusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         This method is invoked when a user clicks the "Configure" button from the integration
         details page of the UI.
         """
-        return SoundTouchPlusOptionsFlow(config_entry)
+        return SoundTouchLocalOptionsFlow(config_entry)
 
 
     async def async_step_user(self, user_input=None):
@@ -360,7 +360,7 @@ class WSCannotConnect(exceptions.HomeAssistantError):
     """Error to indicate we cannot connect to websocket."""
 
 
-class SoundTouchPlusOptionsFlow(OptionsFlow):
+class SoundTouchLocalOptionsFlow(OptionsFlow):
     """
     Handles options flow for the component.
     

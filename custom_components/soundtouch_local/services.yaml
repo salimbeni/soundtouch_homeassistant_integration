@@ -67,12 +67,12 @@ audio_tone_levels:
   fields:
     entity_id:
       name: Entity ID
-      description: Entity ID of the SoundTouchPlus device that will process the request.
+      description: Entity ID of the SoundTouchLocal device that will process the request.
       example: "media_player.soundtouch_livingroom"
       required: true
       selector:
         entity:
-          integration: soundtouchplus
+          integration: soundtouch_local
           domain: media_player
     bass_level:
       name: Bass Level
@@ -103,12 +103,12 @@ clear_source_nowplayingstatus:
   fields:
     entity_id:
       name: Entity ID
-      description: Entity ID of the SoundTouchPlus device that will process the request.
+      description: Entity ID of the SoundTouchLocal device that will process the request.
       example: "media_player.soundtouch_livingroom"
       required: true
       selector:
         entity:
-          integration: soundtouchplus
+          integration: soundtouch_local
           domain: media_player
     source_title:
       name: Source Title
@@ -124,12 +124,12 @@ get_audio_dsp_controls:
   fields:
     entity_id:
       name: Entity ID
-      description: Entity ID of the SoundTouchPlus device that will process the request.
+      description: Entity ID of the SoundTouchLocal device that will process the request.
       example: "media_player.soundtouch_livingroom"
       required: true
       selector:
         entity:
-          integration: soundtouchplus
+          integration: soundtouch_local
           domain: media_player
     refresh:
       name: Refresh?
@@ -145,12 +145,12 @@ get_audio_product_level_controls:
   fields:
     entity_id:
       name: Entity ID
-      description: Entity ID of the SoundTouchPlus device that will process the request.
+      description: Entity ID of the SoundTouchLocal device that will process the request.
       example: "media_player.soundtouch_livingroom"
       required: true
       selector:
         entity:
-          integration: soundtouchplus
+          integration: soundtouch_local
           domain: media_player
     refresh:
       name: Refresh?
@@ -166,12 +166,12 @@ get_audio_product_tone_controls:
   fields:
     entity_id:
       name: Entity ID
-      description: Entity ID of the SoundTouchPlus device that will process the request.
+      description: Entity ID of the SoundTouchLocal device that will process the request.
       example: "media_player.soundtouch_livingroom"
       required: true
       selector:
         entity:
-          integration: soundtouchplus
+          integration: soundtouch_local
           domain: media_player
     refresh:
       name: Refresh?
@@ -187,12 +187,12 @@ get_audio_speaker_attribute_and_setting:
   fields:
     entity_id:
       name: Entity ID
-      description: Entity ID of the SoundTouchPlus device that will process the request.
+      description: Entity ID of the SoundTouchLocal device that will process the request.
       example: "media_player.soundtouch_livingroom"
       required: true
       selector:
         entity:
-          integration: soundtouchplus
+          integration: soundtouch_local
           domain: media_player
     refresh:
       name: Refresh?
@@ -208,12 +208,12 @@ get_balance:
   fields:
     entity_id:
       name: Entity ID
-      description: Entity ID of the SoundTouchPlus device that will process the request.
+      description: Entity ID of the SoundTouchLocal device that will process the request.
       example: "media_player.soundtouch_livingroom"
       required: true
       selector:
         entity:
-          integration: soundtouchplus
+          integration: soundtouch_local
           domain: media_player
     refresh:
       name: Refresh?
@@ -229,12 +229,12 @@ get_bass_capabilities:
   fields:
     entity_id:
       name: Entity ID
-      description: Entity ID of the SoundTouchPlus device that will process the request.
+      description: Entity ID of the SoundTouchLocal device that will process the request.
       example: "media_player.soundtouch_livingroom"
       required: true
       selector:
         entity:
-          integration: soundtouchplus
+          integration: soundtouch_local
           domain: media_player
     refresh:
       name: Refresh?
@@ -250,12 +250,12 @@ get_bass_level:
   fields:
     entity_id:
       name: Entity ID
-      description: Entity ID of the SoundTouchPlus device that will process the request.
+      description: Entity ID of the SoundTouchLocal device that will process the request.
       example: "media_player.soundtouch_livingroom"
       required: true
       selector:
         entity:
-          integration: soundtouchplus
+          integration: soundtouch_local
           domain: media_player
     refresh:
       name: Refresh?
@@ -271,12 +271,12 @@ get_device_info:
   fields:
     entity_id:
       name: Entity ID
-      description: Entity ID of the SoundTouchPlus device that will process the request.
+      description: Entity ID of the SoundTouchLocal device that will process the request.
       example: "media_player.soundtouch_livingroom"
       required: true
       selector:
         entity:
-          integration: soundtouchplus
+          integration: soundtouch_local
           domain: media_player
 
 get_product_cec_hdmi_control:
@@ -285,12 +285,12 @@ get_product_cec_hdmi_control:
   fields:
     entity_id:
       name: Entity ID
-      description: Entity ID of the SoundTouchPlus device that will process the request.
+      description: Entity ID of the SoundTouchLocal device that will process the request.
       example: "media_player.soundtouch_livingroom"
       required: true
       selector:
         entity:
-          integration: soundtouchplus
+          integration: soundtouch_local
           domain: media_player
     refresh:
       name: Refresh?
@@ -306,12 +306,12 @@ get_product_hdmi_assignment_controls:
   fields:
     entity_id:
       name: Entity ID
-      description: Entity ID of the SoundTouchPlus device that will process the request.
+      description: Entity ID of the SoundTouchLocal device that will process the request.
       example: "media_player.soundtouch_livingroom"
       required: true
       selector:
         entity:
-          integration: soundtouchplus
+          integration: soundtouch_local
           domain: media_player
     refresh:
       name: Refresh?
@@ -327,12 +327,12 @@ get_source_list:
   fields:
     entity_id:
       name: Entity ID
-      description: Entity ID of the SoundTouchPlus device that will process the request.
+      description: Entity ID of the SoundTouchLocal device that will process the request.
       example: "media_player.soundtouch_livingroom"
       required: true
       selector:
         entity:
-          integration: soundtouchplus
+          integration: soundtouch_local
           domain: media_player
 
 get_supported_urls:
@@ -341,12 +341,12 @@ get_supported_urls:
   fields:
     entity_id:
       name: Entity ID
-      description: Entity ID of the SoundTouchPlus device that will process the request.
+      description: Entity ID of the SoundTouchLocal device that will process the request.
       example: "media_player.soundtouch_livingroom"
       required: true
       selector:
         entity:
-          integration: soundtouchplus
+          integration: soundtouch_local
           domain: media_player
     refresh:
       name: Refresh?
@@ -362,12 +362,12 @@ musicservice_station_list:
   fields:
     entity_id:
       name: Entity ID
-      description: Entity ID of the SoundTouchPlus device that will process the request.
+      description: Entity ID of the SoundTouchLocal device that will process the request.
       example: "media_player.soundtouch_livingroom"
       required: true
       selector:
         entity:
-          integration: soundtouchplus
+          integration: soundtouch_local
           domain: media_player
     source:
       name: Source
@@ -402,12 +402,12 @@ play_contentitem:
   fields:
     entity_id:
       name: Entity ID
-      description: Entity ID of the SoundTouchPlus device that will process the request.
+      description: Entity ID of the SoundTouchLocal device that will process the request.
       example: "media_player.soundtouch_livingroom"
       required: true
       selector:
         entity:
-          integration: soundtouchplus
+          integration: soundtouch_local
           domain: media_player
     name:
       name: Content Item Name
@@ -470,7 +470,7 @@ play_handoff:
       required: true
       selector:
         entity:
-          integration: soundtouchplus
+          integration: soundtouch_local
           domain: media_player
     entity_id_to:
       name: To Entity ID
@@ -479,7 +479,7 @@ play_handoff:
       required: true
       selector:
         entity:
-          integration: soundtouchplus
+          integration: soundtouch_local
           domain: media_player
     restore_volume:
       name: Restore Volume?
@@ -502,12 +502,12 @@ play_tts:
   fields:
     entity_id:
       name: Entity ID
-      description: Entity ID of the SoundTouchPlus device that will process the request.
+      description: Entity ID of the SoundTouchLocal device that will process the request.
       example: "media_player.soundtouch_livingroom"
       required: true
       selector:
         entity:
-          integration: soundtouchplus
+          integration: soundtouch_local
           domain: media_player
     message:
       name: Message Text
@@ -570,12 +570,12 @@ play_url:
   fields:
     entity_id:
       name: Entity ID
-      description: Entity ID of the SoundTouchPlus device that will process the request.
+      description: Entity ID of the SoundTouchLocal device that will process the request.
       example: "media_player.soundtouch_livingroom"
       required: true
       selector:
         entity:
-          integration: soundtouchplus
+          integration: soundtouch_local
           domain: media_player
     url:
       name: URL
@@ -638,12 +638,12 @@ play_url_dlna:
   fields:
     entity_id:
       name: Entity ID
-      description: Entity ID of the SoundTouchPlus device that will process the request.
+      description: Entity ID of the SoundTouchLocal device that will process the request.
       example: "media_player.soundtouch_livingroom"
       required: true
       selector:
         entity:
-          integration: soundtouchplus
+          integration: soundtouch_local
           domain: media_player
     url:
       name: URL
@@ -704,12 +704,12 @@ preset_list:
   fields:
     entity_id:
       name: Entity ID
-      description: Entity ID of the SoundTouchPlus device that will process the request.
+      description: Entity ID of the SoundTouchLocal device that will process the request.
       example: "media_player.soundtouch_livingroom"
       required: true
       selector:
         entity:
-          integration: soundtouchplus
+          integration: soundtouch_local
           domain: media_player
     include_empty_slots:
       name: Include Empty Slots?
@@ -725,12 +725,12 @@ preset_remove:
   fields:
     entity_id:
       name: Entity ID
-      description: Entity ID of the SoundTouchPlus device that will process the request.
+      description: Entity ID of the SoundTouchLocal device that will process the request.
       example: "media_player.soundtouch_livingroom"
       required: true
       selector:
         entity:
-          integration: soundtouchplus
+          integration: soundtouch_local
           domain: media_player
     preset_id:
       name: Preset ID
@@ -748,12 +748,12 @@ reboot_device:
   fields:
     entity_id:
       name: Entity ID
-      description: Entity ID of the SoundTouchPlus device that will process the request.
+      description: Entity ID of the SoundTouchLocal device that will process the request.
       example: "media_player.soundtouch_livingroom"
       required: true
       selector:
         entity:
-          integration: soundtouchplus
+          integration: soundtouch_local
           domain: media_player
     port:
       name: SSH Port Number
@@ -771,12 +771,12 @@ recent_list:
   fields:
     entity_id:
       name: Entity ID
-      description: Entity ID of the SoundTouchPlus device that will process the request.
+      description: Entity ID of the SoundTouchLocal device that will process the request.
       example: "media_player.soundtouch_livingroom"
       required: true
       selector:
         entity:
-          integration: soundtouchplus
+          integration: soundtouch_local
           domain: media_player
 
 recent_list_cache:
@@ -785,12 +785,12 @@ recent_list_cache:
   fields:
     entity_id:
       name: Entity ID
-      description: Entity ID of the SoundTouchPlus device that will process the request.
+      description: Entity ID of the SoundTouchLocal device that will process the request.
       example: "media_player.soundtouch_livingroom"
       required: true
       selector:
         entity:
-          integration: soundtouchplus
+          integration: soundtouch_local
           domain: media_player
 
 remote_keypress:
@@ -799,12 +799,12 @@ remote_keypress:
   fields:
     entity_id:
       name: Entity ID
-      description: Entity ID of the SoundTouchPlus device that will process the request.
+      description: Entity ID of the SoundTouchLocal device that will process the request.
       example: "media_player.soundtouch_livingroom"
       required: true
       selector:
         entity:
-          integration: soundtouchplus
+          integration: soundtouch_local
           domain: media_player
     key_id:
       name: Key ID
@@ -866,12 +866,12 @@ set_audio_dsp_controls:
   fields:
     entity_id:
       name: Entity ID
-      description: Entity ID of the SoundTouchPlus device that will process the request.
+      description: Entity ID of the SoundTouchLocal device that will process the request.
       example: "media_player.soundtouch_livingroom"
       required: true
       selector:
         entity:
-          integration: soundtouchplus
+          integration: soundtouch_local
           domain: media_player
     audio_mode:
       name: Audio Mode
@@ -897,12 +897,12 @@ set_audio_product_level_controls:
   fields:
     entity_id:
       name: Entity ID
-      description: Entity ID of the SoundTouchPlus device that will process the request.
+      description: Entity ID of the SoundTouchLocal device that will process the request.
       example: "media_player.soundtouch_livingroom"
       required: true
       selector:
         entity:
-          integration: soundtouchplus
+          integration: soundtouch_local
           domain: media_player
     front_center_speaker_level:
       name: Front Center Speaker Level
@@ -931,12 +931,12 @@ set_audio_product_tone_controls:
   fields:
     entity_id:
       name: Entity ID
-      description: Entity ID of the SoundTouchPlus device that will process the request.
+      description: Entity ID of the SoundTouchLocal device that will process the request.
       example: "media_player.soundtouch_livingroom"
       required: true
       selector:
         entity:
-          integration: soundtouchplus
+          integration: soundtouch_local
           domain: media_player
     bass_level:
       name: Bass Level
@@ -965,12 +965,12 @@ set_balance_level:
   fields:
     entity_id:
       name: Entity ID
-      description: Entity ID of the SoundTouchPlus device that will process the request.
+      description: Entity ID of the SoundTouchLocal device that will process the request.
       example: "media_player.soundtouch_livingroom"
       required: true
       selector:
         entity:
-          integration: soundtouchplus
+          integration: soundtouch_local
           domain: media_player
     level:
       name: Level
@@ -989,12 +989,12 @@ set_bass_level:
   fields:
     entity_id:
       name: Entity ID
-      description: Entity ID of the SoundTouchPlus device that will process the request.
+      description: Entity ID of the SoundTouchLocal device that will process the request.
       example: "media_player.soundtouch_livingroom"
       required: true
       selector:
         entity:
-          integration: soundtouchplus
+          integration: soundtouch_local
           domain: media_player
     level:
       name: Level
@@ -1013,12 +1013,12 @@ set_language:
   fields:
     entity_id:
       name: Entity ID
-      description: Entity ID of the SoundTouchPlus device that will process the request.
+      description: Entity ID of the SoundTouchLocal device that will process the request.
       example: "media_player.soundtouch_livingroom"
       required: true
       selector:
         entity:
-          integration: soundtouchplus
+          integration: soundtouch_local
           domain: media_player
     language:
       name: Language
@@ -1062,12 +1062,12 @@ set_name:
   fields:
     entity_id:
       name: Entity ID
-      description: Entity ID of the SoundTouchPlus device that will process the request.
+      description: Entity ID of the SoundTouchLocal device that will process the request.
       example: "media_player.soundtouch_livingroom"
       required: true
       selector:
         entity:
-          integration: soundtouchplus
+          integration: soundtouch_local
           domain: media_player
     name:
       name: Name
@@ -1083,12 +1083,12 @@ set_product_cec_hdmi_control:
   fields:
     entity_id:
       name: Entity ID
-      description: Entity ID of the SoundTouchPlus device that will process the request.
+      description: Entity ID of the SoundTouchLocal device that will process the request.
       example: "media_player.soundtouch_livingroom"
       required: true
       selector:
         entity:
-          integration: soundtouchplus
+          integration: soundtouch_local
           domain: media_player
     cec_mode:
       name: CEC Mode
@@ -1111,12 +1111,12 @@ set_product_hdmi_assignment_controls:
   fields:
     entity_id:
       name: Entity ID
-      description: Entity ID of the SoundTouchPlus device that will process the request.
+      description: Entity ID of the SoundTouchLocal device that will process the request.
       example: "media_player.soundtouch_livingroom"
       required: true
       selector:
         entity:
-          integration: soundtouchplus
+          integration: soundtouch_local
           domain: media_player
     hdmi_input_selection_01:
       name: HDMI Input Selection 01
@@ -1139,12 +1139,12 @@ snapshot_restore:
   fields:
     entity_id:
       name: Entity ID
-      description: Entity ID of the SoundTouchPlus device that will process the request.
+      description: Entity ID of the SoundTouchLocal device that will process the request.
       example: "media_player.soundtouch_livingroom"
       required: true
       selector:
         entity:
-          integration: soundtouchplus
+          integration: soundtouch_local
           domain: media_player
     restore_volume:
       name: Restore Volume?
@@ -1160,12 +1160,12 @@ snapshot_store:
   fields:
     entity_id:
       name: Entity ID
-      description: Entity ID of the SoundTouchPlus device that will process the request.
+      description: Entity ID of the SoundTouchLocal device that will process the request.
       example: "media_player.soundtouch_livingroom"
       required: true
       selector:
         entity:
-          integration: soundtouchplus
+          integration: soundtouch_local
           domain: media_player
 
 update_source_nowplayingstatus:
@@ -1174,12 +1174,12 @@ update_source_nowplayingstatus:
   fields:
     entity_id:
       name: Entity ID
-      description: Entity ID of the SoundTouchPlus device that will process the request.
+      description: Entity ID of the SoundTouchLocal device that will process the request.
       example: "media_player.soundtouch_livingroom"
       required: true
       selector:
         entity:
-          integration: soundtouchplus
+          integration: soundtouch_local
           domain: media_player
     source_title:
       name: Source Title
@@ -1302,7 +1302,7 @@ zone_toggle_member:
       required: true
       selector:
         entity:
-          integration: soundtouchplus
+          integration: soundtouch_local
           domain: media_player
     entity_id_member:
       name: Member Zone Entity ID
@@ -1311,5 +1311,5 @@ zone_toggle_member:
       required: true
       selector:
         entity:
-          integration: soundtouchplus
+          integration: soundtouch_local
           domain: media_player

@@ -6,7 +6,7 @@ from homeassistant.components import system_health
 from homeassistant.core import HomeAssistant, callback
 
 from .const import DOMAIN
-from .instancedata_soundtouchplus import InstanceDataSoundTouchPlus
+from .instancedata_soundtouch_local import InstanceDataSoundTouchLocal
 
 # get smartinspect logger reference; create a new session for this module name.
 from smartinspectpython.siauto import SIAuto, SILevel, SISession
@@ -45,9 +45,9 @@ async def system_health_info(hass):
         deviceConfig:str = ""
         if len(hass.data[DOMAIN]) > 0:
             deviceConfig = str("%d: " % len(hass.data[DOMAIN]))
-            data:InstanceDataSoundTouchPlus = None
+            data:InstanceDataSoundTouchLocal = None
             for data in hass.data[DOMAIN].values():
-                _logsi.LogDictionary(SILevel.Verbose, "InstanceDataSoundTouchPlus data", data, prettyPrint=True)
+                _logsi.LogDictionary(SILevel.Verbose, "InstanceDataSoundTouchLocal data", data, prettyPrint=True)
                 if data.client != None:
                     if data.client.Device != None:
                         deviceConfig = deviceConfig + "%s (%s), " % (data.client.Device.DeviceName, data.client.Device.DeviceType)

@@ -1,7 +1,7 @@
 """
-Constants for the Bose SoundTouchPlus component.
+Constants for the Bose SoundTouchLocal component.
 """
-DOMAIN = "soundtouchplus"
+DOMAIN = "soundtouch_local"
 """ Domain identifier for this integration. """
 
 DOMAIN_SPOTIFYPLUS:str = "spotifyplus"

@@ -1,4 +1,4 @@
-"""Support for SoundTouchPlus media browsing."""
+"""Support for SoundTouchLocal media browsing."""
 from __future__ import annotations
 from asyncio import run_coroutine_threadsafe
 import base64
@@ -46,7 +46,7 @@ from spotifywebapipython.models import (
 from spotifywebapipython.sautils import GetUnixTimestampMSFromUtcNow
 
 from .const import DOMAIN, DOMAIN_SPOTIFYPLUS
-from .instancedata_soundtouchplus import InstanceDataSoundTouchPlus
+from .instancedata_soundtouch_local import InstanceDataSoundTouchLocal
 from .stappmessages import STAppMessages
 
 # get smartinspect logger reference; create a new session for this module name.
@@ -100,7 +100,7 @@ class BrowsableMedia(enum.StrEnum):
 
 LIBRARY_MAP = {
     BrowsableMedia.LIBRARY_INDEX.value: {
-        "title": "SoundTouchPlus Media Library",
+        "title": "SoundTouchLocal Media Library",
         "image": None,
         "parent": MediaClass.DIRECTORY,
         "children": MediaClass.DIRECTORY,
@@ -108,14 +108,14 @@ LIBRARY_MAP = {
     },
     BrowsableMedia.PANDORA_STATIONS.value: {
         "title": "Pandora Stations",
-        "title_node": "SoundTouchPlus Pandora Stations",
+        "title_node": "SoundTouchLocal Pandora Stations",
         "image": f"/local/images/{DOMAIN}_medialib_pandora_stations.png",
         "parent": MediaClass.DIRECTORY,
         "children": MediaClass.TRACK,
     },
     BrowsableMedia.SOUNDTOUCH_PRESETS.value: {
         "title": "Presets",
-        "title_node": "SoundTouchPlus Presets",
+        "title_node": "SoundTouchLocal Presets",
         "image": f"/local/images/{DOMAIN}_medialib_presets.png",
         "parent": MediaClass.DIRECTORY,
         "children": MediaClass.TRACK,
@@ -123,14 +123,14 @@ LIBRARY_MAP = {
     },
     BrowsableMedia.SOUNDTOUCH_RECENTLY_PLAYED.value: {
         "title": "Recently Played",
-        "title_node": "SoundTouchPlus Recently Played",
+        "title_node": "SoundTouchLocal Recently Played",
         "image": f"/local/images/{DOMAIN}_medialib_recently_played.png",
         "parent": MediaClass.DIRECTORY,
         "children": MediaClass.TRACK,
     },
     # BrowsableMedia.FAVORITES.value: {
     #     "title": "Favorites",
-    #     "title_node": "SoundTouchPlus Favorites",
+    #     "title_node": "SoundTouchLocal Favorites",
     #     "image": f"/local/images/{DOMAIN}_medialib_favorites.png",
     #     "parent": MediaClass.DIRECTORY,
     #     "children": MediaClass.TRACK,
@@ -138,7 +138,7 @@ LIBRARY_MAP = {
     # },
     BrowsableMedia.SPOTIFY_LIBRARY_INDEX.value: {
         "title": "Spotify",
-        "title_node": "SoundTouchPlus Spotify Media Library",
+        "title_node": "SoundTouchLocal Spotify Media Library",
         "image": f"/local/images/{DOMAIN}_medialib_spotify.png",
         "parent": MediaClass.DIRECTORY,
         "children": MediaClass.DIRECTORY,
@@ -192,8 +192,8 @@ The order listed is how they are displayed in the media browser.
 # The order listed is how they are displayed in the media browser.
 SPOTIFY_LIBRARY_MAP = {
     BrowsableMedia.SPOTIFY_LIBRARY_INDEX.value: {
-        "title": "SoundTouchPlus Spotify Media Library",
-        "title_with_name": "SoundTouchPlus Spotify Media Library (%s)",   # used by media_player to add SpotifyPlus entity name suffix
+        "title": "SoundTouchLocal Spotify Media Library",
+        "title_with_name": "SoundTouchLocal Spotify Media Library (%s)",   # used by media_player to add SpotifyPlus entity name suffix
         "image": None,
         "parent": MediaClass.DIRECTORY,
         "children": MediaClass.DIRECTORY,
@@ -411,7 +411,7 @@ def serialize_object(obj:object) -> str:
 
 
 async def async_browse_media_library_index(hass:HomeAssistant,
-                                           data:InstanceDataSoundTouchPlus,
+                                           data:InstanceDataSoundTouchLocal,
                                            playerName:str,
                                            source:str|None,
                                            libraryMap:dict,
@@ -426,7 +426,7 @@ async def async_browse_media_library_index(hass:HomeAssistant,
     Args:
         hass (HomeAssistant):
             HomeAssistant instance.
-        data (InstanceDataSoundTouchPlus):
+        data (InstanceDataSoundTouchLocal):
             Component instance data that contains the SoundTouchClient instance.
         playerName (str):
             Name of the media player that is calling this method (for tracing purposes).
@@ -538,7 +538,7 @@ async def async_browse_media_library_index(hass:HomeAssistant,
 
 
 def browse_media_node(hass:HomeAssistant,
-                      data:InstanceDataSoundTouchPlus,
+                      data:InstanceDataSoundTouchLocal,
                       playerName:str,
                       source:str|None,
                       libraryMap:dict,
@@ -552,7 +552,7 @@ def browse_media_node(hass:HomeAssistant,
     Args:
         hass (HomeAssistant):
             HomeAssistant instance.
-        data (InstanceDataSoundTouchPlus):
+        data (InstanceDataSoundTouchLocal):
             Component instance data that contains the SoundTouchClient instance.
         playerName (str):
             Name of the media player that is calling this method (for tracing purposes).
@@ -839,7 +839,7 @@ def browse_media_node(hass:HomeAssistant,
 
 
 def _GetSpotifySourceItem(playerName:str, 
-                          data:InstanceDataSoundTouchPlus,
+                          data:InstanceDataSoundTouchLocal,
                           userProfile:UserProfile
                           ) -> SourceItem:
     """
@@ -866,7 +866,7 @@ def _GetSpotifySourceItem(playerName:str,
 
 
 def _SpotifyPlusGetAlbum(hass:HomeAssistant,
-                         data:InstanceDataSoundTouchPlus,
+                         data:InstanceDataSoundTouchLocal,
                          playerName:str,
                          media_content_type:str|None,
                          media_content_id:str|None,
@@ -877,7 +877,7 @@ def _SpotifyPlusGetAlbum(hass:HomeAssistant,
     Args:
         hass (HomeAssistant):
             HomeAssistant instance.
-        data (InstanceDataSoundTouchPlus):
+        data (InstanceDataSoundTouchLocal):
             Component instance data that contains the SoundTouchClient instance.
         playerName (str):
             Name of the media player that is calling this method (for tracing purposes).
@@ -952,7 +952,7 @@ def _SpotifyPlusGetAlbum(hass:HomeAssistant,
 
 
 def _SpotifyPlusGetAlbumFavorites(hass:HomeAssistant,
-                                  data:InstanceDataSoundTouchPlus,
+                                  data:InstanceDataSoundTouchLocal,
                                   playerName:str,
                                   media_content_type:str|None,
                                   media_content_id:str|None,
@@ -963,7 +963,7 @@ def _SpotifyPlusGetAlbumFavorites(hass:HomeAssistant,
     Args:
         hass (HomeAssistant):
             HomeAssistant instance.
-        data (InstanceDataSoundTouchPlus):
+        data (InstanceDataSoundTouchLocal):
             Component instance data that contains the SoundTouchClient instance.
         playerName (str):
             Name of the media player that is calling this method (for tracing purposes).
@@ -1028,7 +1028,7 @@ def _SpotifyPlusGetAlbumFavorites(hass:HomeAssistant,
 
 
 def _SpotifyPlusGetAlbumNewReleases(hass:HomeAssistant,
-                                    data:InstanceDataSoundTouchPlus,
+                                    data:InstanceDataSoundTouchLocal,
                                     playerName:str,
                                     media_content_type:str|None,
                                     media_content_id:str|None,
@@ -1039,7 +1039,7 @@ def _SpotifyPlusGetAlbumNewReleases(hass:HomeAssistant,
     Args:
         hass (HomeAssistant):
             HomeAssistant instance.
-        data (InstanceDataSoundTouchPlus):
+        data (InstanceDataSoundTouchLocal):
             Component instance data that contains the SoundTouchClient instance.
         playerName (str):
             Name of the media player that is calling this method (for tracing purposes).
@@ -1105,7 +1105,7 @@ def _SpotifyPlusGetAlbumNewReleases(hass:HomeAssistant,
 
 
 def _SpotifyPlusGetArtist(hass:HomeAssistant,
-                          data:InstanceDataSoundTouchPlus,
+                          data:InstanceDataSoundTouchLocal,
                           playerName:str,
                           media_content_type:str|None,
                           media_content_id:str|None,
@@ -1116,7 +1116,7 @@ def _SpotifyPlusGetArtist(hass:HomeAssistant,
     Args:
         hass (HomeAssistant):
             HomeAssistant instance.
-        data (InstanceDataSoundTouchPlus):
+        data (InstanceDataSoundTouchLocal):
             Component instance data that contains the SoundTouchClient instance.
         playerName (str):
             Name of the media player that is calling this method (for tracing purposes).
@@ -1174,7 +1174,7 @@ def _SpotifyPlusGetArtist(hass:HomeAssistant,
 
 
 def _SpotifyPlusGetArtistAlbums(hass:HomeAssistant,
-                                data:InstanceDataSoundTouchPlus,
+                                data:InstanceDataSoundTouchLocal,
                                 playerName:str,
                                 media_content_type:str|None,
                                 media_content_id:str|None,
@@ -1185,7 +1185,7 @@ def _SpotifyPlusGetArtistAlbums(hass:HomeAssistant,
     Args:
         hass (HomeAssistant):
             HomeAssistant instance.
-        data (InstanceDataSoundTouchPlus):
+        data (InstanceDataSoundTouchLocal):
             Component instance data that contains the SoundTouchClient instance.
         playerName (str):
             Name of the media player that is calling this method (for tracing purposes).
@@ -1261,7 +1261,7 @@ def _SpotifyPlusGetArtistAlbums(hass:HomeAssistant,
 
 
 def _SpotifyPlusGetArtistsFollowed(hass:HomeAssistant,
-                                   data:InstanceDataSoundTouchPlus,
+                                   data:InstanceDataSoundTouchLocal,
                                    playerName:str,
                                    media_content_type:str|None,
                                    media_content_id:str|None,
@@ -1272,7 +1272,7 @@ def _SpotifyPlusGetArtistsFollowed(hass:HomeAssistant,
     Args:
         hass (HomeAssistant):
             HomeAssistant instance.
-        data (InstanceDataSoundTouchPlus):
+        data (InstanceDataSoundTouchLocal):
             Component instance data that contains the SoundTouchClient instance.
         playerName (str):
             Name of the media player that is calling this method (for tracing purposes).
@@ -1336,7 +1336,7 @@ def _SpotifyPlusGetArtistsFollowed(hass:HomeAssistant,
 
 
 def _SpotifyPlusGetBrowseCategorysList(hass:HomeAssistant,
-                                       data:InstanceDataSoundTouchPlus,
+                                       data:InstanceDataSoundTouchLocal,
                                        playerName:str,
                                        media_content_type:str|None,
                                        media_content_id:str|None,
@@ -1347,7 +1347,7 @@ def _SpotifyPlusGetBrowseCategorysList(hass:HomeAssistant,
     Args:
         hass (HomeAssistant):
             HomeAssistant instance.
-        data (InstanceDataSoundTouchPlus):
+        data (InstanceDataSoundTouchLocal):
             Component instance data that contains the SoundTouchClient instance.
         playerName (str):
             Name of the media player that is calling this method (for tracing purposes).
@@ -1424,7 +1424,7 @@ def _SpotifyPlusGetBrowseCategorysList(hass:HomeAssistant,
 
 
 def _SpotifyPlusGetCategoryPlaylists(hass:HomeAssistant,
-                                     data:InstanceDataSoundTouchPlus,
+                                     data:InstanceDataSoundTouchLocal,
                                      playerName:str,
                                      media_content_type:str|None,
                                      media_content_id:str|None,
@@ -1435,7 +1435,7 @@ def _SpotifyPlusGetCategoryPlaylists(hass:HomeAssistant,
     Args:
         hass (HomeAssistant):
             HomeAssistant instance.
-        data (InstanceDataSoundTouchPlus):
+        data (InstanceDataSoundTouchLocal):
             Component instance data that contains the SoundTouchClient instance.
         playerName (str):
             Name of the media player that is calling this method (for tracing purposes).
@@ -1503,7 +1503,7 @@ def _SpotifyPlusGetCategoryPlaylists(hass:HomeAssistant,
 
 
 def _SpotifyPlusGetFeaturedPlaylists(hass:HomeAssistant,
-                                     data:InstanceDataSoundTouchPlus,
+                                     data:InstanceDataSoundTouchLocal,
                                      playerName:str,
                                      media_content_type:str|None,
                                      media_content_id:str|None,
@@ -1514,7 +1514,7 @@ def _SpotifyPlusGetFeaturedPlaylists(hass:HomeAssistant,
     Args:
         hass (HomeAssistant):
             HomeAssistant instance.
-        data (InstanceDataSoundTouchPlus):
+        data (InstanceDataSoundTouchLocal):
             Component instance data that contains the SoundTouchClient instance.
         playerName (str):
             Name of the media player that is calling this method (for tracing purposes).
@@ -1590,7 +1590,7 @@ def _SpotifyPlusGetFeaturedPlaylists(hass:HomeAssistant,
 
 
 def _SpotifyPlusGetPlayerRecentTracks(hass:HomeAssistant,
-                                      data:InstanceDataSoundTouchPlus,
+                                      data:InstanceDataSoundTouchLocal,
                                       playerName:str,
                                       media_content_type:str|None,
                                       media_content_id:str|None,
@@ -1601,7 +1601,7 @@ def _SpotifyPlusGetPlayerRecentTracks(hass:HomeAssistant,
     Args:
         hass (HomeAssistant):
             HomeAssistant instance.
-        data (InstanceDataSoundTouchPlus):
+        data (InstanceDataSoundTouchLocal):
             Component instance data that contains the SoundTouchClient instance.
         playerName (str):
             Name of the media player that is calling this method (for tracing purposes).
@@ -1677,7 +1677,7 @@ def _SpotifyPlusGetPlayerRecentTracks(hass:HomeAssistant,
 
 
 def _SpotifyPlusGetPlaylist(hass:HomeAssistant,
-                            data:InstanceDataSoundTouchPlus,
+                            data:InstanceDataSoundTouchLocal,
                             playerName:str,
                             media_content_type:str|None,
                             media_content_id:str|None,
@@ -1688,7 +1688,7 @@ def _SpotifyPlusGetPlaylist(hass:HomeAssistant,
     Args:
         hass (HomeAssistant):
             HomeAssistant instance.
-        data (InstanceDataSoundTouchPlus):
+        data (InstanceDataSoundTouchLocal):
             Component instance data that contains the SoundTouchClient instance.
         playerName (str):
             Name of the media player that is calling this method (for tracing purposes).
@@ -1765,7 +1765,7 @@ def _SpotifyPlusGetPlaylist(hass:HomeAssistant,
 
 
 def _SpotifyPlusGetPlaylistFavorites(hass:HomeAssistant,
-                                     data:InstanceDataSoundTouchPlus,
+                                     data:InstanceDataSoundTouchLocal,
                                      playerName:str,
                                      media_content_type:str|None,
                                      media_content_id:str|None,
@@ -1776,7 +1776,7 @@ def _SpotifyPlusGetPlaylistFavorites(hass:HomeAssistant,
     Args:
         hass (HomeAssistant):
             HomeAssistant instance.
-        data (InstanceDataSoundTouchPlus):
+        data (InstanceDataSoundTouchLocal):
             Component instance data that contains the SoundTouchClient instance.
         playerName (str):
             Name of the media player that is calling this method (for tracing purposes).
@@ -1841,7 +1841,7 @@ def _SpotifyPlusGetPlaylistFavorites(hass:HomeAssistant,
 
 
 def _SpotifyPlusGetShow(hass:HomeAssistant,
-                        data:InstanceDataSoundTouchPlus,
+                        data:InstanceDataSoundTouchLocal,
                         playerName:str,
                         media_content_type:str|None,
                         media_content_id:str|None,
@@ -1852,7 +1852,7 @@ def _SpotifyPlusGetShow(hass:HomeAssistant,
     Args:
         hass (HomeAssistant):
             HomeAssistant instance.
-        data (InstanceDataSoundTouchPlus):
+        data (InstanceDataSoundTouchLocal):
             Component instance data that contains the SoundTouchClient instance.
         playerName (str):
             Name of the media player that is calling this method (for tracing purposes).
@@ -1927,7 +1927,7 @@ def _SpotifyPlusGetShow(hass:HomeAssistant,
 
 
 def _SpotifyPlusGetShowFavorites(hass:HomeAssistant,
-                                 data:InstanceDataSoundTouchPlus,
+                                 data:InstanceDataSoundTouchLocal,
                                  playerName:str,
                                  media_content_type:str|None,
                                  media_content_id:str|None,
@@ -1938,7 +1938,7 @@ def _SpotifyPlusGetShowFavorites(hass:HomeAssistant,
     Args:
         hass (HomeAssistant):
             HomeAssistant instance.
-        data (InstanceDataSoundTouchPlus):
+        data (InstanceDataSoundTouchLocal):
             Component instance data that contains the SoundTouchClient instance.
         playerName (str):
             Name of the media player that is calling this method (for tracing purposes).
@@ -2003,7 +2003,7 @@ def _SpotifyPlusGetShowFavorites(hass:HomeAssistant,
 
 
 def _SpotifyPlusGetTrackFavorites(hass:HomeAssistant,
-                                  data:InstanceDataSoundTouchPlus,
+                                  data:InstanceDataSoundTouchLocal,
                                   playerName:str,
                                   media_content_type:str|None,
                                   media_content_id:str|None,
@@ -2014,7 +2014,7 @@ def _SpotifyPlusGetTrackFavorites(hass:HomeAssistant,
     Args:
         hass (HomeAssistant):
             HomeAssistant instance.
-        data (InstanceDataSoundTouchPlus):
+        data (InstanceDataSoundTouchLocal):
             Component instance data that contains the SoundTouchClient instance.
         playerName (str):
             Name of the media player that is calling this method (for tracing purposes).
@@ -2079,7 +2079,7 @@ def _SpotifyPlusGetTrackFavorites(hass:HomeAssistant,
 
 
 def _SpotifyPlusGetUsersTopArtists(hass:HomeAssistant,
-                                   data:InstanceDataSoundTouchPlus,
+                                   data:InstanceDataSoundTouchLocal,
                                    playerName:str,
                                    media_content_type:str|None,
                                    media_content_id:str|None,
@@ -2090,7 +2090,7 @@ def _SpotifyPlusGetUsersTopArtists(hass:HomeAssistant,
     Args:
         hass (HomeAssistant):
             HomeAssistant instance.
-        data (InstanceDataSoundTouchPlus):
+        data (InstanceDataSoundTouchLocal):
             Component instance data that contains the SoundTouchClient instance.
         playerName (str):
             Name of the media player that is calling this method (for tracing purposes).
@@ -2154,7 +2154,7 @@ def _SpotifyPlusGetUsersTopArtists(hass:HomeAssistant,
 
 
 def _SpotifyPlusGetUsersTopTracks(hass:HomeAssistant,
-                                  data:InstanceDataSoundTouchPlus,
+                                  data:InstanceDataSoundTouchLocal,
                                   playerName:str,
                                   media_content_type:str|None,
                                   media_content_id:str|None,
@@ -2165,7 +2165,7 @@ def _SpotifyPlusGetUsersTopTracks(hass:HomeAssistant,
     Args:
         hass (HomeAssistant):
             HomeAssistant instance.
-        data (InstanceDataSoundTouchPlus):
+        data (InstanceDataSoundTouchLocal):
             Component instance data that contains the SoundTouchClient instance.
         playerName (str):
             Name of the media player that is calling this method (for tracing purposes).
@@ -2229,7 +2229,7 @@ def _SpotifyPlusGetUsersTopTracks(hass:HomeAssistant,
 
 
 def _SpotifyPlusSearchPlaylists(hass:HomeAssistant,
-                                data:InstanceDataSoundTouchPlus,
+                                data:InstanceDataSoundTouchLocal,
                                 playerName:str,
                                 media_content_type:str|None,
                                 media_content_id:str|None,
@@ -2242,7 +2242,7 @@ def _SpotifyPlusSearchPlaylists(hass:HomeAssistant,
     Args:
         hass (HomeAssistant):
             HomeAssistant instance.
-        data (InstanceDataSoundTouchPlus):
+        data (InstanceDataSoundTouchLocal):
             Component instance data that contains the SoundTouchClient instance.
         playerName (str):
             Name of the media player that is calling this method (for tracing purposes).

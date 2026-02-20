@@ -73,7 +73,7 @@ from .const import (
     DOMAIN, 
     DOMAIN_SPOTIFYPLUS
 )
-from .instancedata_soundtouchplus import InstanceDataSoundTouchPlus
+from .instancedata_soundtouch_local import InstanceDataSoundTouchLocal
 from .stappmessages import STAppMessages
 
 # get smartinspect logger reference; create a new session for this module name.
@@ -85,22 +85,22 @@ _logsi.SystemLogger = logging.getLogger(__name__)
 
 # our extra state attribute names.
 ATTR_SOUNDTOUCHPLUS_DEVICE_TYPE = "stp_device_type"
-ATTR_SOUNDTOUCHPLUS_NOWPLAYING_ISADVERTISEMENT = "soundtouchplus_nowplaying_isadvertisement"
-ATTR_SOUNDTOUCHPLUS_NOWPLAYING_ISFAVORITE = "soundtouchplus_nowplaying_isfavorite"
+ATTR_SOUNDTOUCHPLUS_NOWPLAYING_ISADVERTISEMENT = "soundtouch_local_nowplaying_isadvertisement"
+ATTR_SOUNDTOUCHPLUS_NOWPLAYING_ISFAVORITE = "soundtouch_local_nowplaying_isfavorite"
 ATTR_SOUNDTOUCHPLUS_NOWPLAYING_IMAGE_URL = "stp_nowplaying_image_url"
-ATTR_SOUNDTOUCHPLUS_POLLING_ENABLED = "soundtouchplus_polling_enabled"
-ATTR_SOUNDTOUCHPLUS_PRESETS_LASTUPDATED = "soundtouchplus_presets_lastupdated"
-ATTR_SOUNDTOUCHPLUS_RECENTS_LASTUPDATED = "soundtouchplus_recents_lastupdated"
-ATTR_SOUNDTOUCHPLUS_RECENTS_CACHE_ENABLED = "soundtouchplus_recents_cache_enabled"
-ATTR_SOUNDTOUCHPLUS_RECENTS_CACHE_LASTUPDATED = "soundtouchplus_recents_cache_lastupdated"
-ATTR_SOUNDTOUCHPLUS_RECENTS_CACHE_MAX_ITEMS = "soundtouchplus_recents_cache_max_items"
-ATTR_SOUNDTOUCHPLUS_SOUND_MODE = "soundtouchplus_sound_mode"
-ATTR_SOUNDTOUCHPLUS_SOURCE = "soundtouchplus_source"
-ATTR_SOUNDTOUCHPLUS_TONE_BASS_LEVEL = "soundtouchplus_tone_bass_level"
-ATTR_SOUNDTOUCHPLUS_TONE_BASS_LEVEL_RANGE = "soundtouchplus_tone_bass_level_range"
-ATTR_SOUNDTOUCHPLUS_TONE_TREBLE_LEVEL = "soundtouchplus_tone_treble_level"
-ATTR_SOUNDTOUCHPLUS_TONE_TREBLE_LEVEL_RANGE = "soundtouchplus_tone_treble_level_range"
-ATTR_SOUNDTOUCHPLUS_WEBSOCKETS_ENABLED = "soundtouchplus_websockets_enabled"
+ATTR_SOUNDTOUCHPLUS_POLLING_ENABLED = "soundtouch_local_polling_enabled"
+ATTR_SOUNDTOUCHPLUS_PRESETS_LASTUPDATED = "soundtouch_local_presets_lastupdated"
+ATTR_SOUNDTOUCHPLUS_RECENTS_LASTUPDATED = "soundtouch_local_recents_lastupdated"
+ATTR_SOUNDTOUCHPLUS_RECENTS_CACHE_ENABLED = "soundtouch_local_recents_cache_enabled"
+ATTR_SOUNDTOUCHPLUS_RECENTS_CACHE_LASTUPDATED = "soundtouch_local_recents_cache_lastupdated"
+ATTR_SOUNDTOUCHPLUS_RECENTS_CACHE_MAX_ITEMS = "soundtouch_local_recents_cache_max_items"
+ATTR_SOUNDTOUCHPLUS_SOUND_MODE = "soundtouch_local_sound_mode"
+ATTR_SOUNDTOUCHPLUS_SOURCE = "soundtouch_local_source"
+ATTR_SOUNDTOUCHPLUS_TONE_BASS_LEVEL = "soundtouch_local_tone_bass_level"
+ATTR_SOUNDTOUCHPLUS_TONE_BASS_LEVEL_RANGE = "soundtouch_local_tone_bass_level_range"
+ATTR_SOUNDTOUCHPLUS_TONE_TREBLE_LEVEL = "soundtouch_local_tone_treble_level"
+ATTR_SOUNDTOUCHPLUS_TONE_TREBLE_LEVEL_RANGE = "soundtouch_local_tone_treble_level_range"
+ATTR_SOUNDTOUCHPLUS_WEBSOCKETS_ENABLED = "soundtouch_local_websockets_enabled"
 ATTRVALUE_NOT_CAPABLE = "not capable"
 
 
@@ -127,7 +127,7 @@ async def async_setup_entry(hass:HomeAssistant, entry:ConfigEntry, async_add_ent
         _logsi.LogObject(SILevel.Verbose, "'%s': MediaPlayer async_setup_entry is starting - entry (ConfigEntry) object" % entry.title, entry)
 
         # get integration instance data from HA datastore.
-        data:InstanceDataSoundTouchPlus = hass.data[DOMAIN][entry.entry_id]
+        data:InstanceDataSoundTouchLocal = hass.data[DOMAIN][entry.entry_id]
 
         # create the platform instance, passing our initialization parameters.
         _logsi.LogVerbose("'%s': MediaPlayer async_setup_entry is creating the SoundTouchMediaPlayer instance" % entry.title)
@@ -157,15 +157,15 @@ async def async_setup_entry(hass:HomeAssistant, entry:ConfigEntry, async_add_ent
 
 class SoundTouchMediaPlayer(MediaPlayerEntity):
     """
-    Representation of a SoundTouchPlus media player device.
+    Representation of a SoundTouchLocal media player device.
     """
 
-    def __init__(self, data:InstanceDataSoundTouchPlus) -> None:
+    def __init__(self, data:InstanceDataSoundTouchLocal) -> None:
         """
-        Initializes a new instance of the SoundTouchPlus media player entity class.
+        Initializes a new instance of the SoundTouchLocal media player entity class.
         
         Args:
-            data (InstanceDataSoundTouchPlus):
+            data (InstanceDataSoundTouchLocal):
                 The media player entity instance data parameters that were created
                 in the `__init__.async_setup_entry` method.
         """
@@ -184,10 +184,10 @@ class SoundTouchMediaPlayer(MediaPlayerEntity):
             # initialize instance storage.
             self._client:SoundTouchClient = data.client
             self._socket:SoundTouchWebSocket = data.socket
-            self.data:InstanceDataSoundTouchPlus = data
-            self.soundtouchplus_presets_lastupdated:int = 0
-            self.soundtouchplus_recents_lastupdated:int = 0
-            self.soundtouchplus_recents_cache_lastupdated:int = 0
+            self.data:InstanceDataSoundTouchLocal = data
+            self.soundtouch_local_presets_lastupdated:int = 0
+            self.soundtouch_local_recents_lastupdated:int = 0
+            self.soundtouch_local_recents_cache_lastupdated:int = 0
             self.recents_cache_max_items:int = 20
             self.websocket_error_count:int = 0
 
@@ -293,10 +293,10 @@ class SoundTouchMediaPlayer(MediaPlayerEntity):
         attributes[ATTR_SOUNDTOUCHPLUS_NOWPLAYING_ISADVERTISEMENT] = False
         attributes[ATTR_SOUNDTOUCHPLUS_NOWPLAYING_ISFAVORITE] = False
         attributes[ATTR_SOUNDTOUCHPLUS_NOWPLAYING_IMAGE_URL] = self.media_image_url
-        attributes[ATTR_SOUNDTOUCHPLUS_PRESETS_LASTUPDATED] = self.soundtouchplus_presets_lastupdated
-        attributes[ATTR_SOUNDTOUCHPLUS_RECENTS_LASTUPDATED] = self.soundtouchplus_recents_lastupdated
-        attributes[ATTR_SOUNDTOUCHPLUS_RECENTS_CACHE_LASTUPDATED] = self.soundtouchplus_recents_cache_lastupdated
-        attributes[ATTR_SOUNDTOUCHPLUS_SOURCE] = self.soundtouchplus_source
+        attributes[ATTR_SOUNDTOUCHPLUS_PRESETS_LASTUPDATED] = self.soundtouch_local_presets_lastupdated
+        attributes[ATTR_SOUNDTOUCHPLUS_RECENTS_LASTUPDATED] = self.soundtouch_local_recents_lastupdated
+        attributes[ATTR_SOUNDTOUCHPLUS_RECENTS_CACHE_LASTUPDATED] = self.soundtouch_local_recents_cache_lastupdated
+        attributes[ATTR_SOUNDTOUCHPLUS_SOURCE] = self.soundtouch_local_source
         attributes[ATTR_SOUNDTOUCHPLUS_RECENTS_CACHE_ENABLED] = self._client.RecentListCacheEnabled
         attributes[ATTR_SOUNDTOUCHPLUS_RECENTS_CACHE_MAX_ITEMS] = self._client.RecentListCacheMaxItems
         attributes[ATTR_SOUNDTOUCHPLUS_WEBSOCKETS_ENABLED] = (self._socket is not None)
@@ -1284,7 +1284,7 @@ class SoundTouchMediaPlayer(MediaPlayerEntity):
                 # if media is playing, then update the recently played cache lastupdated value,
                 # as the api could have added a new entry to the cache.
                 if config.IsPlaying:
-                    self.soundtouchplus_recents_cache_lastupdated = self._client.RecentListCache.LastUpdatedOn
+                    self.soundtouch_local_recents_cache_lastupdated = self._client.RecentListCache.LastUpdatedOn
 
             # inform Home Assistant of the status update.
             self.schedule_update_ha_state(force_refresh=False)
@@ -1313,7 +1313,7 @@ class SoundTouchMediaPlayer(MediaPlayerEntity):
             client.ConfigurationCache[SoundTouchNodes.presets.Path] = config
 
             # inform Home Assistant of the status update.
-            self.soundtouchplus_presets_lastupdated = config.LastUpdatedOn
+            self.soundtouch_local_presets_lastupdated = config.LastUpdatedOn
             self.schedule_update_ha_state(force_refresh=False)
 
 
@@ -1337,7 +1337,7 @@ class SoundTouchMediaPlayer(MediaPlayerEntity):
             client.ConfigurationCache[SoundTouchNodes.recents.Path] = config
 
             # inform Home Assistant of the status update.
-            self.soundtouchplus_recents_lastupdated = config.LastUpdatedOn
+            self.soundtouch_local_recents_lastupdated = config.LastUpdatedOn
             self.schedule_update_ha_state(force_refresh=False)
 
 
@@ -1454,7 +1454,7 @@ class SoundTouchMediaPlayer(MediaPlayerEntity):
         # search all media_player instances for the specified entity_id.
         # if found, then return the SoundTouchClient assigned to the media_player instance.
         client:SoundTouchClient = None
-        data:InstanceDataSoundTouchPlus = None
+        data:InstanceDataSoundTouchLocal = None
         for data in self.hass.data[DOMAIN].values():
             if data.media_player.entity_id == entity_id:
                 client = data.client
@@ -1491,7 +1491,7 @@ class SoundTouchMediaPlayer(MediaPlayerEntity):
         # search all media_player instances for the specified deviceId.
         # if found, then return the entity_id assigned to the media_player instance.
         entity_id:str = None
-        data:InstanceDataSoundTouchPlus = None
+        data:InstanceDataSoundTouchLocal = None
         for data in self.hass.data[DOMAIN].values():
             if data.client.Device.DeviceId == deviceId:
                 entity_id = data.media_player.entity_id
@@ -1593,7 +1593,7 @@ class SoundTouchMediaPlayer(MediaPlayerEntity):
     # -----------------------------------------------------------------------------------
 
     @property
-    def soundtouchplus_source(self):
+    def soundtouch_local_source(self):
         """ Name of the current input source (extended). """
         if SoundTouchNodes.nowPlaying.Path in self._client.ConfigurationCache:
             config:NowPlayingStatus = self._client.ConfigurationCache[SoundTouchNodes.nowPlaying.Path]
@@ -2678,7 +2678,7 @@ class SoundTouchMediaPlayer(MediaPlayerEntity):
             result = self.data.client.GetPresetList(True, resolveSourceTitles=True)
 
             # update state attributes.
-            self.soundtouchplus_presets_lastupdated = result.LastUpdatedOn
+            self.soundtouch_local_presets_lastupdated = result.LastUpdatedOn
             self.schedule_update_ha_state(force_refresh=False)
 
             # return the result dictionary.
@@ -2798,7 +2798,7 @@ class SoundTouchMediaPlayer(MediaPlayerEntity):
             result = self.data.client.GetRecentList(True, resolveSourceTitles=True)
 
             # update state attributes.
-            self.soundtouchplus_recents_lastupdated = result.LastUpdatedOn
+            self.soundtouch_local_recents_lastupdated = result.LastUpdatedOn
             self.schedule_update_ha_state(force_refresh=False)
 
             # return the result dictionary.
@@ -2838,7 +2838,7 @@ class SoundTouchMediaPlayer(MediaPlayerEntity):
             result = self.data.client.RecentListCache
 
             # update state attributes.
-            self.soundtouchplus_recents_cache_lastupdated = result.LastUpdatedOn
+            self.soundtouch_local_recents_cache_lastupdated = result.LastUpdatedOn
             self.schedule_update_ha_state(force_refresh=False)
 
             # return the result dictionary.
@@ -3746,7 +3746,7 @@ class SoundTouchMediaPlayer(MediaPlayerEntity):
                 if media_content_type.startswith('spotify_'):
                     library_map:dict = SPOTIFY_LIBRARY_MAP
                 
-                # handle soundtouchplus media library selection.
+                # handle soundtouch_local media library selection.
                 # note that this is NOT async, as SoundTouchClient is not async!
                 _logsi.LogVerbose("'%s': MediaPlayer is browsing media node content id '%s'" % (self.name, media_content_id))
                 return await self.hass.async_add_executor_job(
@@ -3830,7 +3830,7 @@ class SoundTouchMediaPlayer(MediaPlayerEntity):
             # if one has not been configured, then it's a problem.
             spotifyMPEntityId:str = self.data.OptionSpotifyMediaPlayerEntityId
             if spotifyMPEntityId is None:
-                raise HomeAssistantError("'%s': A SpotifyPlus media player entity id has not been assigned in SoundTouchPlus configuration options" % self.name)
+                raise HomeAssistantError("'%s': A SpotifyPlus media player entity id has not been assigned in SoundTouchLocal configuration options" % self.name)
 
             # is the specified entity id in the hass entity registry?
             # it will NOT be in the entity registry if it's deleted.
@@ -3841,9 +3841,9 @@ class SoundTouchMediaPlayer(MediaPlayerEntity):
 
             # raise exceptions if SpotifyPlus Entity is not configured or is disabled.
             if registry_entry is None:
-                raise HomeAssistantError("'%s': The SpotifyPlus media player entity '%s' does not exist (recently deleted maybe?); update the SpotifyPlus media player in the SoundTouchPlus options configuration" % (self.name, spotifyMPEntityId))
+                raise HomeAssistantError("'%s': The SpotifyPlus media player entity '%s' does not exist (recently deleted maybe?); update the SpotifyPlus media player in the SoundTouchLocal options configuration" % (self.name, spotifyMPEntityId))
             if registry_entry.disabled:
-                raise HomeAssistantError("'%s': The SpotifyPlus media player entity '%s' is currently disabled; re-enable the SpotifyPlus media player, or choose another SpotifyPlus media player in the SoundTouchPlus options configuration" % (self.name, spotifyMPEntityId))
+                raise HomeAssistantError("'%s': The SpotifyPlus media player entity '%s' is currently disabled; re-enable the SpotifyPlus media player, or choose another SpotifyPlus media player in the SoundTouchLocal options configuration" % (self.name, spotifyMPEntityId))
 
             # modify spotify library map title to append the spotifyplus media
             # player friendly name that will be used to query spotify for data.

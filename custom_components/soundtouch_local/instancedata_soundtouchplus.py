@@ -13,9 +13,9 @@ from .const import (
 
 
 @dataclass
-class InstanceDataSoundTouchPlus:
+class InstanceDataSoundTouchLocal:
     """ 
-    SoundTouchPlus instance data stored in the Home Assistant data object.
+    SoundTouchLocal instance data stored in the Home Assistant data object.
 
     This contains various attributes and object instances that the integration needs
     to function.  It is created in `__init__.py`, and referenced in various other
@@ -55,7 +55,7 @@ class InstanceDataSoundTouchPlus:
     def OptionTtsForceGoogleTranslate(self) -> bool | None:
         """
         TTS Force Google Translate option.  If True, all play media announcement type of 
-        requests will use the SoundTouchPlus Play TTS service (which uses Google
+        requests will use the SoundTouchLocal Play TTS service (which uses Google
         Translate); otherwise, use the specified service.
         """
         return self.options.get(CONF_OPTION_TTS_FORCE_GOOGLE_TRANSLATE, False)

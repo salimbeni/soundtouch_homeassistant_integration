@@ -96,7 +96,7 @@
       "fields": {
         "entity_id": {
           "name": "Entity ID",
-          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+          "description": "Entity ID of the SoundTouchLocal device that will process the request."
         },
         "bass_level": {
           "name": "Bass Level",
@@ -114,7 +114,7 @@
       "fields": {
         "entity_id": {
           "name": "Entity ID",
-          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+          "description": "Entity ID of the SoundTouchLocal device that will process the request."
         },
         "source_title": {
           "name": "Source Title",
@@ -128,7 +128,7 @@
       "fields": {
         "entity_id": {
           "name": "Entity ID",
-          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+          "description": "Entity ID of the SoundTouchLocal device that will process the request."
         },
         "refresh": {
           "name": "Refresh?",
@@ -142,7 +142,7 @@
       "fields": {
         "entity_id": {
           "name": "Entity ID",
-          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+          "description": "Entity ID of the SoundTouchLocal device that will process the request."
         },
         "refresh": {
           "name": "Refresh?",
@@ -156,7 +156,7 @@
       "fields": {
         "entity_id": {
           "name": "Entity ID",
-          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+          "description": "Entity ID of the SoundTouchLocal device that will process the request."
         },
         "refresh": {
           "name": "Refresh?",
@@ -170,7 +170,7 @@
       "fields": {
         "entity_id": {
           "name": "Entity ID",
-          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+          "description": "Entity ID of the SoundTouchLocal device that will process the request."
         },
         "refresh": {
           "name": "Refresh?",
@@ -184,7 +184,7 @@
       "fields": {
         "entity_id": {
           "name": "Entity ID",
-          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+          "description": "Entity ID of the SoundTouchLocal device that will process the request."
         },
         "refresh": {
           "name": "Refresh?",
@@ -198,7 +198,7 @@
       "fields": {
         "entity_id": {
           "name": "Entity ID",
-          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+          "description": "Entity ID of the SoundTouchLocal device that will process the request."
         },
         "refresh": {
           "name": "Refresh?",
@@ -212,7 +212,7 @@
       "fields": {
         "entity_id": {
           "name": "Entity ID",
-          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+          "description": "Entity ID of the SoundTouchLocal device that will process the request."
         },
         "refresh": {
           "name": "Refresh?",
@@ -226,7 +226,7 @@
       "fields": {
         "entity_id": {
           "name": "Entity ID",
-          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+          "description": "Entity ID of the SoundTouchLocal device that will process the request."
         }
       }
     },
@@ -236,7 +236,7 @@
       "fields": {
         "entity_id": {
           "name": "Entity ID",
-          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+          "description": "Entity ID of the SoundTouchLocal device that will process the request."
         },
         "refresh": {
           "name": "Refresh?",
@@ -250,7 +250,7 @@
       "fields": {
         "entity_id": {
           "name": "Entity ID",
-          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+          "description": "Entity ID of the SoundTouchLocal device that will process the request."
         },
         "refresh": {
           "name": "Refresh?",
@@ -264,7 +264,7 @@
       "fields": {
         "entity_id": {
           "name": "Entity ID",
-          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+          "description": "Entity ID of the SoundTouchLocal device that will process the request."
         }
       }
     },
@@ -274,7 +274,7 @@
       "fields": {
         "entity_id": {
           "name": "Entity ID",
-          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+          "description": "Entity ID of the SoundTouchLocal device that will process the request."
         },
         "refresh": {
           "name": "Refresh?",
@@ -288,7 +288,7 @@
       "fields": {
         "entity_id": {
           "name": "Entity ID",
-          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+          "description": "Entity ID of the SoundTouchLocal device that will process the request."
         },
         "source": {
           "name": "Source",
@@ -310,7 +310,7 @@
       "fields": {
         "entity_id": {
           "name": "Entity ID",
-          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+          "description": "Entity ID of the SoundTouchLocal device that will process the request."
         },
         "name": {
           "name": "Item Name",
@@ -370,7 +370,7 @@
       "fields": {
         "entity_id": {
           "name": "Entity ID",
-          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+          "description": "Entity ID of the SoundTouchLocal device that will process the request."
         },
         "message": {
           "name": "Message Text",
@@ -408,7 +408,7 @@
       "fields": {
         "entity_id": {
           "name": "Entity ID",
-          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+          "description": "Entity ID of the SoundTouchLocal device that will process the request."
         },
         "url": {
           "name": "URL",
@@ -446,7 +446,7 @@
       "fields": {
         "entity_id": {
           "name": "Entity ID",
-          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+          "description": "Entity ID of the SoundTouchLocal device that will process the request."
         },
         "url": {
           "name": "URL",
@@ -484,7 +484,7 @@
       "fields": {
         "entity_id": {
           "name": "Entity ID",
-          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+          "description": "Entity ID of the SoundTouchLocal device that will process the request."
         },
         "include_empty_slots": {
           "name": "Include Empty Slots?",
@@ -498,7 +498,7 @@
       "fields": {
         "entity_id": {
           "name": "Entity ID",
-          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+          "description": "Entity ID of the SoundTouchLocal device that will process the request."
         },
         "preset_id": {
           "name": "Preset ID",
@@ -512,7 +512,7 @@
       "fields": {
         "entity_id": {
           "name": "Entity ID",
-          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+          "description": "Entity ID of the SoundTouchLocal device that will process the request."
         },
         "port": {
           "name": "SSH Port Number",
@@ -526,7 +526,7 @@
       "fields": {
         "entity_id": {
           "name": "Entity ID",
-          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+          "description": "Entity ID of the SoundTouchLocal device that will process the request."
         }
       }
     },
@@ -536,7 +536,7 @@
       "fields": {
         "entity_id": {
           "name": "Entity ID",
-          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+          "description": "Entity ID of the SoundTouchLocal device that will process the request."
         }
       }
     },
@@ -546,7 +546,7 @@
       "fields": {
         "entity_id": {
           "name": "Entity ID",
-          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+          "description": "Entity ID of the SoundTouchLocal device that will process the request."
         },
         "key_id": {
           "name": "Key Identifier",
@@ -564,7 +564,7 @@
       "fields": {
         "entity_id": {
           "name": "Entity ID",
-          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+          "description": "Entity ID of the SoundTouchLocal device that will process the request."
         },
         "audio_mode": {
           "name": "Audio Mode",
@@ -582,7 +582,7 @@
       "fields": {
         "entity_id": {
           "name": "Entity ID",
-          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+          "description": "Entity ID of the SoundTouchLocal device that will process the request."
         },
         "front_center_speaker_level": {
           "name": "Front Center Speaker Level",
@@ -600,7 +600,7 @@
       "fields": {
         "entity_id": {
           "name": "Entity ID",
-          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+          "description": "Entity ID of the SoundTouchLocal device that will process the request."
         },
         "bass_level": {
           "name": "Bass Level",
@@ -618,7 +618,7 @@
       "fields": {
         "entity_id": {
           "name": "Entity ID",
-          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+          "description": "Entity ID of the SoundTouchLocal device that will process the request."
         },
         "level": {
           "name": "Level",
@@ -632,7 +632,7 @@
       "fields": {
         "entity_id": {
           "name": "Entity ID",
-          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+          "description": "Entity ID of the SoundTouchLocal device that will process the request."
         },
         "level": {
           "name": "Level",
@@ -646,7 +646,7 @@
       "fields": {
         "entity_id": {
           "name": "Entity ID",
-          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+          "description": "Entity ID of the SoundTouchLocal device that will process the request."
         },
         "language": {
           "name": "Language",
@@ -660,7 +660,7 @@
       "fields": {
         "entity_id": {
           "name": "Entity ID",
-          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+          "description": "Entity ID of the SoundTouchLocal device that will process the request."
         },
         "name": {
           "name": "Name",
@@ -674,7 +674,7 @@
       "fields": {
         "entity_id": {
           "name": "Entity ID",
-          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+          "description": "Entity ID of the SoundTouchLocal device that will process the request."
         },
         "cec_mode": {
           "name": "CEC Mode",
@@ -688,7 +688,7 @@
       "fields": {
         "entity_id": {
           "name": "Entity ID",
-          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+          "description": "Entity ID of the SoundTouchLocal device that will process the request."
         },
         "hdmi_input_selection_01": {
           "name": "HDMI Input Selection 01",
@@ -702,7 +702,7 @@
       "fields": {
         "entity_id": {
           "name": "Entity ID",
-          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+          "description": "Entity ID of the SoundTouchLocal device that will process the request."
         },
         "restore_volume": {
           "name": "Restore Volume?",
@@ -716,7 +716,7 @@
       "fields": {
         "entity_id": {
           "name": "Entity ID",
-          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+          "description": "Entity ID of the SoundTouchLocal device that will process the request."
         }
       }
     },
@@ -726,7 +726,7 @@
       "fields": {
         "entity_id": {
           "name": "Entity ID",
-          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+          "description": "Entity ID of the SoundTouchLocal device that will process the request."
         },
         "source_title": {
           "name": "Source Title",
