@@ -1,0 +1,295 @@
+{
+    "config": {
+        "abort": {
+            "already_configured": "Device is already configured",
+            "auth_failed": "Authentication with your BOSE account failed. Please check your email address and password.",
+            "connect_failed": "Failed to connect to the speaker. Make sure the speaker is powered on, connected, and that the IP address is correct.",
+            "info_failed": "Connection to the device established, but retrieving speaker information failed. Check the logs for more details.",
+            "no_guid": "Device discovery failed: no GUID found in discovery information.",
+            "no_sources_available": "No sources available to configure. Sources like TV, Optical, and Cinch can be linked to other media players for playback information.",
+            "reauth_failed": "Reauthentication failed. Please try removing and re-adding the device.",
+            "reauth_successful": "Successfully reauthenticated with your Bose account.",
+            "wrong_account": "The account you entered does not match the account used when setting up this device. Please use the same account."
+        },
+        "error": {
+            "auth_failed": "Authentication with your BOSE account failed. Please check your email address and password."
+        },
+        "step": {
+            "manual_ip": {
+                "data": {
+                    "manual_ip": "IP address of your BOSE device"
+                }
+            },
+            "user": {
+                "data": {
+                    "device": "Select your BOSE device",
+                    "mail": "Email address of your BOSE account",
+                    "manual_ip": "Enter IP address manually",
+                    "password": "Password of your BOSE account"
+                }
+            },
+            "zeroconf_confirm": {
+                "description": "A Bose device ({name}) was discovered at {ip}. Enter your Bose account credentials to set it up.",
+                "data": {
+                    "mail": "Email address of your BOSE account",
+                    "password": "Password of your BOSE account"
+                }
+            },
+            "reauth_confirm": {
+                "description": "The authentication for your Bose device ({device_name}) has expired. Please re-enter your credentials to continue using the device.",
+                "data": {
+                    "mail": "Email address of your BOSE account",
+                    "password": "Password of your BOSE account"
+                }
+            },
+            "options_menu": {
+                "title": "Advanced configuration",
+                "description": "These are advanced options and can be left at default since they can be changed later. Choose what you want to configure or complete the setup to finish.",
+                "menu_options": {
+                    "source_settings_initial": "Source settings",
+                    "connectivity_settings_initial": "Connectivity settings",
+                    "complete_setup_initial": "Complete setup"
+                }
+            },
+            "source_settings_initial": {
+                "title": "Source settings",
+                "description": "Choose which source you want to configure. You can link a media player to show playback information and optionally rename the source.",
+                "data": {
+                    "source": "Source"
+                }
+            },
+            "configure_source_initial": {
+                "title": "Configure {source_name}",
+                "description": "Configure settings for source: {source_name}",
+                "data": {
+                    "rename": "Custom name (optional)",
+                    "linked_player": "Linked media player (optional)"
+                }
+            },
+            "connectivity_settings_initial": {
+                "title": "Connectivity settings",
+                "description": "Configure connectivity features for your Bose device",
+                "data": {
+                    "chromecast_auto_enable": "Automatically enable Chromecast built-in on connection"
+                },
+                "data_description": {
+                    "chromecast_auto_enable": "When enabled, Chromecast functionality will be automatically activated when connecting to the device. Chromecast is needed for TTS and media playback via the media player entity!"
+                }
+            }
+        }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "title": "Configuration menu",
+                "description": "Choose what you want to configure. These are advanced options and can be left at default since they can be changed later.",
+                "menu_options": {
+                    "source_settings": "Source settings",
+                    "connectivity_settings": "Connectivity settings",
+                    "complete_setup": "Complete setup"
+                }
+            },
+            "source_settings": {
+                "title": "Source settings",
+                "description": "Choose which source you want to configure. You can link a media player to show playback information and optionally rename the source.",
+                "data": {
+                    "source": "Source"
+                }
+            },
+            "configure_source": {
+                "title": "Configure {source_name}",
+                "description": "Configure settings for source: {source_name}",
+                "data": {
+                    "rename": "Custom name (optional)",
+                    "linked_player": "Linked media player (optional)"
+                }
+            },
+            "connectivity_settings": {
+                "title": "Connectivity settings",
+                "description": "Configure connectivity features for your Bose device",
+                "data": {
+                    "chromecast_auto_enable": "Automatically enable Chromecast built-in on connection"
+                },
+                "data_description": {
+                    "chromecast_auto_enable": "When enabled, Chromecast functionality will be automatically activated when connecting to the device. Chromecast is needed for TTS and media playback via the media player entity!"
+                }
+            }
+        }
+    },
+    "entity": {
+        "binary_sensor": {
+            "charging_state": {
+                "name": "Charging State"
+            }
+        },
+        "button": {
+            "bluetooth_pairing": {
+                "name": "Bluetooth Pairing"
+            }
+        },
+        "media_player": {
+            "media_player": {
+                "name": "Media Player"
+            }
+        },
+        "number": {
+            "av_sync": {
+                "name": "AV Sync"
+            },
+            "bass": {
+                "name": "Bass"
+            },
+            "center": {
+                "name": "Center Channel"
+            },
+            "height": {
+                "name": "Height Channel"
+            },
+            "subwoofer_gain": {
+                "name": "Subwoofer Gain"
+            },
+            "surround": {
+                "name": "Rear Speakers Gain"
+            },
+            "treble": {
+                "name": "Treble"
+            }
+        },
+        "select": {
+            "audio_mode": {
+                "name": "Audio Mode",
+                "state": {
+                    "dialog": "dialog",
+                    "dynamic_dialog": "dynamic_dialog",
+                    "normal": "normal"
+                }
+            },
+            "cec_settings": {
+                "name": "CEC Settings",
+                "state": {
+                    "cec_active": "Default (CEC active)",
+                    "cec_inactive": "Off (CEC inactive)",
+                    "option2": "Option 2 (older TVs)",
+                    "option3": "Option 3 (remote does not power on TV)",
+                    "option4": "Option 4 (TV no sound via soundbar)",
+                    "option5": "Option 5 (TV no sound)",
+                    "option6": "Option 6 (soundbar stays on)"
+                }
+            },
+            "dual_mono": {
+                "name": "Dual Mono",
+                "state": {
+                    "both": "both",
+                    "track1": "Audio Track 1",
+                    "track2": "Audio Track 2"
+                }
+            },
+            "rebroadcast_latency": {
+                "name": "Group Synchronization",
+                "state": {
+                    "sync_to_room": "Sync with TV",
+                    "sync_with_group": "Sync with Group"
+                }
+            }
+        },
+        "sensor": {
+            "battery_level": {
+                "name": "Battery Level"
+            },
+            "time_till_empty": {
+                "name": "Time Until Empty"
+            },
+            "time_till_full": {
+                "name": "Time Until Full"
+            },
+            "wifi_signal": {
+                "name": "WiFi Signal Strength"
+            },
+            "wifi_ssid": {
+                "name": "WiFi SSID"
+            },
+            "network_type": {
+                "name": "Network Type"
+            },
+            "network_ip": {
+                "name": "Network IP Address"
+            }
+        },
+        "switch": {
+            "auto_standby": {
+                "name": "Auto Standby"
+            },
+            "rears": {
+                "name": "Rear Speakers"
+            },
+            "subs": {
+                "name": "Subwoofer"
+            }
+        }
+    },
+    "exceptions": {
+        "bluetooth_connect_failed": {
+            "message": "Failed to connect to Bluetooth device {device_name}: {error}"
+        },
+        "bluetooth_device_not_found": {
+            "message": "Bluetooth device {device_name} not found."
+        },
+        "bluetooth_pairing_failed": {
+            "message": "Failed to enable Bluetooth pairing: {error}"
+        },
+        "chromecast_not_available": {
+            "message": "Chromecast functionality not available for speaker at {speaker_ip}"
+        },
+        "config_entry_not_found": {
+            "message": "No valid entry found for device ID: {device_id}"
+        },
+        "connection_error": {
+            "message": "Connection error during operation: {error}"
+        },
+        "master_not_found": {
+            "message": "Master entity {entity_id} not found"
+        },
+        "media_playback_failed": {
+            "message": "Failed to play media {media_id}: {error}"
+        },
+        "not_in_group": {
+            "message": "Entity {entity_id} is not in a group"
+        },
+        "source_not_configured": {
+            "message": "Source {source_name} is not properly configured"
+        },
+        "speaker_not_found": {
+            "message": "No speaker found for device ID: {device_id}"
+        }
+    },
+    "services": {
+        "remove_bluetooth_device": {
+            "description": "Remove a paired Bluetooth device by MAC address.",
+            "fields": {
+                "mac_address": {
+                    "description": "The MAC address of the Bluetooth device to remove.",
+                    "name": "MAC Address"
+                }
+            },
+            "name": "Remove Bluetooth Device"
+        },
+        "send_custom_request": {
+            "description": "Send a direct request to a Bose speaker.",
+            "fields": {
+                "body": {
+                    "description": "Optional JSON body for the request (used for POST and PUT).",
+                    "name": "Request Body"
+                },
+                "method": {
+                    "description": "The HTTP method to use (GET, POST, PUT, DELETE).",
+                    "name": "HTTP Method"
+                },
+                "resource": {
+                    "description": "The API resource path to request (e.g. `/system/info`).",
+                    "name": "Resource"
+                }
+            },
+            "name": "Send Custom Request"
+        }
+    }
+}

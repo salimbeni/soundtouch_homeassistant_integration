@@ -1,0 +1,16 @@
+{
+  "domain": "soundtouch_local",
+  "name": "Bose SoundTouch Local",
+  "codeowners": ["@alessandrosalimbeni"],
+  "config_flow": true,
+  "documentation": "https://github.com/thlucas1/bosesoundtouchapi",
+  "integration_type": "hub",
+  "iot_class": "local_polling",
+  "requirements": ["bosesoundtouchapi==1.0.12"],
+  "version": "1.0.0",
+  "zeroconf": [
+    {
+      "type": "_soundtouch._tcp.local."
+    }
+  ]
+}

@@ -1,0 +1,1315 @@
+add_wireless_profile:
+  name: Add Wireless Profile
+  description: Adds a new wireless profile to a SoundTouch device network configuration.
+  fields:
+    ip_address:
+      name: IP Address
+      description: IP address of the SoundTouch device that will process the request; for factory reset devices use 192.0.2.1.
+      example: "192.0.2.1"
+      required: true
+      selector:
+        text:
+    ip_port:
+      name: Port Number
+      description: IP port number on the SoundTouch device that will process web-services requests; default is 8090.
+      example: 8090
+      required: false
+      selector:
+        number:
+          min: 1
+          max: 65535
+    ssid_name:
+      name: Network SSID Name
+      description: Wifi network service set identifier (SSID).
+      example: "My_SSID_Name"
+      required: true
+      selector:
+        text:
+    ssid_password:
+      name: Network SSID Password
+      description: Wifi network password.
+      example: "My_SSID_Password"
+      required: true
+      selector:
+        text:
+    ssid_security_type:
+      name: Network Security Type
+      description: Wifi network security type. Default is "wpa_or_wpa2".
+      example: "wpa_or_wpa2"
+      required: true
+      selector:
+        select:
+          mode: dropdown
+          sort: true
+          options:
+            - none
+            - wep
+            - wpatkip
+            - wpaaes
+            - wpa2tkip
+            - wpa2aes
+            - wpa_or_wpa2
+    timeout_secs:
+      name: Timeout Seconds
+      description: Time to wait (in seconds) for the request to be processed before raising an exception for taking too long. Default is 30 seconds.
+      example: 30
+      required: false
+      selector:
+        number:
+          min: 0
+          max: 60
+          step: 1
+          mode: box
+
+audio_tone_levels:
+  name: Adjust Audio Tone Levels
+  description: Adjust the Bass and Treble values for SoundTouch devices that support it.
+  fields:
+    entity_id:
+      name: Entity ID
+      description: Entity ID of the SoundTouchPlus device that will process the request.
+      example: "media_player.soundtouch_livingroom"
+      required: true
+      selector:
+        entity:
+          integration: soundtouchplus
+          domain: media_player
+    bass_level:
+      name: Bass Level
+      description: The bass level to set.
+      example: 50
+      required: true
+      selector:
+        number:
+          min: -100
+          max: 100
+          step: 25
+          mode: slider
+    treble_level:
+      name: Treble Level
+      description: The treble level to set.
+      example: 50
+      required: true
+      selector:
+        number:
+          min: -100
+          max: 100
+          step: 25
+          mode: slider
+
+clear_source_nowplayingstatus:
+  name: Clear Source NowPlayingStatus
+  description: Clears the NowPlayingStatus object for a given source and sourceAccount.
+  fields:
+    entity_id:
+      name: Entity ID
+      description: Entity ID of the SoundTouchPlus device that will process the request.
+      example: "media_player.soundtouch_livingroom"
+      required: true
+      selector:
+        entity:
+          integration: soundtouchplus
+          domain: media_player
+    source_title:
+      name: Source Title
+      description: Source input this content item is played with (case-sensitive).
+      example: "PRODUCT"
+      required: true
+      selector:
+        text:
+
+get_audio_dsp_controls:
+  name: Get Audio DSP Controls
+  description: Gets the current audio dsp controls configuration of the device.
+  fields:
+    entity_id:
+      name: Entity ID
+      description: Entity ID of the SoundTouchPlus device that will process the request.
+      example: "media_player.soundtouch_livingroom"
+      required: true
+      selector:
+        entity:
+          integration: soundtouchplus
+          domain: media_player
+    refresh:
+      name: Refresh?
+      description: True to query the device for realtime information and refresh the cache; otherwise, False to just return the cached information.
+      example: "false"
+      required: true
+      selector:
+        boolean:
+
+get_audio_product_level_controls:
+  name: Get Audio Product Level Controls
+  description: Gets the current audio product level controls configuration of the device.
+  fields:
+    entity_id:
+      name: Entity ID
+      description: Entity ID of the SoundTouchPlus device that will process the request.
+      example: "media_player.soundtouch_livingroom"
+      required: true
+      selector:
+        entity:
+          integration: soundtouchplus
+          domain: media_player
+    refresh:
+      name: Refresh?
+      description: True to query the device for realtime information and refresh the cache; otherwise, False to just return the cached information.
+      example: "false"
+      required: true
+      selector:
+        boolean:
+
+get_audio_product_tone_controls:
+  name: Get Audio Product Tone Controls
+  description: Gets the current audio product tone controls configuration of the device.
+  fields:
+    entity_id:
+      name: Entity ID
+      description: Entity ID of the SoundTouchPlus device that will process the request.
+      example: "media_player.soundtouch_livingroom"
+      required: true
+      selector:
+        entity:
+          integration: soundtouchplus
+          domain: media_player
+    refresh:
+      name: Refresh?
+      description: True to query the device for realtime information and refresh the cache; otherwise, False to just return the cached information.
+      example: "false"
+      required: true
+      selector:
+        boolean:
+
+get_audio_speaker_attribute_and_setting:
+  name: Get Audio Speaker Attribute and Setting
+  description: Gets the current audio speaker attribute and setting configuration of the device.
+  fields:
+    entity_id:
+      name: Entity ID
+      description: Entity ID of the SoundTouchPlus device that will process the request.
+      example: "media_player.soundtouch_livingroom"
+      required: true
+      selector:
+        entity:
+          integration: soundtouchplus
+          domain: media_player
+    refresh:
+      name: Refresh?
+      description: True to query the device for realtime information and refresh the cache; otherwise, False to just return the cached information.
+      example: "false"
+      required: true
+      selector:
+        boolean:
+
+get_balance:
+  name: Get Balance
+  description: Gets the current balance configuration of the device.
+  fields:
+    entity_id:
+      name: Entity ID
+      description: Entity ID of the SoundTouchPlus device that will process the request.
+      example: "media_player.soundtouch_livingroom"
+      required: true
+      selector:
+        entity:
+          integration: soundtouchplus
+          domain: media_player
+    refresh:
+      name: Refresh?
+      description: True to query the device for realtime information and refresh the cache; otherwise, False to just return the cached information.
+      example: "false"
+      required: true
+      selector:
+        boolean:
+
+get_bass_capabilities:
+  name: Get Bass Capabilities
+  description: Gets the current bass capability configuration of the device.
+  fields:
+    entity_id:
+      name: Entity ID
+      description: Entity ID of the SoundTouchPlus device that will process the request.
+      example: "media_player.soundtouch_livingroom"
+      required: true
+      selector:
+        entity:
+          integration: soundtouchplus
+          domain: media_player
+    refresh:
+      name: Refresh?
+      description: True to query the device for realtime information and refresh the cache; otherwise, False to just return the cached information.
+      example: "false"
+      required: true
+      selector:
+        boolean:
+
+get_bass_level:
+  name: Get Bass Level
+  description: Gets the current bass level configuration of the device.
+  fields:
+    entity_id:
+      name: Entity ID
+      description: Entity ID of the SoundTouchPlus device that will process the request.
+      example: "media_player.soundtouch_livingroom"
+      required: true
+      selector:
+        entity:
+          integration: soundtouchplus
+          domain: media_player
+    refresh:
+      name: Refresh?
+      description: True to query the device for realtime information and refresh the cache; otherwise, False to just return the cached information.
+      example: "false"
+      required: true
+      selector:
+        boolean:
+
+get_device_info:
+  name: Get Device Information
+  description: Gets basic details of the device.
+  fields:
+    entity_id:
+      name: Entity ID
+      description: Entity ID of the SoundTouchPlus device that will process the request.
+      example: "media_player.soundtouch_livingroom"
+      required: true
+      selector:
+        entity:
+          integration: soundtouchplus
+          domain: media_player
+
+get_product_cec_hdmi_control:
+  name: Get Product CEC HDMI Control
+  description: Gets the product CEC HDMI control configuration of the device.
+  fields:
+    entity_id:
+      name: Entity ID
+      description: Entity ID of the SoundTouchPlus device that will process the request.
+      example: "media_player.soundtouch_livingroom"
+      required: true
+      selector:
+        entity:
+          integration: soundtouchplus
+          domain: media_player
+    refresh:
+      name: Refresh?
+      description: True to query the device for realtime information and refresh the cache; otherwise, False to just return the cached information.
+      example: "false"
+      required: true
+      selector:
+        boolean:
+
+get_product_hdmi_assignment_controls:
+  name: Get Product HDMI Assignment Controls
+  description: Gets the product HDMI assignment controls configuration of the device.
+  fields:
+    entity_id:
+      name: Entity ID
+      description: Entity ID of the SoundTouchPlus device that will process the request.
+      example: "media_player.soundtouch_livingroom"
+      required: true
+      selector:
+        entity:
+          integration: soundtouchplus
+          domain: media_player
+    refresh:
+      name: Refresh?
+      description: True to query the device for realtime information and refresh the cache; otherwise, False to just return the cached information.
+      example: "false"
+      required: true
+      selector:
+        boolean:
+
+get_source_list:
+  name: Get Source List
+  description: Retrieves the list of sources defined to the device.
+  fields:
+    entity_id:
+      name: Entity ID
+      description: Entity ID of the SoundTouchPlus device that will process the request.
+      example: "media_player.soundtouch_livingroom"
+      required: true
+      selector:
+        entity:
+          integration: soundtouchplus
+          domain: media_player
+
+get_supported_urls:
+  name: Get Supported URLs
+  description: Gets the supported urls configuration of the device.
+  fields:
+    entity_id:
+      name: Entity ID
+      description: Entity ID of the SoundTouchPlus device that will process the request.
+      example: "media_player.soundtouch_livingroom"
+      required: true
+      selector:
+        entity:
+          integration: soundtouchplus
+          domain: media_player
+    refresh:
+      name: Refresh?
+      description: True to query the device for realtime information and refresh the cache; otherwise, False to just return the cached information.
+      example: "false"
+      required: true
+      selector:
+        boolean:
+
+musicservice_station_list:
+  name: Get Music Service Station List
+  description: Retrieves the list of your stored stations from the specified music service (e.g. PANDORA, etc).
+  fields:
+    entity_id:
+      name: Entity ID
+      description: Entity ID of the SoundTouchPlus device that will process the request.
+      example: "media_player.soundtouch_livingroom"
+      required: true
+      selector:
+        entity:
+          integration: soundtouchplus
+          domain: media_player
+    source:
+      name: Source
+      description: Music service source to navigate (e.g. 'PANDORA', etc); the value is case-sensitive, and should normally be UPPER case.
+      example: "PANDORA"
+      required: true
+      selector:
+        text:
+    source_account:
+      name: Source Account
+      description: Music service source account (e.g. the music service user-id).  Default is none.
+      example: "youremail@provider.com"
+      required: false
+      selector:
+        text:
+    sort_type:
+      name: Sort Type
+      description: Sort type used by the Music Service to sort the returned items by; the value is case-sensitive.
+      example: "stationName"
+      required: false
+      selector:
+        select:
+          mode: dropdown
+          sort: true
+          options:
+            - dateCreated
+            - stationName
+
+play_contentitem:
+  name: Play Content Item
+  description: Play media content from a content item source (e.g. TUNEIN station, etc) on a SoundTouch device.
+  fields:
+    entity_id:
+      name: Entity ID
+      description: Entity ID of the SoundTouchPlus device that will process the request.
+      example: "media_player.soundtouch_livingroom"
+      required: true
+      selector:
+        entity:
+          integration: soundtouchplus
+          domain: media_player
+    name:
+      name: Content Item Name
+      description: Name of the content item.
+      example: "K-LOVE Radio"
+      required: false
+      selector:
+        text:
+    source:
+      name: Source
+      description: Source to select to play the content; the value is case-sensitive, and should normally be UPPER case.
+      example: "TUNEIN"
+      required: true
+      selector:
+        text:
+    source_account:
+      name: Source Account
+      description: Source account this content item is played with.  Default is none.
+      example: ""
+      required: false
+      selector:
+        text:
+    item_type:
+      name: Item Type
+      description: Type of content item to play; the value is case-sensitive, and should normally be lower case.
+      example: "stationurl"
+      required: false
+      selector:
+        text:
+    location:
+      name: Content Location
+      description: A direct link to the media content that will be played.
+      example: "/v1/playback/station/s33828"
+      required: false
+      selector:
+        text:
+    container_art:
+      name: Container Art
+      description: A direct link to the container art (if present).
+      example: "http://cdn-profiles.tunein.com/s33828/images/logog.png?t=637986894890000000"
+      required: false
+      selector:
+        text:
+    is_presetable:
+      name: Is Presetable?
+      description: true if this item can be saved as a Preset; otherwise, false.
+      example: "false"
+      required: true
+      selector:
+        boolean:
+
+play_handoff:
+  name: Play Handoff
+  description: Handoff playing source from one SoundTouch device to another.
+  fields:
+    entity_id_from:
+      name: From Entity ID
+      description: Entity ID of the SoundTouch device that is currently playing.
+      example: "media_player.soundtouch_livingroom"
+      required: true
+      selector:
+        entity:
+          integration: soundtouchplus
+          domain: media_player
+    entity_id_to:
+      name: To Entity ID
+      description: Entity ID of the SoundTouch device that needs to play what the 'from' device is currently playing.
+      example: "media_player.soundtouch_bedroom"
+      required: true
+      selector:
+        entity:
+          integration: soundtouchplus
+          domain: media_player
+    restore_volume:
+      name: Restore Volume?
+      description: True to handoff the FROM device volume level to the TO device; False (default) to leave the TO device volume level as-is.
+      example: "true"
+      required: true
+      selector:
+        boolean:
+    snapshot_only:
+      name: Snapshot Only?
+      description: True to only handoff the snapshot and not trigger the restore and power off; False (default) to handoff the snapshot, restore it, and power off the FROM device.
+      example: "true"
+      required: true
+      selector:
+        boolean:
+
+play_tts:
+  name: Play TTS Message
+  description: Play Text-To-Speech notification on a SoundTouch device.  Note that this is limited to ST10,20,30 devices, as Bose ST300 does not support notifications (AFAIK).
+  fields:
+    entity_id:
+      name: Entity ID
+      description: Entity ID of the SoundTouchPlus device that will process the request.
+      example: "media_player.soundtouch_livingroom"
+      required: true
+      selector:
+        entity:
+          integration: soundtouchplus
+          domain: media_player
+    message:
+      name: Message Text
+      description: The message that will be converted from text to speech and played on the device.
+      example: "Hello World"
+      required: true
+      selector:
+        text:
+    artist:
+      name: Artist Status Text
+      description: The message text that will appear in the NowPlaying Artist node; if omitted, default is "TTS Notification".
+      example: "TTS Notification"
+      required: false
+      selector:
+        text:
+    album:
+      name: Album Status Text
+      description: The message text that will appear in the NowPlaying Album node; if omitted, default is "Google TTS".
+      example: "Google TTS"
+      required: false
+      selector:
+        text:
+    track:
+      name: Track Status Text
+      description: The message text that will appear in the NowPlaying Track node; if omitted, default is the message value.
+      example: "Hello World"
+      required: false
+      selector:
+        text:
+    tts_url:
+      name: TTS Service Url
+      description: The Text-To-Speech url used to translate the message.  The value should contain a '{saytext}' format parameter, that will be used to insert the encoded message text.
+      example: "http://translate.google.com/translate_tts?ie=UTF-8&tl=EN&client=tw-ob&q={saytext}"
+      required: false
+      selector:
+        text:
+    volume_level:
+      name: Volume Level
+      description: The temporary volume level that will be used when the message is played.  Specify a value of zero to play at the current volume.  Default is zero.
+      example: 10
+      required: false
+      selector:
+        number:
+          min: 0
+          max: 100
+          step: 5
+          unit_of_measurement: "%"
+          mode: slider
+    app_key:
+      name: Bose App Key
+      description: Bose Developer API application key; if omitted, defaults to a pre-defined App Developer Key.
+      example: "abcdefghijklmnopqrstuvwxyz"
+      required: false
+      selector:
+        text:
+
+play_url:
+  name: Play URL Notification
+  description: Play media from the given URL as a notification message, interrupting the currently playing media to play the specified url.  The currently playing will then resume playing once play of the specified URL is complete.
+  fields:
+    entity_id:
+      name: Entity ID
+      description: Entity ID of the SoundTouchPlus device that will process the request.
+      example: "media_player.soundtouch_livingroom"
+      required: true
+      selector:
+        entity:
+          integration: soundtouchplus
+          domain: media_player
+    url:
+      name: URL
+      description: The url to play; value must start with http or https.
+      example: "https://freetestdata.com/wp-content/uploads/2021/09/Free_Test_Data_1MB_MP3.mp3"
+      required: true
+      selector:
+        text:
+    artist:
+      name: Artist Status Text
+      description: The message text that will appear in the NowPlaying Artist node; if omitted, default is "Unknown Artist".
+      example: "FreeTestData.com"
+      required: false
+      selector:
+        text:
+    album:
+      name: Album Status Text
+      description: The message text that will appear in the NowPlaying Album node; if omitted, default is "Unknown Album".
+      example: "MP3 Test Data"
+      required: false
+      selector:
+        text:
+    track:
+      name: Track Status Text
+      description: The message text that will appear in the NowPlaying Track node; if omitted, default is "Unknown Track".
+      example: "Free_Test_Data_1MB_MP3"
+      required: false
+      selector:
+        text:
+    volume_level:
+      name: Volume Level
+      description: The temporary volume level that will be used when the media is played.  Specify a value of zero to play at the current volume.  Default is zero.
+      example: 10
+      required: false
+      selector:
+        number:
+          min: 0
+          max: 100
+          step: 5
+          unit_of_measurement: "%"
+          mode: slider
+    app_key:
+      name: Bose App Key
+      description: Bose Developer API application key; if omitted, defaults to a pre-defined App Developer Key.
+      example: "abcdefghijklmnopqrstuvwxyz"
+      required: false
+      selector:
+        text:
+    get_metadata_from_url_file:
+      name: Get Metadata From URL?
+      description: If true, the artist, album, and song title metadata details will be retrieved from the ID3 header of the url content (if available); otherwise, False to use the artist, album, and song title arguments specified.
+      example: "false"
+      required: false
+      selector:
+        boolean:
+
+play_url_dlna:
+  name: Play URL DLNA
+  description: Play media from the given URL via the Bose DLNA API.
+  fields:
+    entity_id:
+      name: Entity ID
+      description: Entity ID of the SoundTouchPlus device that will process the request.
+      example: "media_player.soundtouch_livingroom"
+      required: true
+      selector:
+        entity:
+          integration: soundtouchplus
+          domain: media_player
+    url:
+      name: URL
+      description: The url to play; HTTPS URL's are not supported by this service due to DLNA restrictions.
+      example: "http://edge-bauerall-01-gos2.sharp-stream.com/ghr70s.aac"
+      required: true
+      selector:
+        text:
+    artist:
+      name: Artist Status Text
+      description: The message text that will appear in the NowPlaying Artist node for source-specific nowPlaying information; if omitted, default is "Unknown Artist".
+      example: "Greatest Hits Radio"
+      required: false
+      selector:
+        text:
+    album:
+      name: Album Status Text
+      description: The message text that will appear in the NowPlaying Album node for source-specific nowPlaying information; if omitted, default is "Unknown Album".
+      example: "70's Classic Hits"
+      required: false
+      selector:
+        text:
+    track:
+      name: Track Status Text
+      description: The message text that will appear in the NowPlaying Track node for source-specific nowPlaying information; if omitted, default is "Unknown Track".
+      example: "ghr70s.aac"
+      required: false
+      selector:
+        text:
+    art_url:
+      name: Cover Artwork URL
+      description: A url link to a cover art image that represents the URL for source-specific nowPlaying information; if omitted, default is None.
+      example: "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da849d37dd221d8aa1b35c545057"
+      required: false
+      selector:
+        text:
+    update_now_playing_status:
+      name: Update NowPlaying Status?
+      description: True (default) to update the source-specific nowPlaying information; False to not update the source-specific nowPlaying information.
+      example: "true"
+      required: false
+      selector:
+        boolean:
+    delay:
+      name: Command Delay
+      description: Time delay (in seconds) to wait AFTER sending the play next track request if the currently playing media is a notification source. This delay will give the device time to process the change before another command is accepted. Default is 1; value range is 0 - 10.
+      example: "1"
+      required: false
+      selector:
+        number:
+          min: 0
+          max: 10
+          mode: box
+
+preset_list:
+  name: Get Preset List
+  description: Retrieves the list of presets defined to the device.
+  fields:
+    entity_id:
+      name: Entity ID
+      description: Entity ID of the SoundTouchPlus device that will process the request.
+      example: "media_player.soundtouch_livingroom"
+      required: true
+      selector:
+        entity:
+          integration: soundtouchplus
+          domain: media_player
+    include_empty_slots:
+      name: Include Empty Slots?
+      description: True to include ALL preset slots (both empty and set); otherwise, False (default) to only include preset slots that have been set.
+      example: "false"
+      required: false
+      selector:
+        boolean:
+
+preset_remove:
+  name: Remove Preset
+  description: Removes the preset at the specified preset id.
+  fields:
+    entity_id:
+      name: Entity ID
+      description: Entity ID of the SoundTouchPlus device that will process the request.
+      example: "media_player.soundtouch_livingroom"
+      required: true
+      selector:
+        entity:
+          integration: soundtouchplus
+          domain: media_player
+    preset_id:
+      name: Preset ID
+      description: Preset ID to remove (1-6).
+      example: "2"
+      required: true
+      selector:
+        number:
+          min: 1
+          max: 6
+
+reboot_device:
+  name: Reboot Device
+  description: Reboots the SoundTouch device operating system; all connectivity will be lost for about 30-45 seconds while the speaker reboots.
+  fields:
+    entity_id:
+      name: Entity ID
+      description: Entity ID of the SoundTouchPlus device that will process the request.
+      example: "media_player.soundtouch_livingroom"
+      required: true
+      selector:
+        entity:
+          integration: soundtouchplus
+          domain: media_player
+    port:
+      name: SSH Port Number
+      description: The port number of the SSH server that is running on the device; default is port 17000.
+      example: 17000
+      required: false
+      selector:
+        number:
+          min: 1
+          max: 65535
+
+recent_list:
+  name: Get Recent List
+  description: Retrieves the list of recently played items defined to the device.
+  fields:
+    entity_id:
+      name: Entity ID
+      description: Entity ID of the SoundTouchPlus device that will process the request.
+      example: "media_player.soundtouch_livingroom"
+      required: true
+      selector:
+        entity:
+          integration: soundtouchplus
+          domain: media_player
+
+recent_list_cache:
+  name: Get Recent List Cache
+  description: Retrieves the list of recently played cached items stored on the local file system.  Items in this list will contain cover art url links.
+  fields:
+    entity_id:
+      name: Entity ID
+      description: Entity ID of the SoundTouchPlus device that will process the request.
+      example: "media_player.soundtouch_livingroom"
+      required: true
+      selector:
+        entity:
+          integration: soundtouchplus
+          domain: media_player
+
+remote_keypress:
+  name: Remote Keypress
+  description: Simulates the press and release of a key on the SoundTouch device remote control.
+  fields:
+    entity_id:
+      name: Entity ID
+      description: Entity ID of the SoundTouchPlus device that will process the request.
+      example: "media_player.soundtouch_livingroom"
+      required: true
+      selector:
+        entity:
+          integration: soundtouchplus
+          domain: media_player
+    key_id:
+      name: Key ID
+      description: SoundTouch remote control key identifier. 
+        Note that some keys on the SoundTouch remote control are not sent to the SoundTouch device, 
+        and therefore are not supported by this service.
+      example: "AUX_INPUT"
+      required: true
+      selector:
+        select:
+          mode: dropdown
+          sort: true
+          options:
+            - ADD_FAVORITE
+            - AUX_INPUT
+            - BOOKMARK
+            - MUTE
+            - NEXT_TRACK
+            - PAUSE
+            - PLAY
+            - PLAY_PAUSE
+            - POWER
+            - PRESET_1
+            - PRESET_2
+            - PRESET_3
+            - PRESET_4
+            - PRESET_5
+            - PRESET_6
+            - PREV_TRACK
+            - REMOVE_FAVORITE
+            - REPEAT_ALL
+            - REPEAT_OFF
+            - REPEAT_ONE
+            - SHUFFLE_OFF
+            - SHUFFLE_ON
+            - STOP
+            - THUMBS_DOWN
+            - THUMBS_UP
+            - VOLUME_DOWN
+            - VOLUME_UP
+    key_state:
+      name: Key State
+      description: SoundTouch remote control key state. 
+        Most keys will use 'both' for state; the 'PRESET_n' key ids use 'press' to store a preset, and 'release' to select (or play) a preset.
+      example: "both"
+      required: false
+      selector:
+        select:
+          mode: dropdown
+          sort: true
+          options:
+            - both
+            - press
+            - release
+
+set_audio_dsp_controls:
+  name: Set Audio DSP Controls
+  description: Sets the current audio dsp controls configuration of the device.
+  fields:
+    entity_id:
+      name: Entity ID
+      description: Entity ID of the SoundTouchPlus device that will process the request.
+      example: "media_player.soundtouch_livingroom"
+      required: true
+      selector:
+        entity:
+          integration: soundtouchplus
+          domain: media_player
+    audio_mode:
+      name: Audio Mode
+      description: Audio mode value (e.g. "AUDIO_MODE_NORMAL", "AUDIO_MODE_DIALOG", etc).
+      example: "AUDIO_MODE_DIALOG"
+      required: false
+      selector:
+        text:
+    video_sync_audio_delay:
+      name: Video Sync Audio Delay
+      description: Video syncronization audio delay value (in milliseconds). Suggested range is 0 - 250ms, in increments of 10.
+      example: "0"
+      required: false
+      selector:
+        number:
+          min: 0
+          max: 10000
+          mode: box
+
+set_audio_product_level_controls:
+  name: Set Audio Product Level Controls
+  description: Sets the current audio product level controls configuration of the device.
+  fields:
+    entity_id:
+      name: Entity ID
+      description: Entity ID of the SoundTouchPlus device that will process the request.
+      example: "media_player.soundtouch_livingroom"
+      required: true
+      selector:
+        entity:
+          integration: soundtouchplus
+          domain: media_player
+    front_center_speaker_level:
+      name: Front Center Speaker Level
+      description: Front center speaker level to set, usually in the range of -100 (low) to 100 (high).
+      example: "40"
+      required: true
+      selector:
+        number:
+          min: -100
+          max: 100
+          mode: box
+    rear_surround_speakers_level:
+      name: Rear Surround Speaker Level
+      description: Rear surround speaker level to set, usually in the range of -100 (low) to 100 (high).
+      example: "60"
+      required: true
+      selector:
+        number:
+          min: -100
+          max: 100
+          mode: box
+
+set_audio_product_tone_controls:
+  name: Set Audio Product Tone Controls
+  description: Sets the current audio product tone controls configuration of the device.
+  fields:
+    entity_id:
+      name: Entity ID
+      description: Entity ID of the SoundTouchPlus device that will process the request.
+      example: "media_player.soundtouch_livingroom"
+      required: true
+      selector:
+        entity:
+          integration: soundtouchplus
+          domain: media_player
+    bass_level:
+      name: Bass Level
+      description: Bass level to set, usually in the range of -100 (low) to 100 (high).
+      example: "40"
+      required: true
+      selector:
+        number:
+          min: -100
+          max: 100
+          mode: box
+    treble_level:
+      name: Treble Level
+      description: Treble level to set, usually in the range of -100 (low) to 100 (high).
+      example: "60"
+      required: true
+      selector:
+        number:
+          min: -100
+          max: 100
+          mode: box
+
+set_balance_level:
+  name: Set Balance Level
+  description: Sets the device balance level to the given level.
+  fields:
+    entity_id:
+      name: Entity ID
+      description: Entity ID of the SoundTouchPlus device that will process the request.
+      example: "media_player.soundtouch_livingroom"
+      required: true
+      selector:
+        entity:
+          integration: soundtouchplus
+          domain: media_player
+    level:
+      name: Level
+      description: Balance level to set, usually in the range of -7 (left) to 7 (right).
+      example: "0"
+      required: true
+      selector:
+        number:
+          min: -7
+          max: 7
+          mode: box
+
+set_bass_level:
+  name: Set Bass Level
+  description: Sets the device bass level to the given level.
+  fields:
+    entity_id:
+      name: Entity ID
+      description: Entity ID of the SoundTouchPlus device that will process the request.
+      example: "media_player.soundtouch_livingroom"
+      required: true
+      selector:
+        entity:
+          integration: soundtouchplus
+          domain: media_player
+    level:
+      name: Level
+      description: Bass level to set, usually in the range of -9 (no bass) to 0 (full bass).
+      example: -5
+      required: true
+      selector:
+        number:
+          min: -9
+          max: 0
+          mode: box
+
+set_language:
+  name: Set Device Language
+  description: Sets the device language code.
+  fields:
+    entity_id:
+      name: Entity ID
+      description: Entity ID of the SoundTouchPlus device that will process the request.
+      example: "media_player.soundtouch_livingroom"
+      required: true
+      selector:
+        entity:
+          integration: soundtouchplus
+          domain: media_player
+    language:
+      name: Language
+      description: Language name to assign to the device.
+      example: "ENGLISH"
+      required: true
+      selector:
+        select:
+          mode: dropdown
+          sort: true
+          options:
+            - NOT_SET
+            - CZECH
+            - DANISH
+            - DUTCH
+            - ENGLISH
+            - FINNISH
+            - FRENCH
+            - GERMAN
+            - GREEK
+            - HUNGARIAN
+            - ITALIAN
+            - JAPANESE
+            - KOREAN
+            - NORWEGIAN
+            - POLISH
+            - PORTUGUESE
+            - ROMANIAN
+            - RUSSIAN
+            - SIMPLIFIED_CHINESE
+            - SLOVENIAN
+            - SPANISH
+            - SWEDISH
+            - THAI
+            - TRADITIONAL_CHINESE
+            - TURKISH
+
+set_name:
+  name: Set Device Name
+  description: Sets the device name.
+  fields:
+    entity_id:
+      name: Entity ID
+      description: Entity ID of the SoundTouchPlus device that will process the request.
+      example: "media_player.soundtouch_livingroom"
+      required: true
+      selector:
+        entity:
+          integration: soundtouchplus
+          domain: media_player
+    name:
+      name: Name
+      description: Name to assign to the device.
+      example: "Office Speaker"
+      required: true
+      selector:
+        text:
+
+set_product_cec_hdmi_control:
+  name: Set Product CEC HDMI Control
+  description: Sets the product CEC HDMI control configuration of the device.
+  fields:
+    entity_id:
+      name: Entity ID
+      description: Entity ID of the SoundTouchPlus device that will process the request.
+      example: "media_player.soundtouch_livingroom"
+      required: true
+      selector:
+        entity:
+          integration: soundtouchplus
+          domain: media_player
+    cec_mode:
+      name: CEC Mode
+      description: CEC Mode to assign to the device.
+      example: "CEC_MODE_ON"
+      required: true
+      selector:
+        select:
+          mode: dropdown
+          sort: true
+          options:
+            - CEC_MODE_OFF
+            - CEC_MODE_ON
+            - CEC_MODE_ALTERNATE
+            - CEC_MODE_FINE
+
+set_product_hdmi_assignment_controls:
+  name: Set Product HDMI Assignment Controls
+  description: Sets the product HDMI assignment controls configuration of the device.
+  fields:
+    entity_id:
+      name: Entity ID
+      description: Entity ID of the SoundTouchPlus device that will process the request.
+      example: "media_player.soundtouch_livingroom"
+      required: true
+      selector:
+        entity:
+          integration: soundtouchplus
+          domain: media_player
+    hdmi_input_selection_01:
+      name: HDMI Input Selection 01
+      description: HDMI input selection 1 value.
+      example: "HDMI_IN_BUTTON_NONE"
+      required: true
+      selector:
+        select:
+          mode: dropdown
+          sort: true
+          options:
+            - HDMI_IN_BUTTON_NONE
+            - HDMI_IN_BUTTON_SOURCE_01
+            - HDMI_IN_BUTTON_SOURCE_02
+            - HDMI_IN_BUTTON_SOURCE_03
+
+snapshot_restore:
+  name: Snapshot Restore
+  description: Restore SoundTouch device settings from a snapshot.
+  fields:
+    entity_id:
+      name: Entity ID
+      description: Entity ID of the SoundTouchPlus device that will process the request.
+      example: "media_player.soundtouch_livingroom"
+      required: true
+      selector:
+        entity:
+          integration: soundtouchplus
+          domain: media_player
+    restore_volume:
+      name: Restore Volume?
+      description: Indicates if the volume also needs to be restored (True, default) or not (False).
+      example: "false"
+      required: true
+      selector:
+        boolean:
+
+snapshot_store:
+  name: Snapshot Store
+  description: Store SoundTouch device settings to a snapshot.
+  fields:
+    entity_id:
+      name: Entity ID
+      description: Entity ID of the SoundTouchPlus device that will process the request.
+      example: "media_player.soundtouch_livingroom"
+      required: true
+      selector:
+        entity:
+          integration: soundtouchplus
+          domain: media_player
+
+update_source_nowplayingstatus:
+  name: Update Source NowPlayingStatus
+  description: Updates the NowPlayingStatus object for a given source and sourceAccount.
+  fields:
+    entity_id:
+      name: Entity ID
+      description: Entity ID of the SoundTouchPlus device that will process the request.
+      example: "media_player.soundtouch_livingroom"
+      required: true
+      selector:
+        entity:
+          integration: soundtouchplus
+          domain: media_player
+    source_title:
+      name: Source Title
+      description: Source input this content item is played with (case-sensitive).
+      example: "Product (TV)"
+      required: true
+      selector:
+        text:
+    album:
+      name: Album
+      description: The album of the playing track (if present). 
+      example: ""
+      required: false
+      selector:
+        text:
+    artist:
+      name: Artist
+      description: The creator of the track (if present).
+      example: ""
+      required: false
+      selector:
+        text:
+    artist_id:
+      name: Artist ID
+      description: Unique identifier of the artist, as provided by the source music service (if present).
+      example: ""
+      required: false
+      selector:
+        text:
+    art_url:
+      name: Art URL
+      description: A url link to the art image of the station (if present). 
+      example: "https://media.themoviedb.org/t/p/w533_and_h300_bestv2/3Kzc6V4MWs3RXCmE5DhAYnfWL8F.jpg"
+      required: false
+      selector:
+        text:
+    description:
+      name: Description
+      description: A brief description that was added to the track (if present). 
+      example: ""
+      required: false
+      selector:
+        text:
+    duration:
+      name: Duration
+      description: The track's duration (if present).
+      example: ""
+      required: false
+      selector:
+        number:
+          min: 0
+          mode: box
+    genre:
+      name: Genre
+      description: The genre of the track (if present). 
+      example: ""
+      required: false
+      selector:
+        text:
+    play_status:
+      name: Play Status
+      description: Indicates whether the device is currently playing the embedded track. 
+      example: ""
+      required: false
+      selector:
+        text:
+    position:
+      name: Position
+      description: The current position of the playing media (if present). 
+      example: ""
+      required: false
+      selector:
+        number:
+          min: 0
+          mode: box
+    session_id:
+      name: Session ID
+      description: Unique identifier of the session, as provided by the source music service (if present). 
+      example: ""
+      required: false
+      selector:
+        text:
+    station_location:
+      name: Station Location
+      description: The station's location.
+      example: "Kodi HTPC"
+      required: false
+      selector:
+        text:
+    station_name:
+      name: Station Name
+      description: The station's name (if present). 
+      example: "Megamind vs The Doom Syndicate"
+      required: false
+      selector:
+        text:
+    track:
+      name: Track
+      description: The current media track name (if present). 
+      example: ""
+      required: false
+      selector:
+        text:
+    track_id:
+      name: Track ID
+      description: Unique identifier of the track, as provided by the source music service (if present). 
+      example: ""
+      required: false
+      selector:
+        text:
+
+zone_toggle_member:
+  name: Zone Member Toggle
+  description: Toggles the given zone member to or from a master device's zone.  A new zone will be created automatically if needed.
+  fields:
+    entity_id_master:
+      name: Master Zone Entity ID
+      description: Entity ID of the SoundTouch device master zone.
+      example: "media_player.soundtouch_livingroom"
+      required: true
+      selector:
+        entity:
+          integration: soundtouchplus
+          domain: media_player
+    entity_id_member:
+      name: Member Zone Entity ID
+      description: Entity ID of the SoundTouch device that will be toggled to or from the master zone.
+      example: "media_player.soundtouch_bedroom"
+      required: true
+      selector:
+        entity:
+          integration: soundtouchplus
+          domain: media_player

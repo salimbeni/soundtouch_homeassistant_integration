@@ -1,0 +1,100 @@
+send_custom_request:
+  name: Send Custom Request
+  description: Send a direct request to a Bose speaker.
+  fields:
+    device_id:
+      required: true
+      example: 'abcdef1234567890'
+      selector:
+        device:
+          integration: bose
+      description: 'The Bose device to send the request to.'
+    resource:
+      required: true
+      example: '/system/info'
+      selector:
+        text:
+      description: 'The API resource path to request (e.g., `/system/info`).'
+    method:
+      required: true
+      example: 'GET'
+      selector:
+        select:
+          options:
+            - 'GET'
+            - 'POST'
+            - 'PUT'
+            - 'DELETE'
+      description: 'The HTTP method to use.'
+    body:
+      required: false
+      example: "{'value': 50}"
+      selector:
+        object:
+      description: 'Optional JSON body for the request (used for `POST` and `PUT`).'
+
+connect_bluetooth_device:
+  name: Connect Bluetooth Device
+  description: Connect to a Bluetooth device by MAC address.
+  fields:
+    device_id:
+      required: true
+      example: 'abcdef1234567890'
+      selector:
+        device:
+          integration: bose
+      description: 'The Bose device to connect the Bluetooth device to.'
+    mac_address:
+      required: true
+      example: '00:11:22:33:44:55'
+      selector:
+        text:
+      description: 'The MAC address of the Bluetooth device to connect.'
+
+disconnect_bluetooth_device:
+  name: Disconnect Bluetooth Device
+  description: Disconnect a Bluetooth device by MAC address.
+  fields:
+    device_id:
+      required: true
+      example: 'abcdef1234567890'
+      selector:
+        device:
+          integration: bose
+      description: 'The Bose device to disconnect the Bluetooth device from.'
+    mac_address:
+      required: true
+      example: '00:11:22:33:44:55'
+      selector:
+        text:
+      description: 'The MAC address of the Bluetooth device to disconnect.'
+
+remove_bluetooth_device:
+  name: Remove Bluetooth Device
+  description: Remove a paired Bluetooth device by MAC address.
+  fields:
+    device_id:
+      required: true
+      example: 'abcdef1234567890'
+      selector:
+        device:
+          integration: bose
+      description: 'The Bose device to remove the Bluetooth device from.'
+    mac_address:
+      required: true
+      example: '00:11:22:33:44:55'
+      selector:
+        text:
+      description: 'The MAC address of the Bluetooth device to remove.'
+
+set_bluetooth_pairable:
+  name: Enable Bluetooth Pairing
+  description: Enable Bluetooth pairing mode on the speaker.
+  fields:
+    device_id:
+      required: true
+      example: 'abcdef1234567890'
+      selector:
+        device:
+          integration: bose
+      description: 'The Bose device to enable pairing mode on.'

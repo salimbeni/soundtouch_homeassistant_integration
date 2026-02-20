@@ -1,0 +1,808 @@
+{
+  "config": {
+    "flow_title": "{name}",
+    "step": {
+      "user": {
+        "description": "This integration is for Bose SoundTouch Speaker models that support the SoundTouch Webservices API; these include the ST-10, ST-20, ST-30, ST-300, ST-520, etc.",
+        "data": {
+          "host": "IP Address",
+          "port": "Port",
+          "port_websocket": "WebSocket Port",
+          "ping_websocket_interval": "WebSocket Ping Interval"
+        },
+        "data_description": {
+          "host": "Ip address or DNS alias of the device",
+          "port": "Bose WebServices API Port of the device (default is 8090)",
+          "port_websocket": "Bose WebSocket API Port of the device; specify 0 to disable, or range of 1-65535, default is 8080.  If disabled, device is polled by HA UI every 10 seconds.",
+          "ping_websocket_interval": "Bose WebSocket API Ping interval (in seconds) used to keep the connection alive; specify 0 to disable, or range of 30-3600, default is 300"
+        }
+      },
+      "discovery_confirm": {
+        "description": "Do you want to add the following Bose SoundTouch device to Home Assistant?\n\n\"{name}\" ({host})",
+        "title": "Discovered SoundTouch Plus"
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect",
+      "unknown": "Unexpected error"
+    },
+    "abort": {
+      "already_configured": "Device is already configured.  Modify the existing device, or verify the entered IP Address is correct.",
+      "cannot_connect": "Failed to connect",
+      "unknown": "Unexpected error",
+      "no_deviceid": "SoundTouch device instance does not have a unique DeviceId. This is most likely due to old SoundTouch firmware. You can configure the integration manually or upgrade your firmware to a more recent version."
+    }
+  },
+  "device_automation": {},
+  "options": {
+    "step": {
+      "init": {
+        "title": "{name} Options",
+        "description": "Configure SoundTouch Plus integration options that control the selected device.",
+        "data": {
+          "source_list": "Source list selections; check to show, uncheck to hide",
+          "spotify_mediaplayer_entity_id": "SpotifyPlus integration media player entity id used to query Spotify API for data",
+          "recents_cache_max_items": "Maximum # of items to keep in the recently played list cache, or zero to disable",
+          "tts_force_google_translate": "Force TTS announcements to use Google Translate"
+        },
+        "submit": "Save"
+      }
+    },
+    "error": {
+      "getsourcelist_empty": "Could not retrieve source list from the device; please ensure that the device is powered on and reachable via the network. Check System Log for more details.",
+      "no_sources_selected": "No sources were selected; ALL sources will be displayed in media players that support source selection."
+    }
+  },
+  "system_health": {
+    "info": {
+      "integration_version": "Version",
+      "devices_configured": "Devices Configured"
+    }
+  },
+  "services": {
+    "add_wireless_profile": {
+      "name": "Add Wireless Profile",
+      "description": "Adds a new wireless profile to a SoundTouch device network configuration.",
+      "fields": {
+        "ip_address": {
+          "name": "IP Address",
+          "description": "IP address of the SoundTouch device that will process the request; for factory reset devices use 192.0.2.1."
+        },
+        "ip_port": {
+          "name": "IP Port",
+          "description": "IP port number on the SoundTouch device that will process web-services requests; default is 8090."
+        },
+        "ssid_name": {
+          "name": "Network SSID Name",
+          "description": "Wifi network service set identifier (SSID)."
+        },
+        "ssid_password": {
+          "name": "Network SSID Password",
+          "description": "Wifi network password."
+        },
+        "ssid_security_type": {
+          "name": "Network Security Type",
+          "description": "Wifi network security type. Default is \"wpa_or_wpa2\"."
+        },
+        "timeout_secs": {
+          "name": "Timeout (Seconds)",
+          "description": "Time to wait (in seconds) for the request to be processed before raising an exception for taking too long. Default is 30 seconds."
+        }
+      }
+    },
+    "audio_tone_levels": {
+      "name": "Adjust Audio Tone Levels",
+      "description": "Adjust the Bass and Treble values for SoundTouch devices that support it.",
+      "fields": {
+        "entity_id": {
+          "name": "Entity ID",
+          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+        },
+        "bass_level": {
+          "name": "Bass Level",
+          "description": "The bass level to set."
+        },
+        "treble_level": {
+          "name": "Treble Level",
+          "description": "The treble level to set."
+        }
+      }
+    },
+    "clear_source_nowplayingstatus": {
+      "name": "Clear Source NowPlayingStatus",
+      "description": "Clears the NowPlayingStatus object for a given source and sourceAccount.",
+      "fields": {
+        "entity_id": {
+          "name": "Entity ID",
+          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+        },
+        "source_title": {
+          "name": "Source Title",
+          "description": "Source input this content item is played with (case-sensitive)."
+        }
+      }
+    },
+    "get_audio_dsp_controls": {
+      "name": "Get Audio DSP Controls",
+      "description": "Gets the current audio dsp controls configuration of the device.",
+      "fields": {
+        "entity_id": {
+          "name": "Entity ID",
+          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+        },
+        "refresh": {
+          "name": "Refresh?",
+          "description": "True to query the device for realtime information and refresh the cache; otherwise, False to just return the cached information."
+        }
+      }
+    },
+    "get_audio_product_level_controls": {
+      "name": "Get Audio Product Level Controls",
+      "description": "Gets the current audio product level controls configuration of the device.",
+      "fields": {
+        "entity_id": {
+          "name": "Entity ID",
+          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+        },
+        "refresh": {
+          "name": "Refresh?",
+          "description": "True to query the device for realtime information and refresh the cache; otherwise, False to just return the cached information."
+        }
+      }
+    },
+    "get_audio_product_tone_controls": {
+      "name": "Get Audio Product Tone Controls",
+      "description": "Gets the current audio product tone controls configuration of the device.",
+      "fields": {
+        "entity_id": {
+          "name": "Entity ID",
+          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+        },
+        "refresh": {
+          "name": "Refresh?",
+          "description": "True to query the device for realtime information and refresh the cache; otherwise, False to just return the cached information."
+        }
+      }
+    },
+    "get_audio_speaker_attribute_and_setting": {
+      "name": "Get Audio Speaker Attribute and Setting",
+      "description": "Gets the current audio speaker attribute and setting configuration of the device.",
+      "fields": {
+        "entity_id": {
+          "name": "Entity ID",
+          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+        },
+        "refresh": {
+          "name": "Refresh?",
+          "description": "True to query the device for realtime information and refresh the cache; otherwise, False to just return the cached information."
+        }
+      }
+    },
+    "get_balance": {
+      "name": "Get Balance",
+      "description": "Gets the current balance configuration of the device.",
+      "fields": {
+        "entity_id": {
+          "name": "Entity ID",
+          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+        },
+        "refresh": {
+          "name": "Refresh?",
+          "description": "True to query the device for realtime information and refresh the cache; otherwise, False to just return the cached information."
+        }
+      }
+    },
+    "get_bass_capabilities": {
+      "name": "Get Bass Capabilities",
+      "description": "Gets the current bass capability configuration of the device.",
+      "fields": {
+        "entity_id": {
+          "name": "Entity ID",
+          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+        },
+        "refresh": {
+          "name": "Refresh?",
+          "description": "True to query the device for realtime information and refresh the cache; otherwise, False to just return the cached information."
+        }
+      }
+    },
+    "get_bass_level": {
+      "name": "Get Bass Level",
+      "description": "Gets the current bass level configuration of the device.",
+      "fields": {
+        "entity_id": {
+          "name": "Entity ID",
+          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+        },
+        "refresh": {
+          "name": "Refresh?",
+          "description": "True to query the device for realtime information and refresh the cache; otherwise, False to just return the cached information."
+        }
+      }
+    },
+    "get_device_info": {
+      "name": "Get Device Information",
+      "description": "Gets basic details of the device.",
+      "fields": {
+        "entity_id": {
+          "name": "Entity ID",
+          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+        }
+      }
+    },
+    "get_product_cec_hdmi_control": {
+      "name": "Get Product CEC HDMI Control",
+      "description": "Gets the product CEC HDMI control configuration of the device.",
+      "fields": {
+        "entity_id": {
+          "name": "Entity ID",
+          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+        },
+        "refresh": {
+          "name": "Refresh?",
+          "description": "True to query the device for realtime information and refresh the cache; otherwise, False to just return the cached information."
+        }
+      }
+    },
+    "get_product_hdmi_assignment_control": {
+      "name": "Get Product HDMI Assignment Controls",
+      "description": "Gets the product HDMI assignment controls configuration of the device.",
+      "fields": {
+        "entity_id": {
+          "name": "Entity ID",
+          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+        },
+        "refresh": {
+          "name": "Refresh?",
+          "description": "True to query the device for realtime information and refresh the cache; otherwise, False to just return the cached information."
+        }
+      }
+    },
+    "get_source_list": {
+      "name": "Get Source List",
+      "description": "Retrieves the list of sources defined to the device.",
+      "fields": {
+        "entity_id": {
+          "name": "Entity ID",
+          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+        }
+      }
+    },
+    "get_supported_urls": {
+      "name": "Get Supported URLs",
+      "description": "Gets the supported urls configuration of the device.",
+      "fields": {
+        "entity_id": {
+          "name": "Entity ID",
+          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+        },
+        "refresh": {
+          "name": "Refresh?",
+          "description": "True to query the device for realtime information and refresh the cache; otherwise, False to just return the cached information."
+        }
+      }
+    },
+    "musicservice_station_list": {
+      "name": "Get Music Service Station List",
+      "description": "Retrieves the list of your stored stations from the specified music service (e.g. PANDORA, etc).",
+      "fields": {
+        "entity_id": {
+          "name": "Entity ID",
+          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+        },
+        "source": {
+          "name": "Source",
+          "description": "Music service source to navigate (e.g. 'PANDORA', etc); the value is case-sensitive, and should normally be UPPER case."
+        },
+        "source_account": {
+          "name": "Source Account",
+          "description": "Music service source account (e.g. the music service user-id).  Default is none."
+        },
+        "sort_type": {
+          "name": "Sort Type",
+          "description": "Sort type used by the Music Service to sort the returned items by ('dateCreated', 'stationName'); the value is case-sensitive."
+        }
+      }
+    },
+    "play_contentitem": {
+      "name": "Play Content Item",
+      "description": "Play media content from a content item source (e.g. TUNEIN station, etc) on a SoundTouch device.",
+      "fields": {
+        "entity_id": {
+          "name": "Entity ID",
+          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+        },
+        "name": {
+          "name": "Item Name",
+          "description": "Name of the content item."
+        },
+        "source": {
+          "name": "Source",
+          "description": "Source to select to play the content; the value is case-sensitive, and should normally be UPPER case."
+        },
+        "source_account": {
+          "name": "Source Account",
+          "description": "Source account this content item is played with.  Default is none."
+        },
+        "item_type": {
+          "name": "Item Type",
+          "description": "Type of content item to play; the value is case-sensitive, and should normally be lower case."
+        },
+        "location": {
+          "name": "Content Location",
+          "description": "A direct link to the media content that will be played."
+        },
+        "container_art": {
+          "name": "Container Art",
+          "description": "A direct link to the container art (if present)."
+        },
+        "is_presetable": {
+          "name": "Is Presetable?",
+          "description": "true if this item can be saved as a Preset; otherwise, false."
+        }
+      }
+    },
+    "play_handoff": {
+      "name": "Play Handoff Settings",
+      "description": "Handoff playing source from one SoundTouch device to another.",
+      "fields": {
+        "entity_id_from": {
+          "name": "From Entity ID",
+          "description": "Entity ID of the SoundTouch device that is currently playing."
+        },
+        "entity_id_to": {
+          "name": "To Entity ID",
+          "description": "Entity ID of the SoundTouch device that needs to play what the 'from' device is currently playing."
+        },
+        "restore_volume": {
+          "name": "Restore Volume?",
+          "description": "True to handoff the FROM device volume level to the TO device; False (default) to leave the TO device volume level as-is."
+        },
+        "snapshot_only": {
+          "name": "Snapshot Only?",
+          "description": "True to only handoff the snapshot and not trigger the restore and power off; False (default) to handoff the snapshot, restore it, and power off the FROM device."
+        }
+      }
+    },
+    "play_tts": {
+      "name": "Play TTS Message",
+      "description": "Play Text-To-Speech notification on a SoundTouch device.  Note that this is limited to ST-10,20,30 devices, as Bose ST-300 does not support notifications (AFAIK).",
+      "fields": {
+        "entity_id": {
+          "name": "Entity ID",
+          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+        },
+        "message": {
+          "name": "Message Text",
+          "description": "The message that will be converted from text to speech and played on the device."
+        },
+        "artist": {
+          "name": "Artist Status Text",
+          "description": "The text that will appear in the NowPlaying Artist node; if omitted, default is \"TTS Notification\"."
+        },
+        "album": {
+          "name": "Album Status Text",
+          "description": "The text that will appear in the NowPlaying Album node; if omitted, default is \"Google TTS\"."
+        },
+        "track": {
+          "name": "Track Status Text",
+          "description": "The text that will appear in the NowPlaying Track node; if omitted, default is the message value."
+        },
+        "tts_url": {
+          "name": "TTS Service Url",
+          "description": "The Text-To-Speech url used to translate the message.  The value should contain a 'saytext' format parameter, that will be used to insert the encoded message text."
+        },
+        "volume_level": {
+          "name": "Volume Level",
+          "description": "The temporary volume level that will be used when the media is played.  Specify a value of zero to play at the current volume.  Default is zero."
+        },
+        "app_key": {
+          "name": "Bose App Key",
+          "description": "Bose Developer API application key; if omitted, defaults to a pre-defined App Developer Key."
+        }
+      }
+    },
+    "play_url": {
+      "name": "Play URL Notification",
+      "description": "Play media from the given URL as a notification message, interrupting the currently playing media to play the specified url.  The currently playing will then resume playing once play of the specified URL is complete.",
+      "fields": {
+        "entity_id": {
+          "name": "Entity ID",
+          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+        },
+        "url": {
+          "name": "URL",
+          "description": "The url to play; value must start with http or https."
+        },
+        "artist": {
+          "name": "Artist Status Text",
+          "description": "The text that will appear in the NowPlaying Artist node; if omitted, default is \"Unknown Artist\"."
+        },
+        "album": {
+          "name": "Album Status Text",
+          "description": "The text that will appear in the NowPlaying Album node; if omitted, default is \"Unknown Album\"."
+        },
+        "track": {
+          "name": "Track Status Text",
+          "description": "The text that will appear in the NowPlaying Track node; if omitted, default is \"Unknown Track\"."
+        },
+        "volume_level": {
+          "name": "Volume Level",
+          "description": "The temporary volume level that will be used when the media is played.  Specify a value of zero to play at the current volume.  Default is zero."
+        },
+        "app_key": {
+          "name": "Bose App Key",
+          "description": "Bose Developer API application key; if omitted, defaults to a pre-defined App Developer Key."
+        },
+        "get_metadata_from_url_file": {
+          "name": "Get Metadata From URL?",
+          "description": "If true, the artist, album, and song title metadata details will be retrieved from the ID3 header of the url content (if available); otherwise, False to use the artist, album, and song title arguments specified."
+        }
+      }
+    },
+    "play_url_dlna": {
+      "name": "Play URL DLNA",
+      "description": "Play media content from a URL on a SoundTouch device.",
+      "fields": {
+        "entity_id": {
+          "name": "Entity ID",
+          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+        },
+        "url": {
+          "name": "URL",
+          "description": "The url to play; HTTPS URL's are not supported by this service due to DLNA restrictions."
+        },
+        "artist": {
+          "name": "Artist Status Text",
+          "description": "The text that will appear in the NowPlaying Artist node for source-specific nowPlaying information; if omitted, default is \"Unknown Artist\"."
+        },
+        "album": {
+          "name": "Album Status Text",
+          "description": "The text that will appear in the NowPlaying Album node for source-specific nowPlaying information; if omitted, default is \"Unknown Album\"."
+        },
+        "track": {
+          "name": "Track Status Text",
+          "description": "The text that will appear in the NowPlaying Track node for source-specific nowPlaying information; if omitted, default is \"Unknown Track\"."
+        },
+        "art_url": {
+          "name": "Cover Artwork URL",
+          "description": "A url link to a cover art image that represents the URL for source-specific nowPlaying information; if omitted, default is None."
+        },
+        "update_now_playing_status": {
+          "name": "Update NowPlaying Status?",
+          "description": "True (default) to update the source-specific nowPlaying information; False to not update the source-specific nowPlaying information."
+        },
+        "delay": {
+          "name": "Command Delay",
+          "description": "Time delay (in seconds) to wait AFTER sending the play next track request if the currently playing media is a notification source. This delay will give the device time to process the change before another command is accepted. Default is 1; value range is 0 - 10."
+        }
+      }
+    },
+    "preset_list": {
+      "name": "Get Preset List",
+      "description": "Retrieves the list of presets defined to the device.",
+      "fields": {
+        "entity_id": {
+          "name": "Entity ID",
+          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+        },
+        "include_empty_slots": {
+          "name": "Include Empty Slots?",
+          "description": "True to include ALL preset slots (both empty and set); otherwise, False (default) to only include preset slots that have been set."
+        }
+      }
+    },
+    "preset_remove": {
+      "name": "Remove Preset",
+      "description": "Removes the preset at the specified preset id.",
+      "fields": {
+        "entity_id": {
+          "name": "Entity ID",
+          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+        },
+        "preset_id": {
+          "name": "Preset ID",
+          "description": "Preset ID to remove (1-6)."
+        }
+      }
+    },
+    "reboot_device": {
+      "name": "Reboot Device",
+      "description": "Reboots the SoundTouch device operating system; all connectivity will be lost for about 30-45 seconds while the speaker reboots.",
+      "fields": {
+        "entity_id": {
+          "name": "Entity ID",
+          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+        },
+        "port": {
+          "name": "SSH Port Number",
+          "description": "The port number of the SSH server that is running on the device; default is port 17000."
+        }
+      }
+    },
+    "recent_list": {
+      "name": "Get Recent List",
+      "description": "Retrieves the list of recently played items defined to the device.",
+      "fields": {
+        "entity_id": {
+          "name": "Entity ID",
+          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+        }
+      }
+    },
+    "recent_list_cache": {
+      "name": "Get Recent List Cache",
+      "description": "Retrieves the list of recently played cached items stored on the local file system.  Items in this list will contain cover art url links.",
+      "fields": {
+        "entity_id": {
+          "name": "Entity ID",
+          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+        }
+      }
+    },
+    "remote_keypress": {
+      "name": "Remote Keypress",
+      "description": "Simulates the press and release of a key on the SoundTouch device remote control.",
+      "fields": {
+        "entity_id": {
+          "name": "Entity ID",
+          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+        },
+        "key_id": {
+          "name": "Key Identifier",
+          "description": "SoundTouch remote control key identifier."
+        },
+        "key_state": {
+          "name": "Key State",
+          "description": "SoundTouch remote control key state.  Most key identifiers will use 'both' for state; the 'PRESET_n' key identifiers use 'press' to store a preset, and 'release' to select (or play) a preset."
+        }
+      }
+    },
+    "set_audio_dsp_controls": {
+      "name": "Set Audio DSP Controls",
+      "description": "Sets the current audio dsp controls configuration of the device.",
+      "fields": {
+        "entity_id": {
+          "name": "Entity ID",
+          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+        },
+        "audio_mode": {
+          "name": "Audio Mode",
+          "description": "Audio mode value (e.g. AUDIO_MODE_NORMAL, AUDIO_MODE_DIALOG, etc)."
+        },
+        "video_sync_audio_delay": {
+          "name": "Video Sync Audio Delay",
+          "description": "Video syncronization audio delay value (in milliseconds). Suggested range is 0 - 250ms, in increments of 10."
+        }
+      }
+    },
+    "set_audio_product_level_controls": {
+      "name": "Set Audio Product Level Controls",
+      "description": "Sets the current audio product level controls configuration of the device.",
+      "fields": {
+        "entity_id": {
+          "name": "Entity ID",
+          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+        },
+        "front_center_speaker_level": {
+          "name": "Front Center Speaker Level",
+          "description": "Front center speaker level to set, usually in the range of -100 (low) to 100 (high)."
+        },
+        "rear_surround_speakers_level": {
+          "name": "Rear Surround Speaker Level",
+          "description": "Rear surround speaker level to set, usually in the range of -100 (low) to 100 (high)."
+        }
+      }
+    },
+    "set_audio_product_tone_controls": {
+      "name": "Set Audio Product Tone Controls",
+      "description": "Sets the current audio product tone controls configuration of the device.",
+      "fields": {
+        "entity_id": {
+          "name": "Entity ID",
+          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+        },
+        "bass_level": {
+          "name": "Bass Level",
+          "description": "Bass level to set, usually in the range of -100 (low) to 100 (high)."
+        },
+        "treble_level": {
+          "name": "Treble Level",
+          "description": "Treble level to set, usually in the range of -100 (low) to 100 (high)."
+        }
+      }
+    },
+    "set_balance_level": {
+      "name": "Set Balance Level",
+      "description": "Sets the device balance level to the given level.",
+      "fields": {
+        "entity_id": {
+          "name": "Entity ID",
+          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+        },
+        "level": {
+          "name": "Level",
+          "description": "Balance level to set, usually in the range of -7 (left) to 7 (right)."
+        }
+      }
+    },
+    "set_bass_level": {
+      "name": "Set Bass Level",
+      "description": "Sets the device bass level to the given level.",
+      "fields": {
+        "entity_id": {
+          "name": "Entity ID",
+          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+        },
+        "level": {
+          "name": "Level",
+          "description": "Bass level to set, usually in the range of -9 (no bass) to 0 (full bass)."
+        }
+      }
+    },
+    "set_language": {
+      "name": "Set Device Language",
+      "description": "Sets the device language code.",
+      "fields": {
+        "entity_id": {
+          "name": "Entity ID",
+          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+        },
+        "language": {
+          "name": "Language",
+          "description": "Language name to assign to the device."
+        }
+      }
+    },
+    "set_name": {
+      "name": "Set Device Name",
+      "description": "Sets the device name.",
+      "fields": {
+        "entity_id": {
+          "name": "Entity ID",
+          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+        },
+        "name": {
+          "name": "Name",
+          "description": "Name to assign to the device."
+        }
+      }
+    },
+    "set_product_cec_hdmi_control": {
+      "name": "Set Product CEC HDMI Control",
+      "description": "Sets the product CEC HDMI control configuration of the device.",
+      "fields": {
+        "entity_id": {
+          "name": "Entity ID",
+          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+        },
+        "cec_mode": {
+          "name": "CEC Mode",
+          "description": "CEC Mode to assign to the device."
+        }
+      }
+    },
+    "set_product_hdmi_assignment_controls": {
+      "name": "Set Product HDMI Assignment Controls",
+      "description": "Sets the product HDMI assignment controls configuration of the device.",
+      "fields": {
+        "entity_id": {
+          "name": "Entity ID",
+          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+        },
+        "hdmi_input_selection_01": {
+          "name": "HDMI Input Selection 01",
+          "description": "HDMI input selection 1 value."
+        }
+      }
+    },
+    "snapshot_restore": {
+      "name": "Snapshot Restore",
+      "description": "Restore SoundTouch device settings from a snapshot.",
+      "fields": {
+        "entity_id": {
+          "name": "Entity ID",
+          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+        },
+        "restore_volume": {
+          "name": "Restore Volume?",
+          "description": "Indicates if the volume also needs to be restored (True, default) or not (False)."
+        }
+      }
+    },
+    "snapshot_store": {
+      "name": "Snapshot Store",
+      "description": "Store SoundTouch device settings to a snapshot.",
+      "fields": {
+        "entity_id": {
+          "name": "Entity ID",
+          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+        }
+      }
+    },
+    "update_source_nowplayingstatus": {
+      "name": "Update Source NowPlayingStatus",
+      "description": "Updates the NowPlayingStatus object for a given source and sourceAccount.",
+      "fields": {
+        "entity_id": {
+          "name": "Entity ID",
+          "description": "Entity ID of the SoundTouchPlus device that will process the request."
+        },
+        "source_title": {
+          "name": "Source Title",
+          "description": "Source input this content item is played with (case-sensitive)."
+        },
+        "album": {
+          "name": "Album",
+          "description": "The album of the playing track (if present)."
+        },
+        "artist": {
+          "name": "Artist",
+          "description": "The creator of the track (if present)."
+        },
+        "artist_id": {
+          "name": "Artist ID",
+          "description": "Unique identifier of the artist, as provided by the source music service (if present)."
+        },
+        "art_url": {
+          "name": "Art URL",
+          "description": "A url link to the art image of the station (if present)."
+        },
+        "description": {
+          "name": "Description",
+          "description": "A brief description that was added to the track (if present)."
+        },
+        "duration": {
+          "name": "Duration",
+          "description": "The track's duration (if present)."
+        },
+        "genre": {
+          "name": "Genre",
+          "description": "The genre of the track (if present)."
+        },
+        "play_status": {
+          "name": "Play Status",
+          "description": "Indicates whether the device is currently playing the embedded track."
+        },
+        "position": {
+          "name": "Position",
+          "description": "The current position of the playing media (if present)."
+        },
+        "session_id": {
+          "name": "Session ID",
+          "description": "Unique identifier of the session, as provided by the source music service (if present)."
+        },
+        "station_location": {
+          "name": "Station Location",
+          "description": "The station's location."
+        },
+        "station_name": {
+          "name": "Station Name",
+          "description": "The station's name (if present)."
+        },
+        "track": {
+          "name": "Track",
+          "description": "The current media track name (if present)."
+        },
+        "track_id": {
+          "name": "Track ID",
+          "description": "Unique identifier of the track, as provided by the source music service (if present)."
+        }
+      }
+    },
+    "zone_toggle_member": {
+      "name": "Zone Member Toggle",
+      "description": "Toggles the given zone member to or from a master device's zone.  A new zone will be created automatically if needed.",
+      "fields": {
+        "entity_id_master": {
+          "name": "Master Zone Entity ID",
+          "description": "Entity ID of the SoundTouch device master zone."
+        },
+        "entity_id_member": {
+          "name": "Member Zone Entity ID",
+          "description": "Entity ID of the SoundTouch device that will be toggled to or from the master zone."
+        }
+      }
+    }
+  }
+}

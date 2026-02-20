@@ -1,0 +1,261 @@
+{
+  "config": {
+    "abort": {
+      "already_configured": "Il dispositivo è già configurato",
+      "auth_failed": "Autenticazione con il tuo account BOSE non riuscita. Controlla l'indirizzo email e la password.",
+      "connect_failed": "Connessione all'altoparlante non riuscita. Assicurati che l'altoparlante sia acceso, collegato e che l'indirizzo IP sia corretto.",
+      "info_failed": "Connessione al dispositivo stabilita, ma il recupero delle informazioni dell'altoparlante non è riuscito. Controlla i log per maggiori dettagli.",
+      "no_guid": "Rilevamento del dispositivo fallito: nessun GUID trovato nelle informazioni di rilevamento.",
+      "no_sources_available": "Nessuna sorgente disponibile da configurare. Sorgenti come TV, Optical e Cinch possono essere collegate ad altri lettori multimediali per le informazioni di riproduzione.",
+      "reauth_failed": "Riautenticazione non riuscita. Prova a rimuovere e aggiungere nuovamente il dispositivo.",
+      "reauth_successful": "Riautenticato con successo con il tuo account Bose.",
+      "wrong_account": "L'account che hai inserito non corrisponde all'account utilizzato durante la configurazione di questo dispositivo. Utilizza lo stesso account."
+    },
+    "error": {
+      "auth_failed": "Autenticazione con il tuo account BOSE non riuscita. Controlla l’indirizzo email e la password."
+    },
+    "step": {
+      "user": {
+        "data": {
+          "device": "Seleziona il tuo dispositivo BOSE",
+          "mail": "Indirizzo email del tuo account BOSE",
+          "manual_ip": "Inserisci manualmente l’indirizzo IP",
+          "password": "Password del tuo account BOSE"
+        }
+      },
+      "manual_ip": {
+        "data": {
+          "manual_ip": "Indirizzo IP del tuo dispositivo BOSE"
+        }
+      },
+      "zeroconf_confirm": {
+        "description": "È stato rilevato un dispositivo Bose ({name}) all'indirizzo {ip}. Inserisci le credenziali del tuo account Bose per configurarlo.",
+        "data": {
+          "mail": "Indirizzo email del tuo account BOSE",
+          "password": "Password del tuo account BOSE"
+        }
+      },
+      "reauth_confirm": {
+        "description": "L'autenticazione per il tuo dispositivo Bose ({device_name}) è scaduta. Reinserisci le tue credenziali per continuare a utilizzare il dispositivo.",
+        "data": {
+          "mail": "Indirizzo email del tuo account BOSE",
+          "password": "Password del tuo account BOSE"
+        }
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Menu di configurazione",
+        "description": "Scegli cosa desideri configurare. Queste sono opzioni avanzate e possono essere lasciate con i valori predefiniti poiché possono essere modificate in seguito.",
+        "menu_options": {
+          "source_settings": "Impostazioni sorgenti",
+          "connectivity_settings": "Impostazioni di connettività",
+          "complete_setup": "Completa configurazione"
+        }
+      },
+      "source_settings": {
+        "title": "Impostazioni sorgenti",
+        "description": "Scegli quale sorgente desideri configurare. Puoi collegare un lettore multimediale per mostrare le informazioni di riproduzione e rinominare facoltativamente la sorgente.",
+        "data": {
+          "source": "Sorgente"
+        }
+      },
+      "configure_source": {
+        "title": "Configura {source_name}",
+        "description": "Configura le impostazioni per la sorgente: {source_name}",
+        "data": {
+          "rename": "Nome personalizzato (facoltativo)",
+          "linked_player": "Lettore multimediale collegato (facoltativo)"
+        }
+      },
+      "connectivity_settings": {
+        "title": "Impostazioni di connettività",
+        "description": "Configura le funzionalità di connettività del tuo dispositivo Bose",
+        "data": {
+          "chromecast_auto_enable": "Attiva automaticamente Chromecast integrato alla connessione"
+        },
+        "data_description": {
+          "chromecast_auto_enable": "Quando abilitato, la funzionalità Chromecast verrà attivata automaticamente durante la connessione al dispositivo. Chromecast è necessario per TTS e riproduzione multimediale tramite l'entità media player!"
+        }
+      }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "charging_state": {
+        "name": "Stato di carica"
+      }
+    },
+    "button": {
+      "bluetooth_pairing": {
+        "name": "Accoppiamento Bluetooth"
+      }
+    },
+    "media_player": {
+      "media_player": {
+        "name": "Lettore multimediale"
+      }
+    },
+    "select": {
+      "audio_mode": {
+        "name": "Modalità audio",
+        "state": {
+          "dialog": "Modalità dialogo",
+          "dynamic_dialog": "Modalità dialogo IA",
+          "normal": "Modalità normale"
+        }
+      },
+      "cec_settings": {
+        "name": "Impostazioni CEC",
+        "state": {
+          "cec_active": "Predefinito (CEC attivo)",
+          "cec_inactive": "Spento (CEC inattivo)",
+          "option2": "Opzione 2 (TV più vecchi)",
+          "option3": "Opzione 3 (il telecomando non accende la TV)",
+          "option4": "Opzione 4 (nessun audio dalla TV tramite soundbar)",
+          "option5": "Opzione 5 (la TV non ha audio)",
+          "option6": "Opzione 6 (la soundbar rimane accesa)"
+        }
+      },
+      "dual_mono": {
+        "name": "Dual Mono",
+        "state": {
+          "both": "Entrambi",
+          "track1": "Traccia audio 1",
+          "track2": "Traccia audio 2"
+        }
+      },
+      "rebroadcast_latency": {
+        "name": "Sincronizzazione di gruppo",
+        "state": {
+          "sync_to_room": "Sincronizza con TV",
+          "sync_with_group": "Sincronizza con gruppo"
+        }
+      }
+    },
+    "sensor": {
+      "battery_level": {
+        "name": "Livello batteria"
+      },
+      "time_till_empty": {
+        "name": "Tempo fino a scarica"
+      },
+      "time_till_full": {
+        "name": "Tempo fino a carica completa"
+      },
+      "wifi_signal": {
+        "name": "Intensità segnale WiFi"
+      },
+      "wifi_ssid": {
+        "name": "SSID WiFi"
+      },
+      "network_type": {
+        "name": "Tipo di rete"
+      },
+      "network_ip": {
+        "name": "Indirizzo IP di rete"
+      }
+    },
+    "switch": {
+      "auto_standby": {
+        "name": "Standby automatico"
+      },
+      "subs": {
+        "name": "Subwoofer"
+      },
+      "rears": {
+        "name": "Altoparlanti posteriori"
+      }
+    },
+    "number": {
+      "bass": {
+        "name": "Bassi"
+      },
+      "treble": {
+        "name": "Alti"
+      },
+      "center": {
+        "name": "Canale centrale"
+      },
+      "subwoofer_gain": {
+        "name": "Guadagno subwoofer"
+      },
+      "surround": {
+        "name": "Guadagno altoparlanti posteriori"
+      },
+      "height": {
+        "name": "Canale altezza"
+      },
+      "av_sync": {
+        "name": "Sync AV"
+      }
+    }
+  },
+  "exceptions": {
+    "bluetooth_connect_failed": {
+      "message": "Connessione al dispositivo Bluetooth {device_name} non riuscita: {error}"
+    },
+    "bluetooth_device_not_found": {
+      "message": "Dispositivo Bluetooth {device_name} non trovato."
+    },
+    "bluetooth_pairing_failed": {
+      "message": "Attivazione dell’accoppiamento Bluetooth non riuscita: {error}"
+    },
+    "config_entry_not_found": {
+      "message": "Nessuna voce valida trovata per l’ID dispositivo: {device_id}"
+    },
+    "speaker_not_found": {
+      "message": "Nessun altoparlante trovato per l’ID dispositivo: {device_id}"
+    },
+    "not_in_group": {
+      "message": "L'entità {entity_id} non fa parte di nessun gruppo."
+    },
+    "master_not_found": {
+      "message": "Entità master {entity_id} non trovata."
+    },
+    "source_not_configured": {
+      "message": "La sorgente {source_name} non è configurata correttamente."
+    },
+    "chromecast_not_available": {
+      "message": "Funzionalità Chromecast non disponibile per l'altoparlante su {speaker_ip}"
+    },
+    "connection_error": {
+      "message": "Errore di connessione durante l'operazione: {error}"
+    },
+    "media_playback_failed": {
+      "message": "Riproduzione del media {media_id} non riuscita: {error}"
+    }
+  },
+  "services": {
+    "remove_bluetooth_device": {
+      "description": "Rimuovi un dispositivo Bluetooth associato tramite indirizzo MAC.",
+      "fields": {
+        "mac_address": {
+          "description": "L’indirizzo MAC del dispositivo Bluetooth da rimuovere.",
+          "name": "Indirizzo MAC"
+        }
+      },
+      "name": "Rimuovi dispositivo Bluetooth"
+    },
+    "send_custom_request": {
+      "description": "Invia una richiesta diretta a un altoparlante Bose.",
+      "fields": {
+        "body": {
+          "description": "Corpo JSON opzionale per la richiesta (usato per POST e PUT).",
+          "name": "Corpo della richiesta"
+        },
+        "method": {
+          "description": "Il metodo HTTP da utilizzare (GET, POST, PUT, DELETE).",
+          "name": "Metodo HTTP"
+        },
+        "resource": {
+          "description": "Il percorso della risorsa API da richiedere (es. `/system/info`).",
+          "name": "Risorsa"
+        }
+      },
+      "name": "Invia richiesta personalizzata"
+    }
+  }
+}

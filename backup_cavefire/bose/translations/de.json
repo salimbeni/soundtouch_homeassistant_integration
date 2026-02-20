@@ -1,0 +1,261 @@
+{
+  "config": {
+    "abort": {
+      "already_configured": "Gerät ist bereits konfiguriert",
+      "auth_failed": "Authentifizierung mit deinem BOSE‑Konto fehlgeschlagen. Überprüfe deine E‑Mail‑Adresse und dein Passwort.",
+      "connect_failed": "Verbindung zum Lautsprecher fehlgeschlagen. Prüfe, ob der Lautsprecher eingeschaltet und verbunden ist und ob die IP‑Adresse korrekt ist.",
+      "info_failed": "Verbindung zum Gerät hergestellt, aber das Abrufen der Lautsprecherinformationen ist fehlgeschlagen. Prüf die Protokolle für mehr Informationen.",
+      "no_guid": "Geräteerkennung fehlgeschlagen: Keine GUID in den Erkennungsinformationen gefunden.",
+      "no_sources_available": "Keine Quellen zum Konfigurieren verfügbar. Quellen wie TV, Optical und Cinch können mit anderen Media-Playern für Wiedergabeinformationen verknüpft werden.",
+      "reauth_failed": "Erneute Authentifizierung fehlgeschlagen. Bitte versuche, das Gerät zu entfernen und erneut hinzuzufügen.",
+      "reauth_successful": "Erfolgreich mit deinem Bose-Konto erneut authentifiziert.",
+      "wrong_account": "Das eingegebene Konto stimmt nicht mit dem Konto überein, das beim Einrichten dieses Geräts verwendet wurde. Bitte verwende dasselbe Konto."
+    },
+    "error": {
+      "auth_failed": "Authentifizierung mit deinem BOSE‑Konto fehlgeschlagen. Überprüfe deine E‑Mail‑Adresse und dein Passwort."
+    },
+    "step": {
+      "user": {
+        "data": {
+          "device": "Wähle dein BOSE‑Gerät",
+          "mail": "E‑Mail‑Adresse deines BOSE‑Kontos",
+          "manual_ip": "IP-Adresse manuell eingeben",
+          "password": "Passwort deines BOSE‑Kontos"
+        }
+      },
+      "manual_ip": {
+        "data": {
+          "manual_ip": "IP-Adresse deines BOSE‑Geräts"
+        }
+      },
+      "zeroconf_confirm": {
+        "description": "Ein Bose‑Gerät ({name}) wurde unter {ip} erkannt. Gib deine Bose‑Kontodaten ein, um es einzurichten.",
+        "data": {
+          "mail": "E‑Mail‑Adresse deines BOSE‑Kontos",
+          "password": "Passwort deines BOSE‑Kontos"
+        }
+      },
+      "reauth_confirm": {
+        "description": "Die Authentifizierung für dein Bose-Gerät ({device_name}) ist abgelaufen. Bitte gib deine Anmeldedaten erneut ein, um das Gerät weiterhin zu verwenden.",
+        "data": {
+          "mail": "E‑Mail‑Adresse deines BOSE‑Kontos",
+          "password": "Passwort deines BOSE‑Kontos"
+        }
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Konfigurationsmenü",
+        "description": "Wähle aus, was du konfigurieren möchtest. Dies sind erweiterte Optionen und können mit den Standardwerten belassen werden, da sie später geändert werden können.",
+        "menu_options": {
+          "source_settings": "Quellen-Einstellungen",
+          "connectivity_settings": "Verbindungseinstellungen",
+          "complete_setup": "Einrichtung abschließen"
+        }
+      },
+      "source_settings": {
+        "title": "Quellen-Einstellungen",
+        "description": "Wähle die Quelle aus, die du konfigurieren möchtest. Du kannst einen Media-Player verknüpfen, um Wiedergabeinformationen anzuzeigen, und optional die Quelle umbenennen.",
+        "data": {
+          "source": "Quelle"
+        }
+      },
+      "configure_source": {
+        "title": "{source_name} konfigurieren",
+        "description": "Einstellungen für Quelle konfigurieren: {source_name}",
+        "data": {
+          "rename": "Benutzerdefinierter Name (optional)",
+          "linked_player": "Verknüpfter Media-Player (optional)"
+        }
+      },
+      "connectivity_settings": {
+        "title": "Verbindungseinstellungen",
+        "description": "Konfiguriere Verbindungsfunktionen für dein Bose-Gerät",
+        "data": {
+          "chromecast_auto_enable": "Chromecast Built-in bei Verbindung automatisch aktivieren"
+        },
+        "data_description": {
+          "chromecast_auto_enable": "Wenn aktiviert, wird die Chromecast-Funktionalität automatisch aktiviert, wenn eine Verbindung zum Gerät hergestellt wird. Chromecast wird für TTS und Medienwiedergabe über die Media-Player-Entität benötigt!"
+        }
+      }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "charging_state": {
+        "name": "Ladezustand"
+      }
+    },
+    "button": {
+      "bluetooth_pairing": {
+        "name": "Bluetooth‑Kopplung"
+      }
+    },
+    "media_player": {
+      "media_player": {
+        "name": "Media‑Player"
+      }
+    },
+    "select": {
+      "audio_mode": {
+        "name": "Audiomodus",
+        "state": {
+          "dialog": "Dialogmodus",
+          "dynamic_dialog": "KI‑Dialogmodus",
+          "normal": "Normalmodus"
+        }
+      },
+      "cec_settings": {
+        "name": "CEC‑Einstellungen",
+        "state": {
+          "cec_active": "Standardeinstellung (CEC aktiv)",
+          "cec_inactive": "Aus (CEC inaktiv)",
+          "option2": "Option 2 (ältere TVs)",
+          "option3": "Option 3 (Fernbedinung schaltet TV nicht ein)",
+          "option4": "Option 4 (TV kein Ton über Soundbar)",
+          "option5": "Option 5 (TV kein Ton)",
+          "option6": "Option 6 (Soundbar bleibt an)"
+        }
+      },
+      "dual_mono": {
+        "name": "Dual‑Mono",
+        "state": {
+          "both": "Beide",
+          "track1": "Audiospur 1",
+          "track2": "Audiospur 2"
+        }
+      },
+      "rebroadcast_latency": {
+        "name": "Gruppensynchronisation",
+        "state": {
+          "sync_to_room": "Mit Fernsehgerät synchronisieren",
+          "sync_with_group": "Mit Gruppe synchronisieren"
+        }
+      }
+    },
+    "sensor": {
+      "battery_level": {
+        "name": "Batteriestand"
+      },
+      "time_till_empty": {
+        "name": "Zeit bis leer"
+      },
+      "time_till_full": {
+        "name": "Zeit bis voll"
+      },
+      "wifi_signal": {
+        "name": "WLAN-Signalstärke"
+      },
+      "wifi_ssid": {
+        "name": "WLAN-SSID"
+      },
+      "network_type": {
+        "name": "Netzwerktyp"
+      },
+      "network_ip": {
+        "name": "Netzwerk-IP-Adresse"
+      }
+    },
+    "switch": {
+      "auto_standby": {
+        "name": "Auto‑Standby"
+      },
+      "subs": {
+        "name": "Subwoofer"
+      },
+      "rears": {
+        "name": "Rücklautsprecher"
+      }
+    },
+    "number": {
+      "bass": {
+        "name": "Bass"
+      },
+      "treble": {
+        "name": "Höhen"
+      },
+      "center": {
+        "name": "Center-Kanal"
+      },
+      "subwoofer_gain": {
+        "name": "Subwoofer‑Verstärkung"
+      },
+      "surround": {
+        "name": "Rücklautsprecher-Verstärkung"
+      },
+      "height": {
+        "name": "Höhen-Kanal"
+      },
+      "av_sync": {
+        "name": "AV‑Sync"
+      }
+    }
+  },
+  "exceptions": {
+    "bluetooth_connect_failed": {
+      "message": "Verbindung zum Bluetooth‑Gerät {device_name} ist fehlgeschlagen: {error}"
+    },
+    "bluetooth_device_not_found": {
+      "message": "Bluetooth‑Gerät {device_name} wurde nicht gefunden."
+    },
+    "bluetooth_pairing_failed": {
+      "message": "Aktivierung der Bluetooth‑Kopplung fehlgeschlagen: {error}"
+    },
+    "config_entry_not_found": {
+      "message": "Kein gültiger Eintrag für Geräte‑ID gefunden: {device_id}"
+    },
+    "speaker_not_found": {
+      "message": "Kein Lautsprecher für Geräte‑ID gefunden: {device_id}"
+    },
+    "not_in_group": {
+      "message": "Entität {entity_id} ist keiner Gruppe zugeordnet."
+    },
+    "master_not_found": {
+      "message": "Haupt‑Entität {entity_id} nicht gefunden."
+    },
+    "source_not_configured": {
+      "message": "Quelle {source_name} ist nicht korrekt konfiguriert."
+    },
+    "chromecast_not_available": {
+      "message": "Chromecast-Funktionalität für Lautsprecher unter {speaker_ip} nicht verfügbar"
+    },
+    "connection_error": {
+      "message": "Verbindungsfehler während der Operation: {error}"
+    },
+    "media_playback_failed": {
+      "message": "Wiedergabe des Mediums {media_id} fehlgeschlagen: {error}"
+    }
+  },
+  "services": {
+    "remove_bluetooth_device": {
+      "description": "Entferne ein gekoppeltes Bluetooth‑Gerät per MAC‑Adresse.",
+      "fields": {
+        "mac_address": {
+          "description": "Die MAC‑Adresse des zu entfernenden Bluetooth‑Geräts.",
+          "name": "MAC‑Adresse"
+        }
+      },
+      "name": "Bluetooth‑Gerät entfernen"
+    },
+    "send_custom_request": {
+      "description": "Sende eine direkte Anfrage an einen Bose‑Lautsprecher.",
+      "fields": {
+        "body": {
+          "description": "Optionaler JSON‑Body für die Anfrage (wird für POST und PUT verwendet).",
+          "name": "Anfrage‑Body"
+        },
+        "method": {
+          "description": "Die zu verwendende HTTP‑Methode (GET, POST, PUT, DELETE).",
+          "name": "HTTP‑Methode"
+        },
+        "resource": {
+          "description": "Der API‑Ressourcenpfad, der angefragt werden soll (z. B. `/system/info`).",
+          "name": "Ressource"
+        }
+      },
+      "name": "Benutzerdefinierte Anfrage senden"
+    }
+  }
+}

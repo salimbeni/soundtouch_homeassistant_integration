@@ -1,0 +1,1850 @@
+"""
+The soundtouchplus integration.
+"""
+import functools
+import logging
+from urllib3._version import __version__ as urllib3_version
+import voluptuous as vol
+
+from bosesoundtouchapi import *
+from bosesoundtouchapi.uri import *
+from bosesoundtouchapi.models import *
+from bosesoundtouchapi.ws import *
+from bosesoundtouchapi.bstconst import VERSION as bosesoundtouchapi_VERSION
+from spotifywebapipython.const import VERSION as spotifywebapipython_VERSION
+
+from homeassistant.components.media_player import MediaPlayerEntity
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import CONF_HOST, CONF_PORT, Platform
+from homeassistant.core import HomeAssistant, ServiceCall, ServiceResponse, SupportsResponse
+from homeassistant.exceptions import ConfigEntryNotReady, HomeAssistantError, IntegrationError, ServiceValidationError
+from homeassistant.helpers import config_validation as cv, entity_registry as er
+from homeassistant.helpers.typing import ConfigType
+
+from .instancedata_soundtouchplus import InstanceDataSoundTouchPlus
+from .stappmessages import STAppMessages
+from .const import (
+    DOMAIN,
+    CONF_PORT_WEBSOCKET,
+    CONF_PING_WEBSOCKET_INTERVAL,
+    CONF_OPTION_RECENTS_CACHE_MAX_ITEMS,
+    CONF_OPTION_SOURCE_LIST,
+    DEFAULT_PING_WEBSOCKET_INTERVAL,
+    DEFAULT_PORT,
+    DEFAULT_PORT_WEBSOCKET,
+)
+
+_LOGGER = logging.getLogger(__name__)
+
+try:
+
+    from smartinspectpython.siauto import SIAuto, SILevel, SISession, SIConfigurationTimer, SIColors, SIMethodParmListContext
+
+    # load SmartInspect settings from a configuration settings file;
+    # configuration file will be monitored for changes, and reloaded if required.
+    siConfigPath: str = "./smartinspect.cfg"
+    SIAuto.Si.LoadConfiguration(siConfigPath)
+
+    # get smartinspect logger reference; create a new session for this module name.
+    _logsi:SISession = SIAuto.Si.GetSession(__name__)
+    if (_logsi == None):
+        _logsi = SIAuto.Si.AddSession(__name__, True)
+    _logsi.SystemLogger = _LOGGER
+    _logsi.LogSeparator(SILevel.Error)
+    _logsi.LogVerbose("__init__.py HAS SoundTouchPlus: initialization")
+    _logsi.LogAppDomain(SILevel.Verbose)
+    _logsi.LogSystem(SILevel.Verbose)
+
+except Exception as ex:
+
+    _LOGGER.warning("HAS SoundtouchPlus could not init SmartInspect debugging! %s", str(ex))
+
+PLATFORMS:list[str] = [Platform.MEDIA_PLAYER]
+""" 
+List of platforms to support. 
+There should be a matching .py file for each (e.g. "media_player")
+"""
+
+CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
+""" Configuration schema. """
+
+# -----------------------------------------------------------------------------------
+# Custom Service Schemas.
+# -----------------------------------------------------------------------------------
+SERVICE_ADD_WIRELESS_PROFILE = "add_wireless_profile"
+SERVICE_AUDIO_TONE_LEVELS = "audio_tone_levels"
+SERVICE_CLEAR_SOURCE_NOWPLAYINGSTATUS = "clear_source_nowplayingstatus"
+SERVICE_GET_AUDIO_DSP_CONTROLS = "get_audio_dsp_controls"
+SERVICE_GET_AUDIO_PRODUCT_LEVEL_CONTROLS = "get_audio_product_level_controls"
+SERVICE_GET_AUDIO_PRODUCT_TONE_CONTROLS = "get_audio_product_tone_controls"
+SERVICE_GET_AUDIO_SPEAKER_ATTRIBUTE_AND_SETTING = "get_audio_speaker_attribute_and_setting"
+SERVICE_GET_BALANCE = "get_balance"
+SERVICE_GET_BASS_CAPABILITIES = "get_bass_capabilities"
+SERVICE_GET_BASS_LEVEL = "get_bass_level"
+SERVICE_GET_DEVICE_INFO = "get_device_info"
+SERVICE_GET_PRODUCT_CEC_HDMI_CONTROL = "get_product_cec_hdmi_control"
+SERVICE_GET_PRODUCT_HDMI_ASSIGNMENT_CONTROLS = "get_product_hdmi_assignment_controls"
+SERVICE_GET_SOURCE_LIST = "get_source_list"
+SERVICE_GET_SUPPORTED_URLS = "get_supported_urls"
+SERVICE_MUSICSERVICE_STATION_LIST = "musicservice_station_list"
+SERVICE_PLAY_CONTENTITEM = "play_contentitem"
+SERVICE_PLAY_HANDOFF = "play_handoff"
+SERVICE_PLAY_TTS = "play_tts"
+SERVICE_PLAY_URL = "play_url"
+SERVICE_PLAY_URL_DLNA = "play_url_dlna"
+SERVICE_PRESET_LIST = "preset_list"
+SERVICE_PRESET_REMOVE = "preset_remove"
+SERVICE_REBOOT_DEVICE = "reboot_device"
+SERVICE_RECENT_LIST = "recent_list"
+SERVICE_RECENT_LIST_CACHE = "recent_list_cache"
+SERVICE_REMOTE_KEYPRESS = "remote_keypress"
+SERVICE_SET_AUDIO_DSP_CONTROLS = "set_audio_dsp_controls"
+SERVICE_SET_AUDIO_PRODUCT_LEVEL_CONTROLS = "set_audio_product_level_controls"
+SERVICE_SET_AUDIO_PRODUCT_TONE_CONTROLS = "set_audio_product_tone_controls"
+SERVICE_SET_BALANCE_LEVEL = "set_balance_level"
+SERVICE_SET_BASS_LEVEL = "set_bass_level"
+SERVICE_SET_LANGUAGE = "set_language"
+SERVICE_SET_NAME = "set_name"
+SERVICE_SET_PRODUCT_CEC_HDMI_CONTROL = "set_product_cec_hdmi_control"
+SERVICE_SET_PRODUCT_HDMI_ASSIGNMENT_CONTROLS = "set_product_hdmi_assignment_controls"
+SERVICE_SNAPSHOT_RESTORE = "snapshot_restore"
+SERVICE_SNAPSHOT_STORE = "snapshot_store"
+SERVICE_UPDATE_SOURCE_NOWPLAYINGSTATUS = "update_source_nowplayingstatus"
+SERVICE_ZONE_TOGGLE_MEMBER = "zone_toggle_member"
+
+
+SERVICE_ADD_WIRELESS_PROFILE_SCHEMA = vol.Schema(
+    {
+        vol.Required("ip_address"): cv.string,
+        vol.Optional("ip_port", default=8090): vol.Any(None, vol.All(vol.Coerce(int), vol.Range(min=1, max=65535))),
+        vol.Required("ssid_name"): cv.string,
+        vol.Required("ssid_password"): cv.string,
+        vol.Required("ssid_security_type"): cv.string,
+        vol.Optional("timeout_secs", default=None): vol.Any(None, vol.All(vol.Coerce(int), vol.Range(min=1, max=30))),
+    }
+)
+
+SERVICE_AUDIO_TONE_LEVELS_SCHEMA = vol.Schema(
+    {
+        vol.Required("entity_id"): cv.entity_id,
+        vol.Required("bass_level", default=0): vol.All(vol.Range(min=-100,max=100)),
+        vol.Required("treble_level", default=0): vol.All(vol.Range(min=-100,max=100)),
+    }
+)
+
+SERVICE_CLEAR_SOURCE_NOWPLAYINGSTATUS_SCHEMA = vol.Schema(
+    {
+        vol.Required("entity_id"): cv.entity_id,
+        vol.Required("source_title"): cv.string,
+    }
+)
+
+SERVICE_GET_AUDIO_DSP_CONTROLS_SCHEMA = vol.Schema(
+    {
+        vol.Required("entity_id"): cv.entity_id,
+        vol.Optional("refresh", default=True): cv.boolean,
+    }
+)
+
+SERVICE_GET_AUDIO_PRODUCT_LEVEL_CONTROLS_SCHEMA = vol.Schema(
+    {
+        vol.Required("entity_id"): cv.entity_id,
+        vol.Optional("refresh", default=True): cv.boolean,
+    }
+)
+
+SERVICE_GET_AUDIO_PRODUCT_TONE_CONTROLS_SCHEMA = vol.Schema(
+    {
+        vol.Required("entity_id"): cv.entity_id,
+        vol.Optional("refresh", default=True): cv.boolean,
+    }
+)
+
+SERVICE_GET_AUDIO_SPEAKER_ATTRIBUTE_AND_SETTING_SCHEMA = vol.Schema(
+    {
+        vol.Required("entity_id"): cv.entity_id,
+        vol.Optional("refresh", default=True): cv.boolean,
+    }
+)
+
+SERVICE_GET_BALANCE_SCHEMA = vol.Schema(
+    {
+        vol.Required("entity_id"): cv.entity_id,
+        vol.Optional("refresh", default=False): cv.boolean,
+    }
+)
+
+SERVICE_GET_BASS_CAPABILITIES_SCHEMA = vol.Schema(
+    {
+        vol.Required("entity_id"): cv.entity_id,
+        vol.Optional("refresh", default=False): cv.boolean,
+    }
+)
+
+SERVICE_GET_BASS_LEVEL_SCHEMA = vol.Schema(
+    {
+        vol.Required("entity_id"): cv.entity_id,
+        vol.Optional("refresh", default=False): cv.boolean,
+    }
+)
+
+SERVICE_GET_DEVICE_INFO_SCHEMA = vol.Schema(
+    {
+        vol.Required("entity_id"): cv.entity_id,
+    }
+)
+
+SERVICE_GET_PRODUCT_CEC_HDMI_CONTROL_SCHEMA = vol.Schema(
+    {
+        vol.Required("entity_id"): cv.entity_id,
+        vol.Optional("refresh", default=False): cv.boolean,
+    }
+)
+
+SERVICE_GET_PRODUCT_HDMI_ASSIGNMENT_CONTROLS_SCHEMA = vol.Schema(
+    {
+        vol.Required("entity_id"): cv.entity_id,
+        vol.Optional("refresh", default=False): cv.boolean,
+    }
+)
+
+SERVICE_GET_SOURCE_LIST_SCHEMA = vol.Schema(
+    {
+        vol.Required("entity_id"): cv.entity_id,
+    }
+)
+
+SERVICE_GET_SUPPORTED_URLS_SCHEMA = vol.Schema(
+    {
+        vol.Required("entity_id"): cv.entity_id,
+        vol.Optional("refresh", default=False): cv.boolean,
+    }
+)
+
+SERVICE_MUSICSERVICE_STATION_LIST_SCHEMA = vol.Schema(
+    {
+        vol.Required("entity_id"): cv.entity_id,
+        vol.Required("source"): cv.string,
+        vol.Required("source_account"): cv.string,
+        vol.Optional("sort_type", default='stationName'): cv.string
+    }
+)
+
+SERVICE_PLAY_CONTENTITEM_SCHEMA = vol.Schema(
+    {
+        vol.Required("entity_id"): cv.entity_id,
+        vol.Optional("name"): cv.string,
+        vol.Required("source"): cv.string,
+        vol.Optional("source_account"): cv.string,
+        vol.Optional("item_type"): cv.string,
+        vol.Optional("location"): cv.string,
+        vol.Optional("container_art"): cv.string,
+        vol.Required("is_presetable", default=False): cv.boolean
+    }   
+)
+
+SERVICE_PLAY_HANDOFF_SCHEMA = vol.Schema(
+    {
+        vol.Required("entity_id_from"): cv.entity_id,
+        vol.Required("entity_id_to"): cv.entity_id,
+        vol.Required("restore_volume", default=False): cv.boolean,
+        vol.Required("snapshot_only", default=False): cv.boolean
+    }
+)
+
+SERVICE_PLAY_TTS_SCHEMA = vol.Schema(
+    {
+        vol.Required("entity_id"): cv.entity_id,
+        vol.Required("message"): cv.string,
+        vol.Optional("artist"): cv.string,
+        vol.Optional("album"): cv.string,
+        vol.Optional("track"): cv.string,
+        vol.Optional("tts_url"): cv.string,
+        vol.Optional("volume_level", default=0): vol.All(vol.Range(min=0,max=70)),
+        vol.Optional("app_key"): cv.string
+    }
+)
+
+SERVICE_PLAY_URL_SCHEMA = vol.Schema(
+    {
+        vol.Required("entity_id"): cv.entity_id,
+        vol.Required("url"): cv.string,
+        vol.Optional("artist"): cv.string,
+        vol.Optional("album"): cv.string,
+        vol.Optional("track"): cv.string,
+        vol.Optional("volume_level", default=0): vol.All(vol.Range(min=0,max=70)),
+        vol.Optional("app_key"): cv.string,
+        vol.Required("get_metadata_from_url_file", default=False): cv.boolean
+    }
+)
+
+SERVICE_PLAY_URL_DLNA_SCHEMA = vol.Schema(
+    {
+        vol.Required("entity_id"): cv.entity_id,
+        vol.Required("url"): cv.string,
+        vol.Optional("artist"): cv.string,
+        vol.Optional("album"): cv.string,
+        vol.Optional("track"): cv.string,
+        vol.Optional("art_url"): cv.string,
+        vol.Optional("update_now_playing_status", default=True): cv.boolean,
+        vol.Optional("delay", default=1): vol.All(vol.Range(min=0,max=10))
+    }
+)
+
+SERVICE_PRESET_LIST_SCHEMA = vol.Schema(
+    {
+        vol.Required("entity_id"): cv.entity_id,
+        vol.Optional("include_empty_slots", default=False): cv.boolean,
+    }
+)
+
+SERVICE_PRESET_REMOVE_SCHEMA = vol.Schema(
+    {
+        vol.Required("entity_id"): cv.entity_id,
+        vol.Required("preset_id", default=1): vol.All(vol.Range(min=1,max=6)),
+    }
+)
+
+SERVICE_REBOOT_DEVICE_SCHEMA = vol.Schema(
+    {
+        vol.Required("entity_id"): cv.entity_id,
+        vol.Optional("port", default=17000): vol.All(vol.Range(min=1,max=65535))
+    }
+)
+
+SERVICE_RECENT_LIST_SCHEMA = vol.Schema(
+    {
+        vol.Required("entity_id"): cv.entity_id,
+    }
+)
+
+SERVICE_RECENT_LIST_CACHE_SCHEMA = vol.Schema(
+    {
+        vol.Required("entity_id"): cv.entity_id,
+    }
+)
+
+SERVICE_REMOTE_KEYPRESS_SCHEMA = vol.Schema(
+    {
+        vol.Required("entity_id"): cv.entity_id,
+        vol.Required("key_id"): cv.string,
+        vol.Optional("key_state", default=KeyStates.Both.value): cv.string,
+    }
+)
+
+SERVICE_SET_AUDIO_DSP_CONTROLS_SCHEMA = vol.Schema(
+    {
+        vol.Required("entity_id"): cv.entity_id,
+        vol.Optional("audio_mode"): cv.string,
+        vol.Optional("video_sync_audio_delay", default=0): vol.All(vol.Range(min=0,max=10000))
+    }
+)
+
+SERVICE_SET_AUDIO_PRODUCT_LEVEL_CONTROLS_SCHEMA = vol.Schema(
+    {
+        vol.Required("entity_id"): cv.entity_id,
+        vol.Required("front_center_speaker_level", default=0): vol.All(vol.Range(min=-100,max=100)),
+        vol.Required("rear_surround_speakers_level", default=0): vol.All(vol.Range(min=-100,max=100))
+    }
+)
+
+SERVICE_SET_AUDIO_PRODUCT_TONE_CONTROLS_SCHEMA = vol.Schema(
+    {
+        vol.Required("entity_id"): cv.entity_id,
+        vol.Required("bass_level", default=40): vol.All(vol.Range(min=-100,max=100)),
+        vol.Required("treble_level", default=60): vol.All(vol.Range(min=-100,max=100))
+    }
+)
+
+SERVICE_SET_BALANCE_LEVEL_SCHEMA = vol.Schema(
+    {
+        vol.Required("entity_id"): cv.entity_id,
+        vol.Required("level", default=0): vol.All(vol.Range(min=-7,max=7))
+    }
+)
+
+SERVICE_SET_BASS_LEVEL_SCHEMA = vol.Schema(
+    {
+        vol.Required("entity_id"): cv.entity_id,
+        vol.Required("level", default=-5): vol.All(vol.Range(min=-9,max=0))
+    }
+)
+
+SERVICE_SET_LANGUAGE_SCHEMA = vol.Schema(
+    {
+        vol.Required("entity_id"): cv.entity_id,
+        vol.Required("language"): cv.string
+    }
+)
+
+SERVICE_SET_NAME_SCHEMA = vol.Schema(
+    {
+        vol.Required("entity_id"): cv.entity_id,
+        vol.Required("name"): cv.string
+    }
+)
+
+SERVICE_SET_PRODUCT_CEC_HDMI_CONTROL_SCHEMA = vol.Schema(
+    {
+        vol.Required("entity_id"): cv.entity_id,
+        vol.Required("cec_mode"): cv.string,
+    }
+)
+
+SERVICE_SET_PRODUCT_HDMI_ASSIGNMENT_CONTROLS_SCHEMA = vol.Schema(
+    {
+        vol.Required("entity_id"): cv.entity_id,
+        vol.Required("hdmi_input_selection_01"): cv.string,
+    }
+)
+
+SERVICE_SNAPSHOT_RESTORE_SCHEMA = vol.Schema(
+    {
+        vol.Required("entity_id"): cv.entity_id,
+        vol.Required("restore_volume", default=True): cv.boolean,
+    }
+)
+
+SERVICE_SNAPSHOT_STORE_SCHEMA = vol.Schema(
+    {
+        vol.Required("entity_id"): cv.entity_id
+    }
+)
+
+SERVICE_UPDATE_SOURCE_NOWPLAYINGSTATUS_SCHEMA = vol.Schema(
+    {
+        vol.Required("entity_id"): cv.entity_id,
+        vol.Required("source_title"): cv.string,
+        vol.Optional("album"): cv.string,
+        vol.Optional("artist"): cv.string,
+        vol.Optional("artist_id"): cv.string,
+        vol.Optional("art_url"): cv.string,
+        vol.Optional("description"): cv.string,
+        vol.Optional("duration", default=0): vol.All(vol.Range(min=0,max=99999999)),
+        vol.Optional("genre"): cv.string,
+        vol.Optional("play_status"): cv.string,
+        vol.Optional("position", default=0): vol.All(vol.Range(min=0,max=99999999)),
+        vol.Optional("session_id"): cv.string,
+        vol.Optional("station_location"): cv.string,
+        vol.Optional("station_name"): cv.string,
+        vol.Optional("track"): cv.string,
+        vol.Optional("track_id"): cv.string,
+    }
+)
+
+SERVICE_ZONE_TOGGLE_MEMBER_SCHEMA = vol.Schema(
+    {
+        vol.Required("entity_id_master"): cv.entity_id,
+        vol.Required("entity_id_member"): cv.entity_id,
+    }
+)
+
+
+def _trace_LogTextFile(filePath: str, title: str) -> None:
+    """
+    Log the contents of the specified text file to the SmartInspect trace log.
+    
+    Args:
+        filePath (str):
+            Fully-qualified file path to log.
+        title (str):
+            Title to assign to the log entry.
+
+    """
+    _logsi.LogTextFile(SILevel.Verbose, title, filePath)
+
+
+async def async_setup(hass:HomeAssistant, config:ConfigType) -> bool:
+    """
+    Set up the component.
+
+    Args:
+        hass (HomeAssistant):
+            HomeAssistant instance.
+        config (ConfigType):
+            HomeAssistant validation configuration object.
+
+    The __init__.py module "async_setup" method is executed once for the component 
+    configuration, no matter how many devices are configured for the component.  
+    It takes care of loading the services that the component provides, as well as the 
+    ConfigType dictionary.  The ConfigType dictionary contains Home Assistant configuration 
+    entries that reference this component type: 'default_config', 'frontend' (themes, etc), 
+    'automation', 'script', and 'scenes' sub-dictionaries.
+    """
+    try:
+
+        # trace.
+        _logsi.EnterMethod(SILevel.Debug)
+        if _logsi.IsOn(SILevel.Verbose):
+
+            _logsi.LogObject(SILevel.Verbose, "Component async_setup for configuration type", config)
+
+            # log the manifest file contents.
+            # as of HA 2024.6, we have to use an executor job to do this as the trace uses a blocking file open / read call.
+            myConfigDir:str = "%s/custom_components/%s" % (hass.config.config_dir, DOMAIN)
+            myManifestPath:str = "%s/manifest.json" % (myConfigDir)
+            await hass.async_add_executor_job(_trace_LogTextFile, myManifestPath, "Integration Manifest File (%s)" % myManifestPath)
+    
+            # log verion information for supporting packages.
+            _logsi.LogValue(SILevel.Verbose, "urllib3 version", urllib3_version)
+            _logsi.LogValue(SILevel.Verbose, "bosesoundtouchapi version", bosesoundtouchapi_VERSION, colorValue=SIColors.Coral)
+            _logsi.LogValue(SILevel.Verbose, "spotifywebapipython version", spotifywebapipython_VERSION, colorValue=SIColors.Coral)
+
+            for item in config:
+                itemKey:str = str(item)
+                itemObj = config[itemKey]
+                if isinstance(itemObj,dict):
+                    _logsi.LogDictionary(SILevel.Verbose, "ConfigType '%s' data (dictionary)" % itemKey, itemObj, prettyPrint=True)
+                elif isinstance(itemObj,list):
+                    _logsi.LogArray(SILevel.Verbose, "ConfigType '%s' data (list)" % itemKey, itemObj)
+                else:
+                    _logsi.LogObject(SILevel.Verbose, "ConfigType '%s' data (object)" % (itemKey), itemObj)
+
+
+        async def service_handle_entity(service:ServiceCall) -> None:
+            """
+            Handle service requests that utilize a single entity.
+
+            Args:
+                service (ServiceCall):
+                    ServiceCall instance that contains service data (requested service name, field parameters, etc).
+            """
+            try:
+
+                # trace.
+                _logsi.EnterMethod(SILevel.Debug)
+                _logsi.LogVerbose(STAppMessages.MSG_SERVICE_CALL_START, service.service, "service_handle_entity")
+                _logsi.LogObject(SILevel.Verbose, STAppMessages.MSG_SERVICE_CALL_PARM, service)
+                _logsi.LogDictionary(SILevel.Verbose, STAppMessages.MSG_SERVICE_CALL_DATA, service.data)
+
+                # get player instance from service parameter; if not found, then we are done.
+                entity = _GetEntityFromServiceData(hass, service, "entity_id")
+                if entity is None:
+                    return
+
+                # process service request.
+                if service.service == SERVICE_AUDIO_TONE_LEVELS:
+                    bass_level = service.data.get("bass_level")
+                    treble_level = service.data.get("treble_level")
+                    _logsi.LogVerbose(STAppMessages.MSG_SERVICE_EXECUTE % (service.service, entity.name))
+                    await hass.async_add_executor_job(entity.service_audio_tone_levels, bass_level, treble_level)
+
+                elif service.service == SERVICE_CLEAR_SOURCE_NOWPLAYINGSTATUS:
+                    source_title = service.data.get("source_title")
+                    _logsi.LogVerbose(STAppMessages.MSG_SERVICE_EXECUTE % (service.service, entity.name))
+                    await hass.async_add_executor_job(entity.service_clear_source_nowplayingstatus, source_title)
+
+                elif service.service == SERVICE_UPDATE_SOURCE_NOWPLAYINGSTATUS:
+                    source_title = service.data.get("source_title")
+                    album = service.data.get("album")
+                    artist = service.data.get("artist")
+                    artist_id = service.data.get("artist_id")
+                    art_url = service.data.get("art_url")
+                    description = service.data.get("description")
+                    duration = service.data.get("duration")
+                    genre = service.data.get("genre")
+                    play_status = service.data.get("play_status")
+                    position = service.data.get("position")
+                    session_id = service.data.get("session_id")
+                    station_location = service.data.get("station_location")
+                    station_name = service.data.get("station_name")
+                    track = service.data.get("track")
+                    track_id = service.data.get("track_id")
+                    _logsi.LogVerbose(STAppMessages.MSG_SERVICE_EXECUTE % (service.service, entity.name))
+                    await hass.async_add_executor_job(entity.service_update_source_nowplayingstatus, source_title, 
+                                                      album, artist, artist_id, art_url, description, duration, genre, play_status, 
+                                                      position, session_id, station_location, station_name, track, track_id)
+
+                elif service.service == SERVICE_SNAPSHOT_STORE:
+                    _logsi.LogVerbose(STAppMessages.MSG_SERVICE_EXECUTE % (service.service, entity.name))
+                    await hass.async_add_executor_job(entity.service_snapshot_store)
+
+                elif service.service == SERVICE_SNAPSHOT_RESTORE:
+                    restore_volume = service.data.get("restore_volume")
+                    _logsi.LogVerbose(STAppMessages.MSG_SERVICE_EXECUTE % (service.service, entity.name))
+                    await hass.async_add_executor_job(entity.service_snapshot_restore, restore_volume)
+
+                elif service.service == SERVICE_REMOTE_KEYPRESS:
+                    key_id = service.data.get("key_id")
+                    key_state = service.data.get("key_state")
+                    if key_id is None:
+                        _logsi.LogError(STAppMessages.MSG_SERVICE_ARGUMENT_NULL, "key_id", service.service)
+                        return
+                    if key_state is None:
+                        key_state = KeyStates.Both
+                    _logsi.LogVerbose(STAppMessages.MSG_SERVICE_EXECUTE % (service.service, entity.name))
+                    await hass.async_add_executor_job(entity.service_remote_keypress, key_id, key_state)
+
+                elif service.service == SERVICE_SET_AUDIO_DSP_CONTROLS:
+                    audio_mode = service.data.get("audio_mode")
+                    video_sync_audio_delay = service.data.get("video_sync_audio_delay")
+                    _logsi.LogVerbose(STAppMessages.MSG_SERVICE_EXECUTE % (service.service, entity.name))
+                    await hass.async_add_executor_job(entity.service_set_audio_dsp_controls, audio_mode, video_sync_audio_delay)
+
+                elif service.service == SERVICE_SET_AUDIO_PRODUCT_LEVEL_CONTROLS:
+                    front_center_speaker_level = service.data.get("front_center_speaker_level")
+                    rear_surround_speakers_level = service.data.get("rear_surround_speakers_level")
+                    _logsi.LogVerbose(STAppMessages.MSG_SERVICE_EXECUTE % (service.service, entity.name))
+                    await hass.async_add_executor_job(entity.service_set_audio_product_level_controls, front_center_speaker_level, rear_surround_speakers_level)
+
+                elif service.service == SERVICE_SET_AUDIO_PRODUCT_TONE_CONTROLS:
+                    bass_level = service.data.get("bass_level")
+                    treble_level = service.data.get("treble_level")
+                    _logsi.LogVerbose(STAppMessages.MSG_SERVICE_EXECUTE % (service.service, entity.name))
+                    await hass.async_add_executor_job(entity.service_set_audio_product_tone_controls, bass_level, treble_level)
+
+                elif service.service == SERVICE_SET_BALANCE_LEVEL:
+                    level = service.data.get("level")
+                    _logsi.LogVerbose(STAppMessages.MSG_SERVICE_EXECUTE % (service.service, entity.name))
+                    await hass.async_add_executor_job(entity.service_set_balance_level, level)
+
+                elif service.service == SERVICE_SET_BASS_LEVEL:
+                    level = service.data.get("level")
+                    _logsi.LogVerbose(STAppMessages.MSG_SERVICE_EXECUTE % (service.service, entity.name))
+                    await hass.async_add_executor_job(entity.service_set_bass_level, level)
+
+                elif service.service == SERVICE_SET_LANGUAGE:
+                    language = service.data.get("language")
+                    _logsi.LogVerbose(STAppMessages.MSG_SERVICE_EXECUTE % (service.service, entity.name))
+                    await hass.async_add_executor_job(entity.service_set_language, language)
+
+                elif service.service == SERVICE_SET_NAME:
+                    name = service.data.get("name")
+                    _logsi.LogVerbose(STAppMessages.MSG_SERVICE_EXECUTE % (service.service, entity.name))
+                    await hass.async_add_executor_job(entity.service_set_name, name)
+
+                elif service.service == SERVICE_SET_PRODUCT_CEC_HDMI_CONTROL:
+                    cec_mode = service.data.get("cec_mode")
+                    _logsi.LogVerbose(STAppMessages.MSG_SERVICE_EXECUTE % (service.service, entity.name))
+                    await hass.async_add_executor_job(entity.service_set_product_cec_hdmi_control, cec_mode)
+
+                elif service.service == SERVICE_SET_PRODUCT_HDMI_ASSIGNMENT_CONTROLS:
+                    hdmi_input_selection_01 = service.data.get("hdmi_input_selection_01")
+                    _logsi.LogVerbose(STAppMessages.MSG_SERVICE_EXECUTE % (service.service, entity.name))
+                    await hass.async_add_executor_job(entity.service_set_product_hdmi_assignment_controls, hdmi_input_selection_01)
+
+                elif service.service == SERVICE_REBOOT_DEVICE:
+                    port = service.data.get("port")
+                    _logsi.LogVerbose(STAppMessages.MSG_SERVICE_EXECUTE % (service.service, entity.name))
+                    await hass.async_add_executor_job(entity.service_reboot_device, port)
+
+                elif service.service == SERVICE_PLAY_CONTENTITEM:
+                    name = service.data.get("name")
+                    source = service.data.get("source")
+                    source_account = service.data.get("source_account")
+                    item_type = service.data.get("item_type")
+                    location = service.data.get("location")
+                    container_art = service.data.get("container_art")
+                    is_presetable = service.data.get("is_presetable")
+                    _logsi.LogVerbose(STAppMessages.MSG_SERVICE_EXECUTE % (service.service, entity.name))
+                    await hass.async_add_executor_job(entity.service_play_contentitem, name, source, source_account, item_type, location, container_art, is_presetable)
+
+                elif service.service == SERVICE_PLAY_TTS:
+                    message = service.data.get("message")
+                    artist = service.data.get("artist")
+                    album = service.data.get("album")
+                    track = service.data.get("track")
+                    tts_url = service.data.get("tts_url")
+                    volume_level = service.data.get("volume_level")
+                    app_key = service.data.get("app_key")
+                    _logsi.LogVerbose(STAppMessages.MSG_SERVICE_EXECUTE % (service.service, entity.name))
+                    await hass.async_add_executor_job(entity.service_play_tts, message, artist, album, track, tts_url, volume_level, app_key)
+
+                elif service.service == SERVICE_PLAY_URL:
+                    url = service.data.get("url")
+                    artist = service.data.get("artist")
+                    album = service.data.get("album")
+                    track = service.data.get("track")
+                    volume_level = service.data.get("volume_level")
+                    app_key = service.data.get("app_key")
+                    get_metadata_from_url_file = service.data.get("get_metadata_from_url_file")
+                    _logsi.LogVerbose(STAppMessages.MSG_SERVICE_EXECUTE % (service.service, entity.name))
+                    await hass.async_add_executor_job(entity.service_play_url, url, artist, album, track, volume_level, app_key, get_metadata_from_url_file)
+
+                elif service.service == SERVICE_PLAY_URL_DLNA:
+                    url = service.data.get("url")
+                    artist = service.data.get("artist")
+                    album = service.data.get("album")
+                    track = service.data.get("track")
+                    art_url = service.data.get("art_url")
+                    update_now_playing_status = service.data.get("update_now_playing_status")
+                    delay = service.data.get("delay")
+                    _logsi.LogVerbose(STAppMessages.MSG_SERVICE_EXECUTE % (service.service, entity.name))
+                    await hass.async_add_executor_job(entity.service_play_url_dlna, url, artist, album, track, art_url, update_now_playing_status, delay)
+
+                elif service.service == SERVICE_PRESET_REMOVE:
+                    preset_id = service.data.get("preset_id")
+                    _logsi.LogVerbose(STAppMessages.MSG_SERVICE_EXECUTE % (service.service, entity.name))
+                    await hass.async_add_executor_job(entity.service_preset_remove, preset_id)
+
+                else:
+                    
+                    raise IntegrationError("Unrecognized service identifier \"%s\" in method \"service_handle_entity\"." % service.service)
+           
+            except HomeAssistantError as ex: 
+                
+                # log error, but not to system logger as HA will take care of it.
+                _logsi.LogError(str(ex), logToSystemLogger=False)
+                raise
+            
+            except Exception as ex:
+
+                # log exception, but not to system logger as HA will take care of it.
+                _logsi.LogException(STAppMessages.MSG_SERVICE_REQUEST_EXCEPTION % (service.service, "service_handle_entity"), ex, logToSystemLogger=False)
+                raise
+            
+            finally:
+                
+                # trace.
+                _logsi.LeaveMethod(SILevel.Debug)
+
+
+        async def service_handle_entityfromto(service: ServiceCall) -> None:
+            """
+            Handle service requests that utilize a single FROM entity and a single TO entity.
+
+            Args:
+                service (ServiceCall):
+                    ServiceCall instance that contains service data (requested service name, field parameters, etc).
+            """
+            try:
+
+                # trace.
+                _logsi.EnterMethod(SILevel.Debug)
+                _logsi.LogVerbose(STAppMessages.MSG_SERVICE_CALL_START, service.service, "service_handle_entityfromto")
+                _logsi.LogObject(SILevel.Verbose, STAppMessages.MSG_SERVICE_CALL_PARM, service)
+                _logsi.LogDictionary(SILevel.Verbose, STAppMessages.MSG_SERVICE_CALL_DATA, service.data)
+
+                # process service request.
+                if service.service == SERVICE_PLAY_HANDOFF:
+
+                    # get player instance from service parameter; if not found, then we are done.
+                    from_player = _GetEntityFromServiceData(hass, service, "entity_id_from")
+                    if from_player is None:
+                        return
+
+                    # get player instance from service parameter; if not found, then we are done.
+                    to_player = _GetEntityFromServiceData(hass, service, "entity_id_to")
+                    if to_player is None:
+                        return
+
+                    # if FROM and TO player are the same then don't allow it.
+                    if from_player.entity_id == to_player.entity_id:
+                        _logsi.LogVerbose("FROM and TO players (id='%s') are the same; handoff not needed", str(to_player.entity_id))
+                        return
+
+                    # process play handoff service.
+                    restore_volume = service.data.get("restore_volume")
+                    snapshot_only = service.data.get("snapshot_only")
+                    await hass.async_add_executor_job(from_player.service_play_handoff, to_player, restore_volume, snapshot_only)
+
+                elif service.service == SERVICE_ZONE_TOGGLE_MEMBER:
+
+                    # get player instance from service parameter; if not found, then we are done.
+                    from_player = _GetEntityFromServiceData(hass, service, "entity_id_master") # for zone services
+                    if from_player is None:
+                        return
+
+                    # get player instance from service parameter; if not found, then we are done.
+                    to_player = _GetEntityFromServiceData(hass, service, "entity_id_member") # for zone services
+                    if to_player is None:
+                        return
+
+                    # if FROM and TO player are the same then don't allow it.
+                    if from_player.entity_id == to_player.entity_id:
+                        _logsi.LogWarning("FROM and TO players (id='%s') are the same; cannot toggle the master zone", str(to_player.entity_id))
+                        return
+
+                    # process zone toggle member service.
+                    await hass.async_add_executor_job(from_player.service_zone_toggle_member, to_player)
+
+                elif service.service == SERVICE_ADD_WIRELESS_PROFILE:
+
+                    # this service has no entitys to resolve, since it could be a device
+                    # that is in a factory-reset state; manual ip address is required!
+
+                    # # get service parameters.
+                    # ip_address = service.data.get("ip_address")
+                    # ip_port = service.data.get("ip_port", 8090)
+                    # ssid_name = service.data.get("ssid_name")
+                    # ssid_password = service.data.get("ssid_password")
+                    # ssid_security_type = service.data.get("ssid_security_type")
+                    # timeout_secs = service.data.get("timeout_secs", 30)
+
+                    # # create SoundTouch device instance.
+                    # device:SoundTouchDevice = SoundTouchDevice(ip_address, port=ip_port)
+            
+                    # # create SoundTouch client instance from device.
+                    # client:SoundTouchClient = SoundTouchClient(device)
+
+                    # # build a wireless profile to add.
+                    # profile:WirelessProfile = WirelessProfile(
+                    #     ssid=ssid_name,
+                    #     password=ssid_password,
+                    #     securityType=ssid_security_type,
+                    #     timeoutSecs=timeout_secs
+                    # )
+
+                    # # add a wireless profile to the device.
+                    # client.AddWirelessProfile(profile)
+
+                    # add a wireless profile to the device.
+                    await hass.async_add_executor_job(service_add_wireless_profile, service)
+
+                else:
+                    
+                    raise IntegrationError("Unrecognized service identifier \"%s\" in method \"service_handle_entityfromto\"." % service.service)
+
+            except HomeAssistantError as ex: 
+                
+                # log error, but not to system logger as HA will take care of it.
+                _logsi.LogError(str(ex), logToSystemLogger=False)
+                raise
+            
+            except Exception as ex:
+            
+                # log exception, but not to system logger as HA will take care of it.
+                _logsi.LogException(STAppMessages.MSG_SERVICE_REQUEST_EXCEPTION % (service.service, "service_handle_entityfromto"), ex, logToSystemLogger=False)
+                raise
+
+            finally:
+                
+                # trace.
+                _logsi.LeaveMethod(SILevel.Debug)
+
+
+        def service_add_wireless_profile(
+            service:ServiceCall, 
+            ) -> None:
+            """
+            Adds a new wireless profile to a SoundTouch device network configuration.
+        
+            Args:
+                service (ServiceCall):
+                    Service call parameters..
+            """
+            apiMethodName:str = 'service_add_wireless_profile'
+
+            try:
+
+                # trace.
+                _logsi.EnterMethod(SILevel.Debug, apiMethodName)
+
+                # get service parameters.
+                ip_address = service.data.get("ip_address")
+                ip_port = service.data.get("ip_port", 8090)
+                ssid_name = service.data.get("ssid_name")
+                ssid_password = service.data.get("ssid_password")
+                ssid_security_type = service.data.get("ssid_security_type")
+                timeout_secs = service.data.get("timeout_secs", 30)
+
+                # create SoundTouch device instance.
+                device:SoundTouchDevice = SoundTouchDevice(ip_address, port=ip_port)
+            
+                # create SoundTouch client instance from device.
+                client:SoundTouchClient = SoundTouchClient(device)
+
+                # build a wireless profile to add.
+                profile:WirelessProfile = WirelessProfile(
+                    ssid=ssid_name,
+                    password=ssid_password,
+                    securityType=ssid_security_type,
+                    timeoutSecs=timeout_secs
+                )
+
+                # add a wireless profile to the device.
+                client.AddWirelessProfile(profile)
+
+            # the following exceptions have already been logged, so we just need to
+            # pass them back to HA for display in the log (or service UI).
+            except SoundTouchError as ex:
+                raise ServiceValidationError(ex.Message)
+            except Exception as ex:
+                _logsi.LogException(None, ex)
+                raise IntegrationError(str(ex)) from ex
+        
+            finally:
+        
+                # trace.
+                _logsi.LeaveMethod(SILevel.Debug, apiMethodName)
+
+
+        async def service_handle_serviceresponse(service: ServiceCall) -> ServiceResponse:
+            """
+            Handle service requests that return service response data.
+
+            Args:
+                service (ServiceCall):
+                    ServiceCall instance that contains service data (requested service name, field parameters, etc).
+            """
+            try:
+
+                # trace.
+                _logsi.EnterMethod(SILevel.Debug)
+                _logsi.LogVerbose(STAppMessages.MSG_SERVICE_CALL_START, service.service, "service_handle_serviceresponse")
+                _logsi.LogObject(SILevel.Verbose, STAppMessages.MSG_SERVICE_CALL_PARM, service)
+                _logsi.LogDictionary(SILevel.Verbose, STAppMessages.MSG_SERVICE_CALL_DATA, service.data)
+
+                # get player instance from service parameter; if not found, then we are done.
+                entity = _GetEntityFromServiceData(hass, service, "entity_id")
+                if entity is None:
+                    return
+
+                response:dict = {}
+
+                # process service request.
+                if service.service == SERVICE_GET_AUDIO_DSP_CONTROLS:
+
+                    # get audio dsp controls.
+                    refresh = service.data.get("refresh")
+                    _logsi.LogVerbose(STAppMessages.MSG_SERVICE_EXECUTE % (service.service, entity.name))
+                    response = await hass.async_add_executor_job(entity.service_get_audio_dsp_controls, refresh)
+
+                elif service.service == SERVICE_GET_AUDIO_PRODUCT_LEVEL_CONTROLS:
+
+                    # get audio product level controls.
+                    refresh = service.data.get("refresh")
+                    _logsi.LogVerbose(STAppMessages.MSG_SERVICE_EXECUTE % (service.service, entity.name))
+                    response = await hass.async_add_executor_job(entity.service_get_audio_product_level_controls, refresh)
+
+                elif service.service == SERVICE_GET_AUDIO_PRODUCT_TONE_CONTROLS:
+
+                    # get audio product tone controls.
+                    refresh = service.data.get("refresh")
+                    _logsi.LogVerbose(STAppMessages.MSG_SERVICE_EXECUTE % (service.service, entity.name))
+                    response = await hass.async_add_executor_job(entity.service_get_audio_product_tone_controls, refresh)
+
+                elif service.service == SERVICE_GET_AUDIO_SPEAKER_ATTRIBUTE_AND_SETTING:
+
+                    # get audio speaker attribute and setting.
+                    refresh = service.data.get("refresh")
+                    _logsi.LogVerbose(STAppMessages.MSG_SERVICE_EXECUTE % (service.service, entity.name))
+                    response = await hass.async_add_executor_job(entity.service_get_audio_speaker_attribute_and_setting, refresh)
+
+                elif service.service == SERVICE_GET_BALANCE:
+
+                    # get balance.
+                    refresh = service.data.get("refresh")
+                    _logsi.LogVerbose(STAppMessages.MSG_SERVICE_EXECUTE % (service.service, entity.name))
+                    response = await hass.async_add_executor_job(entity.service_get_balance, refresh)
+
+                elif service.service == SERVICE_GET_BASS_CAPABILITIES:
+
+                    # get bass capabilities.
+                    refresh = service.data.get("refresh")
+                    _logsi.LogVerbose(STAppMessages.MSG_SERVICE_EXECUTE % (service.service, entity.name))
+                    response = await hass.async_add_executor_job(entity.service_get_bass_capabilities, refresh)
+
+                elif service.service == SERVICE_GET_BASS_LEVEL:
+
+                    # get bass level.
+                    refresh = service.data.get("refresh")
+                    _logsi.LogVerbose(STAppMessages.MSG_SERVICE_EXECUTE % (service.service, entity.name))
+                    response = await hass.async_add_executor_job(entity.service_get_bass_level, refresh)
+
+                elif service.service == SERVICE_GET_DEVICE_INFO:
+
+                    # get device information.
+                    _logsi.LogVerbose(STAppMessages.MSG_SERVICE_EXECUTE % (service.service, entity.name))
+                    response = await hass.async_add_executor_job(entity.service_get_device_info)
+
+                elif service.service == SERVICE_GET_PRODUCT_CEC_HDMI_CONTROL:
+
+                    # get product cec hdmi control.
+                    refresh = service.data.get("refresh")
+                    _logsi.LogVerbose(STAppMessages.MSG_SERVICE_EXECUTE % (service.service, entity.name))
+                    response = await hass.async_add_executor_job(entity.service_get_product_cec_hdmi_control, refresh)
+
+                elif service.service == SERVICE_GET_PRODUCT_HDMI_ASSIGNMENT_CONTROLS:
+
+                    # get product hdmi assignment controls.
+                    refresh = service.data.get("refresh")
+                    _logsi.LogVerbose(STAppMessages.MSG_SERVICE_EXECUTE % (service.service, entity.name))
+                    response = await hass.async_add_executor_job(entity.service_get_product_hdmi_assignment_controls, refresh)
+
+                elif service.service == SERVICE_GET_SOURCE_LIST:
+
+                    # get list of sources defined for the device.
+                    _logsi.LogVerbose(STAppMessages.MSG_SERVICE_EXECUTE % (service.service, entity.name))
+                    response = await hass.async_add_executor_job(entity.service_get_source_list)
+
+                elif service.service == SERVICE_GET_SUPPORTED_URLS:
+
+                    # get supported urls.
+                    refresh = service.data.get("refresh")
+                    _logsi.LogVerbose(STAppMessages.MSG_SERVICE_EXECUTE % (service.service, entity.name))
+                    response = await hass.async_add_executor_job(entity.service_get_supported_urls, refresh)
+
+                elif service.service == SERVICE_MUSICSERVICE_STATION_LIST:
+
+                    # get list of music service stations.
+                    source = service.data.get("source")
+                    source_account = service.data.get("source_account")
+                    sort_type = service.data.get("sort_type")
+                    _logsi.LogVerbose(STAppMessages.MSG_SERVICE_EXECUTE % (service.service, entity.name))
+                    response = await hass.async_add_executor_job(entity.service_musicservice_station_list, source, source_account, sort_type)
+
+                elif service.service == SERVICE_PRESET_LIST:
+
+                    # get list of presets defined for the device.
+                    include_empty_slots = service.data.get("include_empty_slots")
+                    _logsi.LogVerbose(STAppMessages.MSG_SERVICE_EXECUTE % (service.service, entity.name))
+                    response = await hass.async_add_executor_job(entity.service_preset_list, include_empty_slots)
+
+                elif service.service == SERVICE_RECENT_LIST:
+
+                    # get list of recently played items defined for the device.
+                    _logsi.LogVerbose(STAppMessages.MSG_SERVICE_EXECUTE % (service.service, entity.name))
+                    response = await hass.async_add_executor_job(entity.service_recent_list)
+
+                elif service.service == SERVICE_RECENT_LIST_CACHE:
+
+                    # get list of recently played cached items defined for the device.
+                    _logsi.LogVerbose(STAppMessages.MSG_SERVICE_EXECUTE % (service.service, entity.name))
+                    response = await hass.async_add_executor_job(entity.service_recent_list_cache)
+
+                else:
+                    
+                    raise IntegrationError("Unrecognized service identifier \"%s\" in method \"service_handle_serviceresponse\"." % service.service)
+
+                # return the response.
+                _logsi.LogDictionary(SILevel.Verbose, "Service Response data: '%s'" % (service.service), response, prettyPrint=True)
+                return response 
+
+            except HomeAssistantError as ex: 
+                
+                # log error, but not to system logger as HA will take care of it.
+                _logsi.LogError(str(ex), logToSystemLogger=False)
+                raise
+            
+            except Exception as ex:
+                
+                # log exception, but not to system logger as HA will take care of it.
+                _logsi.LogException(STAppMessages.MSG_SERVICE_REQUEST_EXCEPTION % (service.service, "service_handle_serviceresponse"), ex, logToSystemLogger=False)
+                raise
+
+            finally:
+                
+                # trace.
+                _logsi.LeaveMethod(SILevel.Debug)
+
+
+        @staticmethod
+        def _GetEntityFromServiceData(hass:HomeAssistant, service:ServiceCall, field_id:str) -> MediaPlayerEntity:
+            """
+            Resolves a `MediaPlayerEntity` instance from a ServiceCall field id.
+
+            Args:
+                hass (HomeAssistant):
+                    HomeAssistant instance.
+                service (ServiceCall):
+                    ServiceCall instance that contains service data (requested service name, field parameters, etc).
+                field_id (str):
+                    Service parameter field id whose value contains a SoundTouch entity id.  
+                    The ServiceCall data area will be queried with the field id to retrieve the entity id value.
+
+            Returns:
+                A `MediaPlayerEntity` instance if one could be resolved; otherwise, None.
+        
+            The service.data collection is queried for the field_id argument name.  If not supplied, 
+            then an error message is logged and the return value is None.  
+
+            The Haas data is then queried for the entity_id to retrieve the `MediaPlayerEntity` instance.
+            """
+            # get service parameter: entity_id.
+            entity_id = service.data.get(field_id)
+            if entity_id is None:
+                _logsi.LogError(STAppMessages.MSG_SERVICE_ARGUMENT_NULL, field_id, service.service)
+                return None
+
+            # search all MediaPlayerEntity instances for the specified entity_id.
+            # if found, then return the MediaPlayerEntity instance.
+            player:MediaPlayerEntity = None
+            data:InstanceDataSoundTouchPlus = None
+            for data in hass.data[DOMAIN].values():
+                if data.media_player.entity_id == entity_id:
+                    player = data.media_player
+                    break
+
+            # did we resolve it? if not, then log a message.
+            if player is None:
+                raise HomeAssistantError("Entity id value of '%s' could not be resolved to a MediaPlayerEntity instance for the '%s' method call" % (str(entity_id), service.service))
+
+            # return the MediaPlayerEntity instance.
+            _logsi.LogVerbose("Entity id value of '%s' was resolved to MediaPlayerEntity instance for the '%s' method call" % (str(entity_id), service.service))
+            return player
+
+
+        # register all services this component provides, and their corresponding schemas.
+        _logsi.LogObject(SILevel.Verbose, STAppMessages.MSG_SERVICE_REQUEST_REGISTER % SERVICE_ADD_WIRELESS_PROFILE, SERVICE_ADD_WIRELESS_PROFILE_SCHEMA)
+        hass.services.async_register(
+            DOMAIN,
+            SERVICE_ADD_WIRELESS_PROFILE,
+            service_handle_entityfromto,
+            schema=SERVICE_ADD_WIRELESS_PROFILE_SCHEMA,
+            supports_response=SupportsResponse.NONE,
+        )
+
+        _logsi.LogObject(SILevel.Verbose, STAppMessages.MSG_SERVICE_REQUEST_REGISTER % SERVICE_AUDIO_TONE_LEVELS, SERVICE_AUDIO_TONE_LEVELS_SCHEMA)
+        hass.services.async_register(
+            DOMAIN,
+            SERVICE_AUDIO_TONE_LEVELS,
+            service_handle_entity,
+            schema=SERVICE_AUDIO_TONE_LEVELS_SCHEMA,
+            supports_response=SupportsResponse.NONE,
+        )
+
+        _logsi.LogObject(SILevel.Verbose, STAppMessages.MSG_SERVICE_REQUEST_REGISTER % SERVICE_CLEAR_SOURCE_NOWPLAYINGSTATUS, SERVICE_CLEAR_SOURCE_NOWPLAYINGSTATUS_SCHEMA)
+        hass.services.async_register(
+            DOMAIN,
+            SERVICE_CLEAR_SOURCE_NOWPLAYINGSTATUS,
+            service_handle_entity,
+            schema=SERVICE_CLEAR_SOURCE_NOWPLAYINGSTATUS_SCHEMA,
+            supports_response=SupportsResponse.NONE,
+        )
+
+        _logsi.LogObject(SILevel.Verbose, STAppMessages.MSG_SERVICE_REQUEST_REGISTER % SERVICE_GET_AUDIO_DSP_CONTROLS, SERVICE_GET_AUDIO_DSP_CONTROLS_SCHEMA)
+        hass.services.async_register(
+            DOMAIN,
+            SERVICE_GET_AUDIO_DSP_CONTROLS,
+            service_handle_serviceresponse,
+            schema=SERVICE_GET_AUDIO_DSP_CONTROLS_SCHEMA,
+            supports_response=SupportsResponse.ONLY,
+        )
+
+        _logsi.LogObject(SILevel.Verbose, STAppMessages.MSG_SERVICE_REQUEST_REGISTER % SERVICE_GET_AUDIO_PRODUCT_LEVEL_CONTROLS, SERVICE_GET_AUDIO_PRODUCT_LEVEL_CONTROLS_SCHEMA)
+        hass.services.async_register(
+            DOMAIN,
+            SERVICE_GET_AUDIO_PRODUCT_LEVEL_CONTROLS,
+            service_handle_serviceresponse,
+            schema=SERVICE_GET_AUDIO_PRODUCT_LEVEL_CONTROLS_SCHEMA,
+            supports_response=SupportsResponse.ONLY,
+        )
+
+        _logsi.LogObject(SILevel.Verbose, STAppMessages.MSG_SERVICE_REQUEST_REGISTER % SERVICE_GET_AUDIO_PRODUCT_TONE_CONTROLS, SERVICE_GET_AUDIO_PRODUCT_TONE_CONTROLS_SCHEMA)
+        hass.services.async_register(
+            DOMAIN,
+            SERVICE_GET_AUDIO_PRODUCT_TONE_CONTROLS,
+            service_handle_serviceresponse,
+            schema=SERVICE_GET_AUDIO_PRODUCT_TONE_CONTROLS_SCHEMA,
+            supports_response=SupportsResponse.ONLY,
+        )
+
+        _logsi.LogObject(SILevel.Verbose, STAppMessages.MSG_SERVICE_REQUEST_REGISTER % SERVICE_GET_AUDIO_SPEAKER_ATTRIBUTE_AND_SETTING, SERVICE_GET_AUDIO_SPEAKER_ATTRIBUTE_AND_SETTING_SCHEMA)
+        hass.services.async_register(
+            DOMAIN,
+            SERVICE_GET_AUDIO_SPEAKER_ATTRIBUTE_AND_SETTING,
+            service_handle_serviceresponse,
+            schema=SERVICE_GET_AUDIO_SPEAKER_ATTRIBUTE_AND_SETTING_SCHEMA,
+            supports_response=SupportsResponse.ONLY,
+        )
+
+        _logsi.LogObject(SILevel.Verbose, STAppMessages.MSG_SERVICE_REQUEST_REGISTER % SERVICE_GET_BALANCE, SERVICE_GET_BALANCE_SCHEMA)
+        hass.services.async_register(
+            DOMAIN,
+            SERVICE_GET_BALANCE,
+            service_handle_serviceresponse,
+            schema=SERVICE_GET_BALANCE_SCHEMA,
+            supports_response=SupportsResponse.ONLY,
+        )
+
+        _logsi.LogObject(SILevel.Verbose, STAppMessages.MSG_SERVICE_REQUEST_REGISTER % SERVICE_GET_BASS_CAPABILITIES, SERVICE_GET_BASS_CAPABILITIES_SCHEMA)
+        hass.services.async_register(
+            DOMAIN,
+            SERVICE_GET_BASS_CAPABILITIES,
+            service_handle_serviceresponse,
+            schema=SERVICE_GET_BASS_CAPABILITIES_SCHEMA,
+            supports_response=SupportsResponse.ONLY,
+        )
+
+        _logsi.LogObject(SILevel.Verbose, STAppMessages.MSG_SERVICE_REQUEST_REGISTER % SERVICE_GET_BASS_LEVEL, SERVICE_GET_BASS_LEVEL_SCHEMA)
+        hass.services.async_register(
+            DOMAIN,
+            SERVICE_GET_BASS_LEVEL,
+            service_handle_serviceresponse,
+            schema=SERVICE_GET_BASS_LEVEL_SCHEMA,
+            supports_response=SupportsResponse.ONLY,
+        )
+
+        _logsi.LogObject(SILevel.Verbose, STAppMessages.MSG_SERVICE_REQUEST_REGISTER % SERVICE_GET_DEVICE_INFO, SERVICE_GET_DEVICE_INFO_SCHEMA)
+        hass.services.async_register(
+            DOMAIN,
+            SERVICE_GET_DEVICE_INFO,
+            service_handle_serviceresponse,
+            schema=SERVICE_GET_DEVICE_INFO_SCHEMA,
+            supports_response=SupportsResponse.ONLY,
+        )
+
+        _logsi.LogObject(SILevel.Verbose, STAppMessages.MSG_SERVICE_REQUEST_REGISTER % SERVICE_GET_PRODUCT_CEC_HDMI_CONTROL, SERVICE_GET_PRODUCT_CEC_HDMI_CONTROL_SCHEMA)
+        hass.services.async_register(
+            DOMAIN,
+            SERVICE_GET_PRODUCT_CEC_HDMI_CONTROL,
+            service_handle_serviceresponse,
+            schema=SERVICE_GET_PRODUCT_CEC_HDMI_CONTROL_SCHEMA,
+            supports_response=SupportsResponse.ONLY,
+        )
+
+        _logsi.LogObject(SILevel.Verbose, STAppMessages.MSG_SERVICE_REQUEST_REGISTER % SERVICE_GET_PRODUCT_HDMI_ASSIGNMENT_CONTROLS, SERVICE_GET_PRODUCT_HDMI_ASSIGNMENT_CONTROLS_SCHEMA)
+        hass.services.async_register(
+            DOMAIN,
+            SERVICE_GET_PRODUCT_HDMI_ASSIGNMENT_CONTROLS,
+            service_handle_serviceresponse,
+            schema=SERVICE_GET_PRODUCT_HDMI_ASSIGNMENT_CONTROLS_SCHEMA,
+            supports_response=SupportsResponse.ONLY,
+        )
+
+        _logsi.LogObject(SILevel.Verbose, STAppMessages.MSG_SERVICE_REQUEST_REGISTER % SERVICE_GET_SOURCE_LIST, SERVICE_GET_SOURCE_LIST_SCHEMA)
+        hass.services.async_register(
+            DOMAIN,
+            SERVICE_GET_SOURCE_LIST,
+            service_handle_serviceresponse,
+            schema=SERVICE_GET_SOURCE_LIST_SCHEMA,
+            supports_response=SupportsResponse.ONLY,
+        )
+
+        _logsi.LogObject(SILevel.Verbose, STAppMessages.MSG_SERVICE_REQUEST_REGISTER % SERVICE_GET_SUPPORTED_URLS, SERVICE_GET_SUPPORTED_URLS_SCHEMA)
+        hass.services.async_register(
+            DOMAIN,
+            SERVICE_GET_SUPPORTED_URLS,
+            service_handle_serviceresponse,
+            schema=SERVICE_GET_SUPPORTED_URLS_SCHEMA,
+            supports_response=SupportsResponse.ONLY,
+        )
+
+        _logsi.LogObject(SILevel.Verbose, STAppMessages.MSG_SERVICE_REQUEST_REGISTER % SERVICE_MUSICSERVICE_STATION_LIST, SERVICE_MUSICSERVICE_STATION_LIST_SCHEMA)
+        hass.services.async_register(
+            DOMAIN,
+            SERVICE_MUSICSERVICE_STATION_LIST,
+            service_handle_serviceresponse,
+            schema=SERVICE_MUSICSERVICE_STATION_LIST_SCHEMA,
+            supports_response=SupportsResponse.ONLY,
+        )
+
+        _logsi.LogObject(SILevel.Verbose, STAppMessages.MSG_SERVICE_REQUEST_REGISTER % SERVICE_PLAY_CONTENTITEM, SERVICE_PLAY_CONTENTITEM_SCHEMA)
+        hass.services.async_register(
+            DOMAIN,
+            SERVICE_PLAY_CONTENTITEM,
+            service_handle_entity,
+            schema=SERVICE_PLAY_CONTENTITEM_SCHEMA,
+            supports_response=SupportsResponse.NONE,
+        )
+
+        _logsi.LogObject(SILevel.Verbose, STAppMessages.MSG_SERVICE_REQUEST_REGISTER % SERVICE_PLAY_HANDOFF, SERVICE_PLAY_HANDOFF_SCHEMA)
+        hass.services.async_register(
+            DOMAIN,
+            SERVICE_PLAY_HANDOFF,
+            service_handle_entityfromto,
+            schema=SERVICE_PLAY_HANDOFF_SCHEMA,
+            supports_response=SupportsResponse.NONE,
+        )
+
+        _logsi.LogObject(SILevel.Verbose, STAppMessages.MSG_SERVICE_REQUEST_REGISTER % SERVICE_PLAY_TTS, SERVICE_PLAY_TTS_SCHEMA)
+        hass.services.async_register(
+            DOMAIN,
+            SERVICE_PLAY_TTS,
+            service_handle_entity,
+            schema=SERVICE_PLAY_TTS_SCHEMA,
+            supports_response=SupportsResponse.NONE,
+        )
+
+        _logsi.LogObject(SILevel.Verbose, STAppMessages.MSG_SERVICE_REQUEST_REGISTER % SERVICE_PLAY_URL, SERVICE_PLAY_URL_SCHEMA)
+        hass.services.async_register(
+            DOMAIN,
+            SERVICE_PLAY_URL,
+            service_handle_entity,
+            schema=SERVICE_PLAY_URL_SCHEMA,
+            supports_response=SupportsResponse.NONE,
+        )
+
+        _logsi.LogObject(SILevel.Verbose, STAppMessages.MSG_SERVICE_REQUEST_REGISTER % SERVICE_PLAY_URL_DLNA, SERVICE_PLAY_URL_DLNA_SCHEMA)
+        hass.services.async_register(
+            DOMAIN,
+            SERVICE_PLAY_URL_DLNA,
+            service_handle_entity,
+            schema=SERVICE_PLAY_URL_DLNA_SCHEMA,
+            supports_response=SupportsResponse.NONE,
+        )
+
+        _logsi.LogObject(SILevel.Verbose, STAppMessages.MSG_SERVICE_REQUEST_REGISTER % SERVICE_PRESET_LIST, SERVICE_PRESET_LIST_SCHEMA)
+        hass.services.async_register(
+            DOMAIN,
+            SERVICE_PRESET_LIST,
+            service_handle_serviceresponse,
+            schema=SERVICE_PRESET_LIST_SCHEMA,
+            supports_response=SupportsResponse.ONLY,
+        )
+
+        _logsi.LogObject(SILevel.Verbose, STAppMessages.MSG_SERVICE_REQUEST_REGISTER % SERVICE_PRESET_REMOVE, SERVICE_PRESET_REMOVE_SCHEMA)
+        hass.services.async_register(
+            DOMAIN,
+            SERVICE_PRESET_REMOVE,
+            service_handle_entity,
+            schema=SERVICE_PRESET_REMOVE_SCHEMA,
+            supports_response=SupportsResponse.NONE,
+        )
+
+        _logsi.LogObject(SILevel.Verbose, STAppMessages.MSG_SERVICE_REQUEST_REGISTER % SERVICE_REBOOT_DEVICE, SERVICE_REBOOT_DEVICE_SCHEMA)
+        hass.services.async_register(
+            DOMAIN,
+            SERVICE_REBOOT_DEVICE,
+            service_handle_entity,
+            schema=SERVICE_REBOOT_DEVICE_SCHEMA,
+            supports_response=SupportsResponse.NONE,
+        )
+
+        _logsi.LogObject(SILevel.Verbose, STAppMessages.MSG_SERVICE_REQUEST_REGISTER % SERVICE_RECENT_LIST, SERVICE_RECENT_LIST_SCHEMA)
+        hass.services.async_register(
+            DOMAIN,
+            SERVICE_RECENT_LIST,
+            service_handle_serviceresponse,
+            schema=SERVICE_RECENT_LIST_SCHEMA,
+            supports_response=SupportsResponse.ONLY,
+        )
+
+        _logsi.LogObject(SILevel.Verbose, STAppMessages.MSG_SERVICE_REQUEST_REGISTER % SERVICE_RECENT_LIST_CACHE, SERVICE_RECENT_LIST_CACHE_SCHEMA)
+        hass.services.async_register(
+            DOMAIN,
+            SERVICE_RECENT_LIST_CACHE,
+            service_handle_serviceresponse,
+            schema=SERVICE_RECENT_LIST_CACHE_SCHEMA,
+            supports_response=SupportsResponse.ONLY,
+        )
+
+        _logsi.LogObject(SILevel.Verbose, STAppMessages.MSG_SERVICE_REQUEST_REGISTER % SERVICE_REMOTE_KEYPRESS, SERVICE_REMOTE_KEYPRESS_SCHEMA)
+        hass.services.async_register(
+            DOMAIN,
+            SERVICE_REMOTE_KEYPRESS,
+            service_handle_entity,
+            schema=SERVICE_REMOTE_KEYPRESS_SCHEMA,
+            supports_response=SupportsResponse.NONE,
+        )
+
+        _logsi.LogObject(SILevel.Verbose, STAppMessages.MSG_SERVICE_REQUEST_REGISTER % SERVICE_SET_AUDIO_DSP_CONTROLS, SERVICE_SET_AUDIO_DSP_CONTROLS_SCHEMA)
+        hass.services.async_register(
+            DOMAIN,
+            SERVICE_SET_AUDIO_DSP_CONTROLS,
+            service_handle_entity,
+            schema=SERVICE_SET_AUDIO_DSP_CONTROLS_SCHEMA,
+            supports_response=SupportsResponse.NONE,
+        )
+
+        _logsi.LogObject(SILevel.Verbose, STAppMessages.MSG_SERVICE_REQUEST_REGISTER % SERVICE_SET_AUDIO_PRODUCT_LEVEL_CONTROLS, SERVICE_SET_AUDIO_PRODUCT_LEVEL_CONTROLS_SCHEMA)
+        hass.services.async_register(
+            DOMAIN,
+            SERVICE_SET_AUDIO_PRODUCT_LEVEL_CONTROLS,
+            service_handle_entity,
+            schema=SERVICE_SET_AUDIO_PRODUCT_LEVEL_CONTROLS_SCHEMA,
+            supports_response=SupportsResponse.NONE,
+        )
+
+        _logsi.LogObject(SILevel.Verbose, STAppMessages.MSG_SERVICE_REQUEST_REGISTER % SERVICE_SET_AUDIO_PRODUCT_TONE_CONTROLS, SERVICE_SET_AUDIO_PRODUCT_TONE_CONTROLS_SCHEMA)
+        hass.services.async_register(
+            DOMAIN,
+            SERVICE_SET_AUDIO_PRODUCT_TONE_CONTROLS,
+            service_handle_entity,
+            schema=SERVICE_SET_AUDIO_PRODUCT_TONE_CONTROLS_SCHEMA,
+            supports_response=SupportsResponse.NONE,
+        )
+
+        _logsi.LogObject(SILevel.Verbose, STAppMessages.MSG_SERVICE_REQUEST_REGISTER % SERVICE_SET_BALANCE_LEVEL, SERVICE_SET_BALANCE_LEVEL_SCHEMA)
+        hass.services.async_register(
+            DOMAIN,
+            SERVICE_SET_BALANCE_LEVEL,
+            service_handle_entity,
+            schema=SERVICE_SET_BALANCE_LEVEL_SCHEMA,
+            supports_response=SupportsResponse.NONE,
+        )
+
+        _logsi.LogObject(SILevel.Verbose, STAppMessages.MSG_SERVICE_REQUEST_REGISTER % SERVICE_SET_BASS_LEVEL, SERVICE_SET_BASS_LEVEL_SCHEMA)
+        hass.services.async_register(
+            DOMAIN,
+            SERVICE_SET_BASS_LEVEL,
+            service_handle_entity,
+            schema=SERVICE_SET_BASS_LEVEL_SCHEMA,
+            supports_response=SupportsResponse.NONE,
+        )
+
+        _logsi.LogObject(SILevel.Verbose, STAppMessages.MSG_SERVICE_REQUEST_REGISTER % SERVICE_SET_LANGUAGE, SERVICE_SET_LANGUAGE_SCHEMA)
+        hass.services.async_register(
+            DOMAIN,
+            SERVICE_SET_LANGUAGE,
+            service_handle_entity,
+            schema=SERVICE_SET_LANGUAGE_SCHEMA,
+            supports_response=SupportsResponse.NONE,
+        )
+
+        _logsi.LogObject(SILevel.Verbose, STAppMessages.MSG_SERVICE_REQUEST_REGISTER % SERVICE_SET_NAME, SERVICE_SET_NAME_SCHEMA)
+        hass.services.async_register(
+            DOMAIN,
+            SERVICE_SET_NAME,
+            service_handle_entity,
+            schema=SERVICE_SET_NAME_SCHEMA,
+            supports_response=SupportsResponse.NONE,
+        )
+
+        _logsi.LogObject(SILevel.Verbose, STAppMessages.MSG_SERVICE_REQUEST_REGISTER % SERVICE_SET_PRODUCT_CEC_HDMI_CONTROL, SERVICE_SET_PRODUCT_CEC_HDMI_CONTROL_SCHEMA)
+        hass.services.async_register(
+            DOMAIN,
+            SERVICE_SET_PRODUCT_CEC_HDMI_CONTROL,
+            service_handle_entity,
+            schema=SERVICE_SET_PRODUCT_CEC_HDMI_CONTROL_SCHEMA,
+            supports_response=SupportsResponse.NONE,
+        )
+
+        _logsi.LogObject(SILevel.Verbose, STAppMessages.MSG_SERVICE_REQUEST_REGISTER % SERVICE_SET_PRODUCT_HDMI_ASSIGNMENT_CONTROLS, SERVICE_SET_PRODUCT_HDMI_ASSIGNMENT_CONTROLS_SCHEMA)
+        hass.services.async_register(
+            DOMAIN,
+            SERVICE_SET_PRODUCT_HDMI_ASSIGNMENT_CONTROLS,
+            service_handle_entity,
+            schema=SERVICE_SET_PRODUCT_HDMI_ASSIGNMENT_CONTROLS_SCHEMA,
+            supports_response=SupportsResponse.NONE,
+        )
+
+        _logsi.LogObject(SILevel.Verbose, STAppMessages.MSG_SERVICE_REQUEST_REGISTER % SERVICE_SNAPSHOT_RESTORE, SERVICE_SNAPSHOT_RESTORE_SCHEMA)
+        hass.services.async_register(
+            DOMAIN,
+            SERVICE_SNAPSHOT_RESTORE,
+            service_handle_entity,
+            schema=SERVICE_SNAPSHOT_RESTORE_SCHEMA,
+            supports_response=SupportsResponse.NONE,
+        )
+
+        _logsi.LogObject(SILevel.Verbose, STAppMessages.MSG_SERVICE_REQUEST_REGISTER % SERVICE_SNAPSHOT_STORE, SERVICE_SNAPSHOT_STORE_SCHEMA)
+        hass.services.async_register(
+            DOMAIN,
+            SERVICE_SNAPSHOT_STORE,
+            service_handle_entity,
+            schema=SERVICE_SNAPSHOT_STORE_SCHEMA,
+            supports_response=SupportsResponse.NONE,
+        )
+
+        _logsi.LogObject(SILevel.Verbose, STAppMessages.MSG_SERVICE_REQUEST_REGISTER % SERVICE_UPDATE_SOURCE_NOWPLAYINGSTATUS, SERVICE_UPDATE_SOURCE_NOWPLAYINGSTATUS_SCHEMA)
+        hass.services.async_register(
+            DOMAIN,
+            SERVICE_UPDATE_SOURCE_NOWPLAYINGSTATUS,
+            service_handle_entity,
+            schema=SERVICE_UPDATE_SOURCE_NOWPLAYINGSTATUS_SCHEMA,
+            supports_response=SupportsResponse.NONE,
+        )
+
+        _logsi.LogObject(SILevel.Verbose, STAppMessages.MSG_SERVICE_REQUEST_REGISTER % SERVICE_ZONE_TOGGLE_MEMBER, SERVICE_ZONE_TOGGLE_MEMBER_SCHEMA)
+        hass.services.async_register(
+            DOMAIN,
+            SERVICE_ZONE_TOGGLE_MEMBER,
+            service_handle_entityfromto,
+            schema=SERVICE_ZONE_TOGGLE_MEMBER_SCHEMA,
+            supports_response=SupportsResponse.NONE,
+        )
+    
+        # indicate success.
+        _logsi.LogVerbose("Component async_setup complete")
+        return True
+
+    finally:
+
+        # trace.
+        _logsi.LeaveMethod(SILevel.Debug)
+
+
+async def async_setup_entry(hass:HomeAssistant, entry:ConfigEntry) -> bool:
+    """
+    Set up device instance from a config entry.
+
+    Args:
+        hass (HomeAssistant):
+            HomeAssistant instance.
+        entry (ConfigEntry):
+            HomeAssistant configuration entry dictionary.  This contains configuration
+            settings for the specific component device entry.
+
+    The __init__.py module "async_setup_entry" method is executed for each device that is 
+    configured for the component.  It takes care of loading the device controller instance 
+    (e.g. SoundTouchClient in our case) for each device that will be controlled.
+    """
+    try:
+
+        # trace.
+        _logsi.EnterMethod(SILevel.Debug)
+        _logsi.LogObject(SILevel.Verbose, "'%s': Component async_setup_entry is starting - entry (ConfigEntry) object" % entry.title, entry)
+        _logsi.LogDictionary(SILevel.Verbose, "'%s': Component async_setup_entry entry.data dictionary" % entry.title, entry.data)
+        _logsi.LogDictionary(SILevel.Verbose, "'%s': Component async_setup_entry entry.options dictionary" % entry.title, entry.options)
+
+        # load config entry base parameters.
+        host:str = entry.data[CONF_HOST]
+
+        # load config entry user-specified parameters.
+        port:int = entry.data.get(CONF_PORT, DEFAULT_PORT)
+        port_websocket:int = entry.data.get(CONF_PORT_WEBSOCKET, DEFAULT_PORT_WEBSOCKET)
+        ping_websocket_interval:int = entry.data.get(CONF_PING_WEBSOCKET_INTERVAL, DEFAULT_PING_WEBSOCKET_INTERVAL)
+        option_source_list:list[str] = entry.options.get(CONF_OPTION_SOURCE_LIST, [])
+        option_recents_cache_max_items:int = entry.options.get(CONF_OPTION_RECENTS_CACHE_MAX_ITEMS, 0)
+
+        device:SoundTouchDevice = None
+        client:SoundTouchClient = None
+        socket:SoundTouchWebSocket = None
+    
+        # create the SoundTouchDevice object.
+        _logsi.LogVerbose("'%s': Component async_setup_entry is creating SoundTouchDevice instance: IP Address=%s, Port=%s" % (entry.title, host, str(port)))
+        device:SoundTouchDevice = await hass.async_add_executor_job(SoundTouchDevice, host, 30, None, port)
+        _logsi.LogVerbose("'%s': Device Info: Name='%s', ID='%s', Type='%s', Country='%s', Region='%s'" % (entry.title, device.DeviceName, device.DeviceId, device.DeviceType, device.CountryCode, device.RegionCode))
+        _logsi.LogVerbose("'%s': Device does NOT support the following URL services: %s" % (entry.title, device.UnSupportedUrlNames))
+        if len(device.UnknownUrlNames) > 0:
+            _logsi.LogVerbose("'%s': Device contains URL services that are not known by the API: %s" % (entry.title, device.UnknownUrlNames))
+    
+        # create the SoundTouchClient object, which contains all of the methods used to control the actual device.
+        _logsi.LogVerbose("'%s': Component async_setup_entry is creating SoundTouchClient instance: IP Address=%s, Port=%s" % (entry.title, host, str(port)))
+        client:SoundTouchClient = await hass.async_add_executor_job(SoundTouchClient, device)
+        
+        # handle websocket failures. if it fails, the configuration can still function but polling
+        # will be used instead of websocket notifications from the SoundTouch device.
+        try:
+
+            _logsi.LogVerbose("'%s': Component async_setup_entry is verifying SoundTouch WebSocket connectivity" % entry.title)
+
+            # get device capabilities - must have IsWebSocketApiProxyCapable=True 
+            # in order to support notifications.
+            capabilities:Capabilities = await hass.async_add_executor_job(client.GetCapabilities)
+            if (port_websocket == 0):
+
+                # SoundTouch device websocket notifications were disabled by user - device will be polled.
+                _logsi.LogMessage("'%s': Component async_setup_entry - device websocket notifications were disabled by the user; polling will be enabled" % entry.title)
+            
+            elif (capabilities.IsWebSocketApiProxyCapable == True):
+
+                _logsi.LogVerbose("'%s': Component async_setup_entry has verified device is capable of websocket notifications" % entry.title)
+
+                # create a websocket to receive notifications from the device.
+                _logsi.LogVerbose("'%s': Component async_setup_entry is creating SoundTouchWebSocket instance: port=%s, pingInterval=%s" % (entry.title, str(port_websocket), str(ping_websocket_interval)))
+                socket = await hass.async_add_executor_job(SoundTouchWebSocket, client, port_websocket, ping_websocket_interval)
+                
+                # enable recently played items cache.
+                if (option_recents_cache_max_items > 0):
+                    cacheDir:str = "%s/www/%s" % (hass.config.config_dir, DOMAIN)
+                    await hass.async_add_executor_job(
+                        functools.partial(
+                            client.UpdateRecentListCacheStatus, 
+                            True, 
+                            cacheDir, 
+                            maxItems=option_recents_cache_max_items)
+                        )
+                        
+                # we cannot start listening for notifications just yet, as the entity has not been
+                # added to HA UI yet.  this will happen in the `media_player.async_added_to_hass` method.
+
+            else:
+
+                # SoundTouch device does not support websocket notifications!
+                _logsi.LogWarning("'%s': Component async_setup_entry - device does not support websocket notifications; polling will be enabled" % entry.title)
+
+        except Exception as ex:
+        
+            # log failure.
+            _logsi.LogError("'%s': Component async_setup_entry - SoundTouchWebSocket instance could not be created; polling will be enabled: %s" % (entry.title, str(ex)))
+            socket = None
+
+        # create media player entity instance data.
+        hass.data.setdefault(DOMAIN, {})
+        hass.data[DOMAIN][entry.entry_id] = InstanceDataSoundTouchPlus(
+            client=client, 
+            socket=socket,
+            media_player=None,
+            options=entry.options
+        )
+        _logsi.LogObject(SILevel.Verbose, "'%s': Component async_setup_entry media_player instance data object" % entry.title, hass.data[DOMAIN][entry.entry_id])
+
+        # we are now ready for HA to create individual objects for each platform that
+        # our device requires; in our case, it's just a media_player platform.
+        # we initiate this by calling the `async_forward_entry_setups`, which 
+        # calls the `async_setup_entry` function in each platform module (e.g.
+        # media_player.py) for each device instance.
+        _logsi.LogVerbose("'%s': Component async_setup_entry is forwarding configuration entry setups to create the individual media player platforms" % entry.title)
+        await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+
+        # register an update listener to reload configuration entry when options are updated.
+        # this will return an "unlisten" function, which will be added to the configuration
+        # "on_unload" event handler to automatically unregister the update listener when
+        # the configuration is unloaded.
+        listenerRemovePtr = entry.add_update_listener(options_update_listener)
+        _logsi.LogArray(SILevel.Verbose, "'%s': Component update listener has been registered and added to update listeners array (%d array items)" % (entry.title, len(entry.update_listeners)), entry.update_listeners)
+
+        entry.async_on_unload(listenerRemovePtr)
+        _logsi.LogArray(SILevel.Verbose, "'%s': Component update listener auto-unregister method has been added to on_unload event handlers array (%d array items)" % (entry.title, len(entry._on_unload)), entry._on_unload)
+
+        # trace.
+        _logsi.LogVerbose("'%s': Component async_setup_entry is complete" % entry.title)
+
+        # indicate success.
+        return True
+
+    except Exception as ex:
+
+        # this is usually caused by a temporary error (e.g. device unplugged, network connectivity, etc), in 
+        # which case the user will need to manually reload the device when the temporary condition is cleared.
+        # if it's a permanent error (e.g. ip address change), then the user needs to correct the configuration.
+        
+        # trace.
+        _logsi.LogException("'%s': Component async_setup_entry exception" % entry.title, ex, logToSystemLogger=False)
+        
+        # reset 
+        device = None
+        client = None
+        
+        # inform HA that the configuration is not ready.
+        raise ConfigEntryNotReady from ex
+    
+    finally:
+
+        # trace.
+        _logsi.LeaveMethod(SILevel.Debug)
+
+
+async def async_unload_entry(hass:HomeAssistant, entry:ConfigEntry) -> bool:
+    """
+    Unloads a configuration entry.
+
+    Args:
+        hass (HomeAssistant):
+            HomeAssistant instance.
+        entry (ConfigEntry):
+            HomeAssistant configuration entry object.
+
+    The __init__.py module "async_unload_entry" unloads a configuration entry.
+            
+    This method is called when a configuration entry is to be removed. The class
+    needs to unload itself, and remove any callbacks.  
+    
+    Note that any options update listeners (added via "add_update_listener") do not need 
+    to be removed, as they are already removed by the time this method is called.
+    This is accomplished by the "entry.async_on_unload(listener)" call in async_setup_entry,
+    which removes them from the configuration entry just before it is unloaded.
+
+    Note that something changed with HA 2024.6 release that causes the `update_listeners` array 
+    to still contain entries; prior to this release, the `update_listeners` array was empty by this point.
+    """
+    try:
+
+        # trace.
+        _logsi.EnterMethod(SILevel.Debug)
+        _logsi.LogObject(SILevel.Verbose, "'%s': Component async_unload_entry configuration entry" % entry.title, entry)
+
+        # unload any platforms this device supports.
+        _logsi.LogVerbose("'%s': Component async_unload_entry is unloading our device instance from the domain" % entry.title)
+        unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+
+        # if unload was successful, then remove data associated with the device.
+        if unload_ok:
+
+            # remove instance data from domain.
+            _logsi.LogVerbose("'%s': Component async_unload_entry is removing our device instance data from the domain" % entry.title)
+            data:InstanceDataSoundTouchPlus = hass.data[DOMAIN].pop(entry.entry_id)
+            _logsi.LogObject(SILevel.Verbose, "'%s': Component async_unload_entry unloaded configuration entry instance data" % entry.title, data)
+
+            # a quick check to make sure all update listeners were removed (see method doc notes above).
+            if len(entry.update_listeners) > 0:
+                _logsi.LogArray(SILevel.Warning, "'%s': Component configuration update_listener(s) did not get removed before configuration unload (%d items - should be 0 prioer to HA 2026.0 release, but after that release still contains entries)" % (entry.title, len(entry.update_listeners)), entry.update_listeners)
+                # 2024/06/08 - I commented out the following line to clear the `update_listeners`, as it was causing `ValueError: list.remove(x): x not in list`
+                # exceptions starting with the HA 2024.6.0 release!
+                #entry.update_listeners.clear()
+
+        # return status to caller.
+        _logsi.LogVerbose("'%s': Component async_unload_entry completed" % entry.title)
+        return unload_ok
+
+    finally:
+
+        # trace.
+        _logsi.LeaveMethod(SILevel.Debug)
+
+
+async def async_reload_entry(hass:HomeAssistant, entry:ConfigEntry) -> None:
+    """
+    Reload config entry.
+
+    Args:
+        hass (HomeAssistant):
+            HomeAssistant instance.
+        entry (ConfigEntry):
+            HomeAssistant configuration entry object.
+
+    The __init__.py module "async_reload_entry" reloads a configuration entry.
+            
+    This method is called when an entry/configured device is to be reloaded. The class
+    needs to unload itself, remove callbacks, and call async_setup_entry.
+    """
+    try:
+
+        # trace.
+        _logsi.EnterMethod(SILevel.Debug)
+        _logsi.LogObject(SILevel.Verbose, "'%s': Component async_reload_entry configuration entry" % entry.title, entry)
+
+        # unload the configuration entry.
+        _logsi.LogVerbose("'%s': Component async_reload_entry is unloading the configuration entry" % entry.title)
+        await async_unload_entry(hass, entry)
+
+        # reload (setup) the configuration entry.
+        _logsi.LogVerbose("'%s': Component async_reload_entry is reloading the configuration entry" % entry.title)
+        await async_setup_entry(hass, entry)
+
+        # trace.
+        _logsi.LogVerbose("'%s': Component async_reload_entry completed" % entry.title)
+
+    finally:
+
+        # trace.
+        _logsi.LeaveMethod(SILevel.Debug)
+
+
+async def options_update_listener(hass:HomeAssistant, entry:ConfigEntry) -> None:
+    """
+    Configuration entry update event handler.
+    
+    Args:
+        hass (HomeAssistant):
+            HomeAssistant instance.
+        entry (ConfigEntry):
+            HomeAssistant configuration entry object.
+    
+    Reloads the config entry after updates have been applied to a configuration entry.
+
+    This method is called when a user has updated configuration options via the UI, or
+    when a call is made to async_update_entry with changed configuration data.
+    """
+    try:
+
+        # trace.
+        _logsi.EnterMethod(SILevel.Debug)
+        _logsi.LogObject(SILevel.Verbose, "'%s': Component detected configuration entry options update" % entry.title, entry)
+        
+        # reload the configuration entry.
+        await hass.config_entries.async_reload(entry.entry_id)
+
+        # trace.
+        _logsi.LogVerbose("'%s': Component options_update_listener completed" % entry.title)
+
+    finally:
+
+        # trace.
+        _logsi.LeaveMethod(SILevel.Debug)
+        
+
+async def async_migrate_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    """
+    Migrate older version of a config entry to a new version format.
+
+    You can also update the `unique_id` value as well.
+
+    This method is called when the configuration entry.version value does not match
+    the hardcoded `SoundTouchPlusConfigFlow.VERSION = n` value.
+    """
+    try:
+
+        # trace.
+        _logsi.EnterMethod(SILevel.Debug)
+        _logsi.LogObject(SILevel.Verbose, "'%s': Component detected configuration entry migration" % entry.title, entry)
+        _logsi.LogDictionary(SILevel.Verbose, "'%s': Component async_migrate_entry entry.data dictionary" % entry.title, entry.data)
+        _logsi.LogDictionary(SILevel.Verbose, "'%s': Component async_migrate_entry entry.options dictionary" % entry.title, entry.options)
+
+        # check config entry version to know what we need to migrate from.
+        if entry.version == 1:
+
+            # trace.
+            _logsi.LogVerbose("'%s': Migrating config entry from version %s to version 2" % (entry.title, entry.version), colorValue=SIColors.DarkBlue)
+
+            # as of HA 2026.03 the unique_id value needs to be unique across all domains,
+            # otherwise an exception will occur and the integration will not load!
+            # version 1 of the integration uses the same unique_id as the HA SoundTouch
+            # integration (e.g. device MAC address), so we need to update the unique_id value.
+            # in our case, we will just tack the "_DOMAIN" suffix onto the existing unique_id.
+
+            # we need to switch the config entry unique_id from a name (e.g. "Bose-ST10-1") to
+            # the entity device_id value.  to do this, we need to search the entity registry for
+            # a match on the config_entry_id, and pull the device_id from it to use as the config 
+            # entry unique_id value.
+            device_id = None
+            entity_registry = er.async_get(hass)
+            for entity in list(entity_registry.entities.values()):
+                if entity.config_entry_id != entry.entry_id:
+                    continue
+                #if entity.platform != DOMAIN:
+                #    continue
+                if entity.original_name == entry.title:
+                    # save the current unique_id value for entity entry modifications.
+                    device_id = entity.unique_id
+                    _logsi.LogVerbose("'%s': Found device id value of \"%s\" for existing entity original_name \"%s\" (e.g. new_unique_id value)" % (entry.title, device_id, entity.original_name), colorValue=SIColors.DarkBlue)
+                    break
+
+            # if we could not find the device id for this config entry then we are done!
+            if device_id is None:
+                _logsi.LogVerbose("'%s': Could not find device id value for configuration title \"%s\" (e.g. new_unique_id value)" % (entry.title, entry.title), colorValue=SIColors.DarkBlue)
+                # return False so Home Assistant knows the migration failed!
+                return False
+
+            # formulate the new unique_id value.
+            new_unique_id = device_id + "_" + DOMAIN
+            _logsi.LogVerbose("'%s': Migrating config entry unique_id from \"%s\" to \"%s\"" % (entry.title, entry.unique_id, new_unique_id), colorValue=SIColors.DarkBlue)
+
+            # if you also need to adjust data.
+            new_data = {**entry.data}
+            # if "deprecated_key" in new_data:
+            #     new_data.pop("deprecated_key")
+
+            # if you also need to adjust options.
+            new_options = {**entry.options}
+            # if "deprecated_key" in new_options:
+            #     new_options.pop("deprecated_key")
+
+            # update configuration entry to newer version structure, and
+            # increment the version indicator by one.
+            hass.config_entries.async_update_entry(
+                entry,
+                unique_id=new_unique_id,
+                data=new_data,
+                options=new_options,
+                version=2,  # update version to next version number
+            )
+
+            # now that the configuration entry has been updated, let's loop through
+            # the entity registry and update the unique id of any existing entities
+            # that are children of this configuration entry.
+
+            # get the entity registry.
+            entity_registry = er.async_get(hass)
+
+            # process all entities.
+            for entity in list(entity_registry.entities.values()):
+
+                # is this entity a child of the configuration entry?  if not, then don't bother.
+                if entity.config_entry_id != entry.entry_id:
+                    continue
+
+                # is this entity referencing the config entry old unique_id value?
+                if entity.unique_id == device_id:
+
+                    # is there an entity that already contains our new unique_id?
+                    if entity_registry.async_get_entity_id(entity.domain, entity.platform, new_unique_id):
+                        # duplicate found; remove the old entity.
+                        _logsi.LogVerbose("'%s': Removing existing entity_id \"%s\" so that a new entity can be created for the unique_id (avoid duplicate entities)" % (entry.title, entity.entity_id), colorValue=SIColors.DarkBlue)
+                        entity_registry.async_remove(entity.entity_id)
+                    else:
+                        # update the entity with the new unique_id.
+                        _logsi.LogVerbose("'%s': Updating entity_id \"%s\" unique_id value from \"%s\" to \"%s\"" % (entry.title, entity.entity_id, entity.unique_id, new_unique_id), colorValue=SIColors.DarkBlue)
+                        entity_registry.async_update_entity(entity.entity_id, new_unique_id=new_unique_id)
+
+        # trace.
+        _logsi.LogObject(SILevel.Verbose, "'%s': Component configuration entry migration complete" % entry.title, entry)
+        _logsi.LogDictionary(SILevel.Verbose, "'%s': Component async_migrate_entry entry.data dictionary (migrated)" % entry.title, entry.data)
+        _logsi.LogDictionary(SILevel.Verbose, "'%s': Component async_migrate_entry entry.options dictionary (migrated)" % entry.title, entry.options)
+
+        # return True so Home Assistant knows the migration succeeded.
+        return True
+
+    except Exception as ex:
+
+        # log exception, but not to system logger as HA will take care of it.
+        _logsi.LogException("'%s': Component async_migrate_entry Exception" % (entry.title), ex, logToSystemLogger=False)
+        raise
+
+    finally:
+
+        # trace.
+        _logsi.LeaveMethod(SILevel.Debug)

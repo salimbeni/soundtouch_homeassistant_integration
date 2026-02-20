@@ -1,0 +1,23 @@
+add_zone_slave:
+  description: Add a slave to a SoundTouch zone.
+  fields:
+    master:
+      description: The entity_id of the master media player.
+      example: media_player.living_room
+      required: true
+    slave:
+      description: The entity_id of the slave media player to add.
+      example: media_player.kitchen
+      required: true
+
+remove_zone_slave:
+  description: Remove a slave from a SoundTouch zone.
+  fields:
+    master:
+      description: The entity_id of the master media player.
+      example: media_player.living_room
+      required: true
+    slave:
+      description: The entity_id of the slave media player to remove.
+      example: media_player.kitchen
+      required: true

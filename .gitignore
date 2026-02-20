@@ -1,0 +1,34 @@
+# artifacts
+__pycache__
+.pytest*
+*.egg-info
+*/build/*
+*/dist/*
+
+# misc
+.coverage
+coverage.xml
+
+# Visual Studio 2022 configuration.
+/.vs/
+/*.pyproj.user
+*/env/*
+/env
+
+# Home Assistant configuration
+config/*
+!config/configuration.yaml
+!config/smartinspect.cfg
+
+# GIT support files to ignore.
+/Git*.cmd
+/Git*.txt
+
+# Local project files and folders to ignore.
+/.github/workflows/lint.yml
+/custom_components/soundtouchplus/zzz_Publish.cmd
+/images
+/developer_notes.txt
+/New_Release_Instructions.txt
+/test/testdata/
+/test/*

@@ -1,0 +1,25 @@
+{
+    "config": {
+        "step": {
+            "user": {
+                "title": "Bose SoundTouch Local Setup",
+                "description": "Enter the details of your Bose SoundTouch device.",
+                "data": {
+                    "host": "IP Address",
+                    "name": "Name of the device"
+                }
+            },
+            "confirm": {
+                "title": "Confirm Discovery",
+                "description": "Do you want to add the Bose SoundTouch device '{name}'?"
+            }
+        },
+        "error": {
+            "cannot_connect": "Failed to connect to the device. Please check the IP address and make sure the device is on the same network.",
+            "unknown": "An unexpected error occurred."
+        },
+        "abort": {
+            "already_configured": "This device is already configured."
+        }
+    }
+}
