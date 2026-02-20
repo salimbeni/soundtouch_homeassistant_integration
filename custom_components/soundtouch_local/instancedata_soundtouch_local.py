@@ -10,6 +10,7 @@ from .const import (
     CONF_OPTION_SPOTIFY_MEDIAPLAYER_ENTITY_ID,
     CONF_OPTION_TTS_FORCE_GOOGLE_TRANSLATE,
 )
+from .favorites_manager import FavoritesManager
 
 
 @dataclass
@@ -41,6 +42,11 @@ class InstanceDataSoundTouchLocal:
     """
     SoundTouchWebSocket instance that receieves real-time updates from the SoundTouch device
     if websocket processing is enabled.
+    """
+
+    favorites_manager: FavoritesManager
+    """
+    FavoritesManager instance that manages local favorites for the SoundTouch device.
     """
 
     @property

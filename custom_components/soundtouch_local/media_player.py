@@ -74,6 +74,7 @@ from .const import (
     DOMAIN_SPOTIFYPLUS
 )
 from .instancedata_soundtouch_local import InstanceDataSoundTouchLocal
+from .favorites_manager import SoundTouchFavorite
 from .stappmessages import STAppMessages
 
 # get smartinspect logger reference; create a new session for this module name.
@@ -84,23 +85,23 @@ if (_logsi == None):
 _logsi.SystemLogger = logging.getLogger(__name__)
 
 # our extra state attribute names.
-ATTR_SOUNDTOUCHPLUS_DEVICE_TYPE = "stp_device_type"
-ATTR_SOUNDTOUCHPLUS_NOWPLAYING_ISADVERTISEMENT = "soundtouch_local_nowplaying_isadvertisement"
-ATTR_SOUNDTOUCHPLUS_NOWPLAYING_ISFAVORITE = "soundtouch_local_nowplaying_isfavorite"
-ATTR_SOUNDTOUCHPLUS_NOWPLAYING_IMAGE_URL = "stp_nowplaying_image_url"
-ATTR_SOUNDTOUCHPLUS_POLLING_ENABLED = "soundtouch_local_polling_enabled"
-ATTR_SOUNDTOUCHPLUS_PRESETS_LASTUPDATED = "soundtouch_local_presets_lastupdated"
-ATTR_SOUNDTOUCHPLUS_RECENTS_LASTUPDATED = "soundtouch_local_recents_lastupdated"
-ATTR_SOUNDTOUCHPLUS_RECENTS_CACHE_ENABLED = "soundtouch_local_recents_cache_enabled"
-ATTR_SOUNDTOUCHPLUS_RECENTS_CACHE_LASTUPDATED = "soundtouch_local_recents_cache_lastupdated"
-ATTR_SOUNDTOUCHPLUS_RECENTS_CACHE_MAX_ITEMS = "soundtouch_local_recents_cache_max_items"
-ATTR_SOUNDTOUCHPLUS_SOUND_MODE = "soundtouch_local_sound_mode"
-ATTR_SOUNDTOUCHPLUS_SOURCE = "soundtouch_local_source"
-ATTR_SOUNDTOUCHPLUS_TONE_BASS_LEVEL = "soundtouch_local_tone_bass_level"
-ATTR_SOUNDTOUCHPLUS_TONE_BASS_LEVEL_RANGE = "soundtouch_local_tone_bass_level_range"
-ATTR_SOUNDTOUCHPLUS_TONE_TREBLE_LEVEL = "soundtouch_local_tone_treble_level"
-ATTR_SOUNDTOUCHPLUS_TONE_TREBLE_LEVEL_RANGE = "soundtouch_local_tone_treble_level_range"
-ATTR_SOUNDTOUCHPLUS_WEBSOCKETS_ENABLED = "soundtouch_local_websockets_enabled"
+ATTR_SOUNDTOUCH_LOCAL_DEVICE_TYPE = "soundtouch_local_device_type"
+ATTR_SOUNDTOUCH_LOCAL_NOWPLAYING_ISADVERTISEMENT = "soundtouch_local_nowplaying_isadvertisement"
+ATTR_SOUNDTOUCH_LOCAL_NOWPLAYING_ISFAVORITE = "soundtouch_local_nowplaying_isfavorite"
+ATTR_SOUNDTOUCH_LOCAL_NOWPLAYING_IMAGE_URL = "soundtouch_local_nowplaying_image_url"
+ATTR_SOUNDTOUCH_LOCAL_POLLING_ENABLED = "soundtouch_local_polling_enabled"
+ATTR_SOUNDTOUCH_LOCAL_PRESETS_LASTUPDATED = "soundtouch_local_presets_lastupdated"
+ATTR_SOUNDTOUCH_LOCAL_RECENTS_LASTUPDATED = "soundtouch_local_recents_lastupdated"
+ATTR_SOUNDTOUCH_LOCAL_RECENTS_CACHE_ENABLED = "soundtouch_local_recents_cache_enabled"
+ATTR_SOUNDTOUCH_LOCAL_RECENTS_CACHE_LASTUPDATED = "soundtouch_local_recents_cache_lastupdated"
+ATTR_SOUNDTOUCH_LOCAL_RECENTS_CACHE_MAX_ITEMS = "soundtouch_local_recents_cache_max_items"
+ATTR_SOUNDTOUCH_LOCAL_SOUND_MODE = "soundtouch_local_sound_mode"
+ATTR_SOUNDTOUCH_LOCAL_SOURCE = "soundtouch_local_source"
+ATTR_SOUNDTOUCH_LOCAL_TONE_BASS_LEVEL = "soundtouch_local_tone_bass_level"
+ATTR_SOUNDTOUCH_LOCAL_TONE_BASS_LEVEL_RANGE = "soundtouch_local_tone_bass_level_range"
+ATTR_SOUNDTOUCH_LOCAL_TONE_TREBLE_LEVEL = "soundtouch_local_tone_treble_level"
+ATTR_SOUNDTOUCH_LOCAL_TONE_TREBLE_LEVEL_RANGE = "soundtouch_local_tone_treble_level_range"
+ATTR_SOUNDTOUCH_LOCAL_WEBSOCKETS_ENABLED = "soundtouch_local_websockets_enabled"
 ATTRVALUE_NOT_CAPABLE = "not capable"
 
 
@@ -287,41 +288,41 @@ class SoundTouchMediaPlayer(MediaPlayerEntity):
     @property
     def extra_state_attributes(self):
         """ Return entity specific state attributes. """
-        # build list of our extra state attributes to return to HA UI.
+        # build list of our extra state attributes to return to HA        # extra integration state attributes.
         attributes = {}
-        attributes[ATTR_SOUNDTOUCHPLUS_DEVICE_TYPE] = self._client.Device.DeviceType
-        attributes[ATTR_SOUNDTOUCHPLUS_NOWPLAYING_ISADVERTISEMENT] = False
-        attributes[ATTR_SOUNDTOUCHPLUS_NOWPLAYING_ISFAVORITE] = False
-        attributes[ATTR_SOUNDTOUCHPLUS_NOWPLAYING_IMAGE_URL] = self.media_image_url
-        attributes[ATTR_SOUNDTOUCHPLUS_PRESETS_LASTUPDATED] = self.soundtouch_local_presets_lastupdated
-        attributes[ATTR_SOUNDTOUCHPLUS_RECENTS_LASTUPDATED] = self.soundtouch_local_recents_lastupdated
-        attributes[ATTR_SOUNDTOUCHPLUS_RECENTS_CACHE_LASTUPDATED] = self.soundtouch_local_recents_cache_lastupdated
-        attributes[ATTR_SOUNDTOUCHPLUS_SOURCE] = self.soundtouch_local_source
-        attributes[ATTR_SOUNDTOUCHPLUS_RECENTS_CACHE_ENABLED] = self._client.RecentListCacheEnabled
-        attributes[ATTR_SOUNDTOUCHPLUS_RECENTS_CACHE_MAX_ITEMS] = self._client.RecentListCacheMaxItems
-        attributes[ATTR_SOUNDTOUCHPLUS_WEBSOCKETS_ENABLED] = (self._socket is not None)
-        attributes[ATTR_SOUNDTOUCHPLUS_POLLING_ENABLED] = (self._attr_should_poll)
+        attributes[ATTR_SOUNDTOUCH_LOCAL_DEVICE_TYPE] = self._client.Device.DeviceType
+        attributes[ATTR_SOUNDTOUCH_LOCAL_NOWPLAYING_ISADVERTISEMENT] = False
+        attributes[ATTR_SOUNDTOUCH_LOCAL_NOWPLAYING_ISFAVORITE] = False
+        attributes[ATTR_SOUNDTOUCH_LOCAL_NOWPLAYING_IMAGE_URL] = self.media_image_url
+        attributes[ATTR_SOUNDTOUCH_LOCAL_PRESETS_LASTUPDATED] = self.soundtouch_local_presets_lastupdated
+        attributes[ATTR_SOUNDTOUCH_LOCAL_RECENTS_LASTUPDATED] = self.soundtouch_local_recents_lastupdated
+        attributes[ATTR_SOUNDTOUCH_LOCAL_RECENTS_CACHE_LASTUPDATED] = self.soundtouch_local_recents_cache_lastupdated
+        attributes[ATTR_SOUNDTOUCH_LOCAL_SOURCE] = self.soundtouch_local_source
+        attributes[ATTR_SOUNDTOUCH_LOCAL_RECENTS_CACHE_ENABLED] = self._client.RecentListCacheEnabled
+        attributes[ATTR_SOUNDTOUCH_LOCAL_RECENTS_CACHE_MAX_ITEMS] = self._client.RecentListCacheMaxItems
+        attributes[ATTR_SOUNDTOUCH_LOCAL_WEBSOCKETS_ENABLED] = (self._socket is not None)
+        attributes[ATTR_SOUNDTOUCH_LOCAL_POLLING_ENABLED] = (self._attr_should_poll)
         
         if SoundTouchNodes.audiodspcontrols.Path in self._client.ConfigurationCache:
             config:AudioDspControls = self._client.ConfigurationCache[SoundTouchNodes.audiodspcontrols.Path]
-            attributes[ATTR_SOUNDTOUCHPLUS_SOUND_MODE] = config.AudioMode
+            attributes[ATTR_SOUNDTOUCH_LOCAL_SOUND_MODE] = config.AudioMode
         else:
-            attributes[ATTR_SOUNDTOUCHPLUS_SOUND_MODE] = ATTRVALUE_NOT_CAPABLE
+            attributes[ATTR_SOUNDTOUCH_LOCAL_SOUND_MODE] = ATTRVALUE_NOT_CAPABLE
 
         if SoundTouchNodes.audioproducttonecontrols.Path in self._client.ConfigurationCache:
             config:AudioProductToneControls = self._client.ConfigurationCache[SoundTouchNodes.audioproducttonecontrols.Path]
-            attributes[ATTR_SOUNDTOUCHPLUS_TONE_BASS_LEVEL] = config.Bass.Value
-            attributes[ATTR_SOUNDTOUCHPLUS_TONE_BASS_LEVEL_RANGE] = config.Bass.ToMinMaxString()
-            attributes[ATTR_SOUNDTOUCHPLUS_TONE_TREBLE_LEVEL] = config.Treble.Value
-            attributes[ATTR_SOUNDTOUCHPLUS_TONE_TREBLE_LEVEL_RANGE] = config.Treble.ToMinMaxString()
+            attributes[ATTR_SOUNDTOUCH_LOCAL_TONE_BASS_LEVEL] = config.Bass.Value
+            attributes[ATTR_SOUNDTOUCH_LOCAL_TONE_BASS_LEVEL_RANGE] = config.Bass.ToMinMaxString()
+            attributes[ATTR_SOUNDTOUCH_LOCAL_TONE_TREBLE_LEVEL] = config.Treble.Value
+            attributes[ATTR_SOUNDTOUCH_LOCAL_TONE_TREBLE_LEVEL_RANGE] = config.Treble.ToMinMaxString()
         else:
-            attributes[ATTR_SOUNDTOUCHPLUS_TONE_BASS_LEVEL] = ATTRVALUE_NOT_CAPABLE
-            attributes[ATTR_SOUNDTOUCHPLUS_TONE_TREBLE_LEVEL] = ATTRVALUE_NOT_CAPABLE
+            attributes[ATTR_SOUNDTOUCH_LOCAL_TONE_BASS_LEVEL] = ATTRVALUE_NOT_CAPABLE
+            attributes[ATTR_SOUNDTOUCH_LOCAL_TONE_TREBLE_LEVEL] = ATTRVALUE_NOT_CAPABLE
 
         if SoundTouchNodes.nowPlaying.Path in self._client.ConfigurationCache:
             config:NowPlayingStatus = self._client.ConfigurationCache[SoundTouchNodes.nowPlaying.Path]
-            attributes[ATTR_SOUNDTOUCHPLUS_NOWPLAYING_ISADVERTISEMENT] = config.IsAdvertisement
-            attributes[ATTR_SOUNDTOUCHPLUS_NOWPLAYING_ISFAVORITE] = config.IsFavorite
+            attributes[ATTR_SOUNDTOUCH_LOCAL_NOWPLAYING_ISADVERTISEMENT] = config.IsAdvertisement
+            attributes[ATTR_SOUNDTOUCH_LOCAL_NOWPLAYING_ISFAVORITE] = config.IsFavorite
             
         return attributes
 
@@ -2363,6 +2364,66 @@ class SoundTouchMediaPlayer(MediaPlayerEntity):
         # pass them back to HA for display in the log (or service UI).
         except SoundTouchError as ex:
             raise HomeAssistantError(ex.Message)
+        
+        finally:
+                
+            # trace.
+            _logsi.LeaveMethod(SILevel.Debug, apiMethodName)
+
+
+    def service_save_favorite(self, name:str) -> None:
+        """
+        Saves the currently playing station or track to the local favorites list.
+        
+        Args:
+            name (str):
+                Name to assign to the favorite. If not provided, the station name or track title will be used.
+        """
+        apiMethodName:str = 'service_save_favorite'
+        apiMethodParms:SIMethodParmListContext = None
+
+        try:
+
+            # trace.
+            apiMethodParms = _logsi.EnterMethodParmList(SILevel.Debug, apiMethodName)
+            apiMethodParms.AppendKeyValue("name", name)
+            _logsi.LogMethodParmList(SILevel.Verbose, "SoundTouch Save Favorite Service", apiMethodParms)
+
+            # get current now playing status.
+            config:NowPlayingStatus = self._GetNowPlayingStatusConfiguration()
+            if config is None or config.ContentItem is None:
+                _logsi.LogWarning("'%s': No media is currently playing; cannot save favorite" % self.name)
+                raise HomeAssistantError("No media is currently playing; cannot save favorite")
+
+            # use provided name or fall back to station/track/artist.
+            fav_name = name
+            if not fav_name:
+                if config.StationName:
+                    fav_name = config.StationName
+                elif config.Track:
+                    fav_name = config.Track
+                elif config.Artist:
+                    fav_name = config.Artist
+                else:
+                    fav_name = "Unknown Favorite"
+
+            # create favorite.
+            favorite = SoundTouchFavorite(
+                name=fav_name,
+                source=config.Source,
+                source_account=config.ContentItem.SourceAccount,
+                item_type=config.ContentItem.Type,
+                location=config.ContentItem.Location,
+                container_art=config.ContainerArtUrl or config.ContentItem.ContainerArt
+            )
+
+            # save to manager.
+            self.data.favorites_manager.add_favorite(favorite)
+            _logsi.LogVerbose("'%s': Favorite '%s' saved to local favorites list" % (self.name, fav_name))
+
+        except Exception as ex:
+            _logsi.LogException("'%s': MediaPlayer service_save_favorite exception: %s" % (self.name, str(ex)), ex, logToSystemLogger=False)
+            raise HomeAssistantError(str(ex)) from ex
         
         finally:
                 

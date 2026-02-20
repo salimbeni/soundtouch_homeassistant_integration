@@ -856,9 +856,28 @@ remote_keypress:
           mode: dropdown
           sort: true
           options:
-            - both
-            - press
             - release
+
+save_favorite:
+  name: Save Favorite
+  description: Saves the currently playing media to the Local Favorites list.
+  fields:
+    entity_id:
+      name: Entity ID
+      description: Entity ID of the SoundTouchLocal device that will process the request.
+      example: "media_player.soundtouch_livingroom"
+      required: true
+      selector:
+        entity:
+          integration: soundtouch_local
+          domain: media_player
+    name:
+      name: Favorite Name
+      description: Custom name to give the favorite; if omitted, the current media title is used.
+      example: "My Favorite Station"
+      required: false
+      selector:
+        text:
 
 set_audio_dsp_controls:
   name: Set Audio DSP Controls

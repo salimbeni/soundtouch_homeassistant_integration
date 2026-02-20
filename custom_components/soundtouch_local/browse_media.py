@@ -9,6 +9,7 @@ import enum
 from typing import Any, Tuple
 
 from homeassistant.components import media_source
+from homeassistant.components.media_source import MediaSourceNotFoundError
 from homeassistant.components.media_player import (
     BrowseError,
     BrowseMedia,
@@ -80,6 +81,8 @@ class BrowsableMedia(enum.StrEnum):
     PANDORA_STATIONS = "pandora_stations"
     SOUNDTOUCH_PRESETS = "soundtouch_presets"
     SOUNDTOUCH_RECENTLY_PLAYED = "soundtouch_recently_played"
+    TUNEIN_STATIONS = "tunein_stations"
+    LOCAL_FAVORITES = "local_favorites"
     # FAVORITES = "favorites"
     # spotify library types should all start with "spotify_".
     SPOTIFY_LIBRARY_INDEX = "spotify_library_index"
@@ -128,14 +131,22 @@ LIBRARY_MAP = {
         "parent": MediaClass.DIRECTORY,
         "children": MediaClass.TRACK,
     },
-    # BrowsableMedia.FAVORITES.value: {
-    #     "title": "Favorites",
-    #     "title_node": "SoundTouchLocal Favorites",
-    #     "image": f"/local/images/{DOMAIN}_medialib_favorites.png",
-    #     "parent": MediaClass.DIRECTORY,
-    #     "children": MediaClass.TRACK,
-    #     "is_index_item": False,
-    # },
+    BrowsableMedia.TUNEIN_STATIONS.value: {
+        "title": "TuneIn Stations",
+        "title_node": "SoundTouchLocal TuneIn Stations",
+        "image": f"/local/images/{DOMAIN}_medialib_tunein.png",
+        "parent": MediaClass.DIRECTORY,
+        "children": MediaClass.TRACK,
+        "is_index_item": True,
+    },
+    BrowsableMedia.LOCAL_FAVORITES.value: {
+        "title": "Local Favorites",
+        "title_node": "SoundTouchLocal Local Favorites",
+        "image": f"/local/images/{DOMAIN}_medialib_favorites.png",
+        "parent": MediaClass.DIRECTORY,
+        "children": MediaClass.TRACK,
+        "is_index_item": True,
+    },
     BrowsableMedia.SPOTIFY_LIBRARY_INDEX.value: {
         "title": "Spotify",
         "title_node": "SoundTouchLocal Spotify Media Library",
@@ -605,10 +616,29 @@ def browse_media_node(hass:HomeAssistant,
             media:RecentList = data.client.GetRecentList(True, resolveSourceTitles=True)
             items = media.Recents
             
-        # elif media_content_type == BrowsableMedia.FAVORITES:
-        #     _logsi.LogVerbose("'%s': querying client device for SoundTouch presets" % playerName)
-        #     media:PresetList = data.client.GetPresetList(refresh=True, resolveSourceTitles=True)
-        #     items = media.Presets
+        elif media_content_type == BrowsableMedia.TUNEIN_STATIONS:
+            _logsi.LogVerbose("'%s': querying client device for TuneIn stations" % playerName)
+            sourceItems:SourceList = data.client.GetSourceList(refresh=False)
+            sourceItem:SourceItem
+            for sourceItem in sourceItems:
+                if sourceItem.Source == SoundTouchSources.TUNEIN.value:
+                    criteria:Navigate = Navigate(sourceItem.Source, sourceItem.SourceAccount)
+                    media:NavigateResponse = data.client.GetMusicServiceStations(criteria)
+                    items = media.Items
+                    break
+            if media is None:
+                raise MediaSourceNotFoundError("'%s': could not find SoundTouch Source for '%s' content" % (playerName, media_content_type))
+
+        elif media_content_type == BrowsableMedia.LOCAL_FAVORITES:
+            _logsi.LogVerbose("'%s': loading local favorites from favorites manager" % playerName)
+            items = data.favorites_manager.get_favorites()
+            # items will be a list of SoundTouchFavorite objects. 
+            # We'll need to convert them to ContentItems for display.
+            content_items = []
+            for fav in items:
+                ci = ContentItem(fav.source, fav.item_type, fav.location, fav.source_account, True, fav.name, fav.container_art)
+                content_items.append(ci)
+            items = content_items
 
         elif media_content_type == BrowsableMedia.PANDORA_STATIONS:
             _logsi.LogVerbose("'%s': querying client device for Pandora stations" % playerName)

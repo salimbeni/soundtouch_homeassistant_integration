@@ -558,6 +558,20 @@
         }
       }
     },
+    "save_favorite": {
+      "name": "Save Favorite",
+      "description": "Saves the currently playing media to the Local Favorites list.",
+      "fields": {
+        "entity_id": {
+          "name": "Entity ID",
+          "description": "Entity ID of the SoundTouchLocal device that will process the request."
+        },
+        "name": {
+          "name": "Favorite Name",
+          "description": "Custom name to give the favorite; if omitted, the current media title is used."
+        }
+      }
+    },
     "set_audio_dsp_controls": {
       "name": "Set Audio DSP Controls",
       "description": "Sets the current audio dsp controls configuration of the device.",

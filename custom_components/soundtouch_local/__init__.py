@@ -22,6 +22,7 @@ from homeassistant.helpers import config_validation as cv, entity_registry as er
 from homeassistant.helpers.typing import ConfigType
 
 from .instancedata_soundtouch_local import InstanceDataSoundTouchLocal
+from .favorites_manager import FavoritesManager
 from .stappmessages import STAppMessages
 from .const import (
     DOMAIN,
@@ -98,6 +99,7 @@ SERVICE_REBOOT_DEVICE = "reboot_device"
 SERVICE_RECENT_LIST = "recent_list"
 SERVICE_RECENT_LIST_CACHE = "recent_list_cache"
 SERVICE_REMOTE_KEYPRESS = "remote_keypress"
+SERVICE_SAVE_FAVORITE = "save_favorite"
 SERVICE_SET_AUDIO_DSP_CONTROLS = "set_audio_dsp_controls"
 SERVICE_SET_AUDIO_PRODUCT_LEVEL_CONTROLS = "set_audio_product_level_controls"
 SERVICE_SET_AUDIO_PRODUCT_TONE_CONTROLS = "set_audio_product_tone_controls"
@@ -241,6 +243,13 @@ SERVICE_PLAY_CONTENTITEM_SCHEMA = vol.Schema(
         vol.Optional("container_art"): cv.string,
         vol.Required("is_presetable", default=False): cv.boolean
     }   
+)
+
+SERVICE_SAVE_FAVORITE_SCHEMA = vol.Schema(
+    {
+        vol.Required("entity_id"): cv.entity_id,
+        vol.Optional("name"): cv.string,
+    }
 )
 
 SERVICE_PLAY_HANDOFF_SCHEMA = vol.Schema(
@@ -638,6 +647,11 @@ async def async_setup(hass:HomeAssistant, config:ConfigType) -> bool:
                     is_presetable = service.data.get("is_presetable")
                     _logsi.LogVerbose(STAppMessages.MSG_SERVICE_EXECUTE % (service.service, entity.name))
                     await hass.async_add_executor_job(entity.service_play_contentitem, name, source, source_account, item_type, location, container_art, is_presetable)
+
+                elif service.service == SERVICE_SAVE_FAVORITE:
+                    name = service.data.get("name")
+                    _logsi.LogVerbose(STAppMessages.MSG_SERVICE_EXECUTE % (service.service, entity.name))
+                    await hass.async_add_executor_job(entity.service_save_favorite, name)
 
                 elif service.service == SERVICE_PLAY_TTS:
                     message = service.data.get("message")
@@ -1435,6 +1449,15 @@ async def async_setup(hass:HomeAssistant, config:ConfigType) -> bool:
             schema=SERVICE_ZONE_TOGGLE_MEMBER_SCHEMA,
             supports_response=SupportsResponse.NONE,
         )
+
+        _logsi.LogObject(SILevel.Verbose, STAppMessages.MSG_SERVICE_REQUEST_REGISTER % SERVICE_SAVE_FAVORITE, SERVICE_SAVE_FAVORITE_SCHEMA)
+        hass.services.async_register(
+            DOMAIN,
+            SERVICE_SAVE_FAVORITE,
+            service_handle_entity,
+            schema=SERVICE_SAVE_FAVORITE_SCHEMA,
+            supports_response=SupportsResponse.NONE,
+        )
     
         # indicate success.
         _logsi.LogVerbose("Component async_setup complete")
@@ -1542,13 +1565,18 @@ async def async_setup_entry(hass:HomeAssistant, entry:ConfigEntry) -> bool:
             _logsi.LogError("'%s': Component async_setup_entry - SoundTouchWebSocket instance could not be created; polling will be enabled: %s" % (entry.title, str(ex)))
             socket = None
 
+        # initialize favorites manager.
+        favorites_manager = FavoritesManager(hass)
+        await favorites_manager.async_load()
+
         # create media player entity instance data.
         hass.data.setdefault(DOMAIN, {})
         hass.data[DOMAIN][entry.entry_id] = InstanceDataSoundTouchLocal(
             client=client, 
             socket=socket,
             media_player=None,
-            options=entry.options
+            options=entry.options,
+            favorites_manager=favorites_manager
         )
         _logsi.LogObject(SILevel.Verbose, "'%s': Component async_setup_entry media_player instance data object" % entry.title, hass.data[DOMAIN][entry.entry_id])
 
